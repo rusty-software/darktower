@@ -55,19 +55,19 @@
 ;   :low-x
 ;   :low-y})
 
-(def territory-map
+(def kingdom-layout
   [[:xlf :dtfl :dt :dtfr :xlf]
    [:lf :lfl :l :r :lfr :lf]
    [:f :lfl :l :b :l :lfr :f]
    [:sf :lfl :t :l :l :s :lfr :sf]
    [:lfl :l :l :c :l :l :lfr]])
 
-(defn space [x y]
+(defn space [tile x y]
   [:rect
    {:x x
     :y y
-    :width 120
-    :height 120
+    :width (:w tile)
+    :height (:h tile)
     :stroke "black"
     :stroke-width 0.5
     :fill "lightgray"
@@ -78,14 +78,26 @@
    {:style {:display "inline-block"
             :vertical-align "top"
             :margin "5px 5px 5px 5px"}}
-   [:svg
-    {:id "svg-box"
-     :width 900
-     :height 600
-     :style {:border "0.5px solid black"}}
-    [space 0 0]]
-
-   ])
+   (->
+     [:svg
+      {:id "svg-box"
+       :width 900
+       :height 600
+       :style {:border "0.5px solid black"}}]
+     (into
+       (let [territory-row (first kingdom-layout)
+             y 0
+             spaces (loop [x 0
+                           tile-keys territory-row
+                           spaces []]
+                      (if (not (seq tile-keys))
+                        spaces
+                        (let [tile-key (first tile-keys)
+                              tile (tile-key tiles)
+                              new-x (+ x (:w tile))
+                              space (space tile x y)]
+                          (recur new-x (rest tile-keys) (conj spaces space)))))]
+         spaces)))])
 
 (defn main []
   (game-area))
