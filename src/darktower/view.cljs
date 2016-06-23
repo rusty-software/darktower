@@ -47,6 +47,14 @@
        :w 120
        :h 120}})
 
+;(def territory
+;  {:id 0
+;   :tile :xlf
+;   :high-x
+;   :high-y
+;   :low-x
+;   :low-y})
+
 (def territory-map
   [[:xlf :dtfl :dt :dtfr :xlf]
    [:lf :lfl :l :r :lfr :lf]
