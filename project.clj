@@ -36,8 +36,8 @@
                        :cljsbuild {:builds
                                    [{:id "min"
                                      :source-paths ["src" "prod"]
-                                     :compiler {:main cartagena-cs.main
-                                                :output-to "resources/public/js/compiled/cartagena_cs.js"
+                                     :compiler {:main darktower.main
+                                                :output-to "resources/public/js/compiled/darktower.js"
                                                 :optimizations :advanced
                                                 :pretty-print false}}]}}}
 
