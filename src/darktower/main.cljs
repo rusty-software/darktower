@@ -2,8 +2,9 @@
   (:require
     [darktower.autoinit]
     [darktower.view :as view]
+    [darktower.views.board :as views.board]
     [reagent.core :as reagent]))
 
 (reagent/render-component
-  [view/main]
+  [views.board/main]
   (. js/document (getElementById "app")))
