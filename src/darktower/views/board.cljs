@@ -1,4 +1,5 @@
-(ns darktower.views.board)
+(ns darktower.views.board
+  (:require [clojure.string :as str]))
 
 ;; NOTES
 ;; frontiers are going to be 12 degrees wide
@@ -108,9 +109,10 @@
       :stroke "gold"
       :stroke-width "5"
       :fill "none"}]
+
     ;; SOUTHERN KINGDOM
     [:path
-     {:d (describe-arc 450 350 350 141 (+ 141 (/ 78 7)))
+     {:d (clojure.string/join " " [(describe-arc 450 350 350 141 (+ 141 (/ 78 7)))])
       :stroke "darkgreen"
       :stroke-width "5"
       :fill "none"}]
@@ -119,11 +121,20 @@
       :stroke "lightgreen"
       :stroke-width "5"
       :fill "none"}]
-    [:path
-     {:d (describe-arc 450 350 350 (+ 141 (* 2 (/ 78 7))) (+ 141 (* 3 (/ 78 7))))
-      :stroke "green"
-      :stroke-width "5"
-      :fill "none"}]
+    (let [bottom-arc (arc-for 450 350 350 (+ 141 (* 2 (/ 78 7))) (+ 141 (* 3 (/ 78 7))))
+          concentric-arc (arc-for 450 350 300 (+ 141 (* 2 (/ 78 7))) (+ 141 (* 3 (/ 78 7))))
+          right-line (str/join " " ["L" (:end-x concentric-arc) (:end-y concentric-arc)])
+          move (str/join " " ["M" (:move-x bottom-arc) (:move-y bottom-arc)])
+          left-line (str/join " " ["L" (:move-x concentric-arc) (:move-y concentric-arc)])]
+      [:path
+       {:d (str/join " " [(describe-arc 450 350 350 (+ 141 (* 2 (/ 78 7))) (+ 141 (* 3 (/ 78 7))))
+                          right-line
+                          move
+                          left-line
+                          ])
+        :stroke "green"
+        :stroke-width "5"
+        :fill "none"}])
     [:path
      {:d (describe-arc 450 350 350 (+ 141 (* 3 (/ 78 7))) (+ 141 (* 4 (/ 78 7))))
       :stroke "limegreen"
@@ -142,6 +153,22 @@
     [:path
      {:d (describe-arc 450 350 350 (+ 141 (* 6 (/ 78 7))) 219)
       :stroke "seagreen"
+      :stroke-width "5"
+      :fill "none"}]
+
+    [:path
+     {:d (describe-arc 450 350 300 141 (+ 141 (/ 78 6)))
+      :stroke "orangered"
+      :stroke-width "5"
+      :fill "none"}]
+    [:path
+     {:d (describe-arc 450 350 300 (+ 141 (/ 78 6)) (+ 141 (* 2 (/ 78 6))))
+      :stroke "lightsalmon"
+      :stroke-width "5"
+      :fill "none"}]
+    [:path
+     {:d (describe-arc 450 350 300 (+ 141 (* 2 (/ 78 6))) (+ 141 (* 3 (/ 78 6))))
+      :stroke "chocolate"
       :stroke-width "5"
       :fill "none"}]]
    ])
