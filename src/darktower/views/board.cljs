@@ -1,10 +1,6 @@
 (ns darktower.views.board
   (:require [clojure.string :as str]))
 
-;; NOTES
-;; frontiers are going to be 12 degrees wide
-;;
-
 (defn polar-to-cartesian [cx cy r angle-in-degrees]
   (let [angle-in-radians (/ (* (.-PI js/Math) (- angle-in-degrees 90)) 180)]
     {:x (+ cx (* r (.cos js/Math angle-in-radians)))
@@ -25,9 +21,6 @@
 
 (defn arc [{:keys [move-x move-y r arc-sweep end-x end-y]}]
   (str/join " " ["M" move-x move-y "A" r r 0 arc-sweep 0 end-x end-y]))
-
-(defn describe-arc [cx cy r start-angle end-angle]
-  (arc (arc-for cx cy r start-angle end-angle)))
 
 (def board-spec
   {:min-radius 100
@@ -52,9 +45,27 @@
     :stroke-color "deepskyblue"
     :fill-color "lightcyan"}])
 
-(defn path-for [{:keys [cx cy]} r angle-offset arc-angle territory-idx]
+(def frontier-specs
+  [{:angle-offset 27
+    :angle-width 12
+    :stroke-color "gold"
+    :fill-color "moccasin"}
+   {:angle-offset 117
+    :angle-width 12
+    :stroke-color "gold"
+    :fill-color "moccasin"}
+   {:angle-offset 207
+    :angle-width 12
+    :stroke-color "gold"
+    :fill-color "moccasin"}
+   {:angle-offset 297
+    :angle-width 12
+    :stroke-color "gold"
+    :fill-color "moccasin"}])
+
+(defn path-for [{:keys [cx cy]} top-arc-offset r angle-offset arc-angle territory-idx]
   (let [bottom-arc (arc-for cx cy r (+ angle-offset (* territory-idx arc-angle)) (+ angle-offset (* (inc territory-idx) arc-angle)))
-        top-arc (arc-for cx cy (- r 50) (+ angle-offset (* territory-idx arc-angle)) (+ angle-offset (* (inc territory-idx) arc-angle)))
+        top-arc (arc-for cx cy (- r top-arc-offset) (+ angle-offset (* territory-idx arc-angle)) (+ angle-offset (* (inc territory-idx) arc-angle)))
         bottom-arc-path (arc bottom-arc)
         right-line (str/join " " ["L" (:end-x top-arc) (:end-y top-arc)])
         left-line (str/join " " ["L" (:move-x top-arc) (:move-y top-arc)])]
@@ -74,8 +85,15 @@
                 territory-count (+ 2 row)]]
     (for [territory-idx (range 0 territory-count)
           :let [arc-angle (/ (:angle-width kingdom-spec) territory-count)
-                territory-path (path-for board-spec r (:angle-offset kingdom-spec) arc-angle territory-idx)]]
+                territory-path (path-for board-spec 50 r (:angle-offset kingdom-spec) arc-angle territory-idx)]]
       (path territory-path (:stroke-color kingdom-spec) 1 (:fill-color kingdom-spec)))))
+
+(defn generate-frontier [frontier-spec]
+  (let [r (+ (:min-radius board-spec) 250)
+        frontier-path (path-for board-spec 250 r (:angle-offset frontier-spec) (:angle-width frontier-spec) 1)]
+    (doto
+      (path frontier-path (:stroke-color frontier-spec) 1 (:fill-color frontier-spec))
+      (println))))
 
 (defn main []
   [:div
@@ -88,142 +106,11 @@
        :height 700
        :style {:border "0.5px solid black"
                :background-color "gray"}}
+    (for [frontier-spec frontier-specs]
+      (let [frontier (generate-frontier frontier-spec)]
+        ^{:key frontier}
+        frontier))
     (for [kingdom-spec kingdom-specs]
       (for [territory (generate-territories kingdom-spec)]
         ^{:key territory}
-        territory))
-
-    ;[:circle
-    ; {:cx 450
-    ;  :cy 350
-    ;  :r 350
-    ;  :stroke "black"
-    ;  :stroke-width 0.5
-    ;  :fill "lightgray"}]
-    ;[:circle
-    ;  {:cx 450
-    ;   :cy 350
-    ;   :r 300
-    ;   :stroke "white"
-    ;   :stroke-width 0.5
-    ;   :fill "none"}]
-    ;[:circle
-    ;  {:cx 450
-    ;   :cy 350
-    ;   :r 250
-    ;   :stroke "white"
-    ;   :stroke-width 0.5
-    ;   :fill "none"}]
-    ;[:circle
-    ;  {:cx 450
-    ;   :cy 350
-    ;   :r 200
-    ;   :stroke "white"
-    ;   :stroke-width 0.5
-    ;   :fill "none"}]
-    ;[:circle
-    ;  {:cx 450
-    ;   :cy 350
-    ;   :r 150
-    ;   :stroke "white"
-    ;   :stroke-width 0.5
-    ;   :fill "none"}]
-    ;[:circle
-    ;  {:cx 450
-    ;   :cy 350
-    ;   :r 100
-    ;   :stroke "white"
-    ;   :stroke-width 0.5
-    ;   :fill "none"}]
-    ;[:line
-    ; {:x1 0
-    ;  :y1 0
-    ;  :x2 30
-    ;  :y2 30
-    ;  :stroke "purple"
-    ;  :stroke-width 1}]
-
-    ;; FRONTIERS
-    [:path
-     {:d (describe-arc 450 350 350 39 51)
-      :stroke "gold"
-      :stroke-width "5"
-      :fill "none"}]
-    [:path
-     {:d (describe-arc 450 350 350 129 141)
-      :stroke "gold"
-      :stroke-width "5"
-      :fill "none"}]
-    [:path
-     {:d (describe-arc 450 350 350 219 231)
-      :stroke "gold"
-      :stroke-width "5"
-      :fill "none"}]
-    [:path
-     {:d (describe-arc 450 350 350 309 321)
-      :stroke "gold"
-      :stroke-width "5"
-      :fill "none"}]
-
-    ;; SOUTHERN KINGDOM
-    ;[:path
-    ; {:d (clojure.string/join " " [(describe-arc 450 350 350 141 (+ 141 (/ 78 7)))])
-    ;  :stroke "darkgreen"
-    ;  :stroke-width "5"
-    ;  :fill "none"}]
-    ;[:path
-    ; {:d (describe-arc 450 350 350 (+ 141 (/ 78 7)) (+ 141 (* 2 (/ 78 7))))
-    ;  :stroke "lightgreen"
-    ;  :stroke-width "5"
-    ;  :fill "none"}]
-    ;(let [bottom-arc (arc-for 450 350 350 (+ 141 (* 2 (/ 78 7))) (+ 141 (* 3 (/ 78 7))))
-    ;      concentric-arc (arc-for 450 350 300 (+ 141 (* 2 (/ 78 7))) (+ 141 (* 3 (/ 78 7))))
-    ;      right-line (str/join " " ["L" (:end-x concentric-arc) (:end-y concentric-arc)])
-    ;      move (str/join " " ["M" (:move-x bottom-arc) (:move-y bottom-arc)])
-    ;      left-line (str/join " " ["L" (:move-x concentric-arc) (:move-y concentric-arc)])]
-    ;  [:path
-    ;   {:d (str/join " " [(describe-arc 450 350 350 (+ 141 (* 2 (/ 78 7))) (+ 141 (* 3 (/ 78 7))))
-    ;                      right-line
-    ;                      move
-    ;                      left-line
-    ;                      ])
-    ;    :stroke "green"
-    ;    :stroke-width "5"
-    ;    :fill "none"}])
-    ;[:path
-    ; {:d (describe-arc 450 350 350 (+ 141 (* 3 (/ 78 7))) (+ 141 (* 4 (/ 78 7))))
-    ;  :stroke "limegreen"
-    ;  :stroke-width "5"
-    ;  :fill "none"}]
-    ;[:path
-    ; {:d (describe-arc 450 350 350 (+ 141 (* 4 (/ 78 7))) (+ 141 (* 5 (/ 78 7))))
-    ;  :stroke "forestgreen"
-    ;  :stroke-width "5"
-    ;  :fill "none"}]
-    ;[:path
-    ; {:d (describe-arc 450 350 350 (+ 141 (* 5 (/ 78 7))) (+ 141 (* 6 (/ 78 7))))
-    ;  :stroke "springgreen"
-    ;  :stroke-width "5"
-    ;  :fill "none"}]
-    ;[:path
-    ; {:d (describe-arc 450 350 350 (+ 141 (* 6 (/ 78 7))) 219)
-    ;  :stroke "seagreen"
-    ;  :stroke-width "5"
-    ;  :fill "none"}]
-    ;
-    ;[:path
-    ; {:d (describe-arc 450 350 300 141 (+ 141 (/ 78 6)))
-    ;  :stroke "orangered"
-    ;  :stroke-width "5"
-    ;  :fill "none"}]
-    ;[:path
-    ; {:d (describe-arc 450 350 300 (+ 141 (/ 78 6)) (+ 141 (* 2 (/ 78 6))))
-    ;  :stroke "lightsalmon"
-    ;  :stroke-width "5"
-    ;  :fill "none"}]
-    ;[:path
-    ; {:d (describe-arc 450 350 300 (+ 141 (* 2 (/ 78 6))) (+ 141 (* 3 (/ 78 6))))
-    ;  :stroke "chocolate"
-    ;  :stroke-width "5"
-    ;  :fill "none"}]
-    ]])
+        territory))]])
