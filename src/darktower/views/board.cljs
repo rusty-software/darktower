@@ -1,6 +1,7 @@
 (ns darktower.views.board
   (:require [clojure.string :as str]))
 
+;; Thank you, smart people!  http://jsbin.com/cibicecuto/edit?html,js,output
 (defn polar-to-cartesian [cx cy r angle-in-degrees]
   (let [angle-in-radians (/ (* (.-PI js/Math) (- angle-in-degrees 90)) 180)]
     {:x (+ cx (* r (.cos js/Math angle-in-radians)))
@@ -68,8 +69,8 @@
         top-arc (arc-for cx cy (- r top-arc-offset) (+ angle-offset (* territory-idx arc-angle)) (+ angle-offset (* (inc territory-idx) arc-angle)))
         bottom-arc-path (arc bottom-arc)
         right-line (str/join " " ["L" (:end-x top-arc) (:end-y top-arc)])
-        left-line (str/join " " ["L" (:move-x top-arc) (:move-y top-arc)])]
-    (str/join " " [bottom-arc-path right-line left-line])))
+        top-line (str/join " " ["L" (:move-x top-arc) (:move-y top-arc)])]
+    (str/join " " [bottom-arc-path right-line top-line])))
 
 (defn path [territory-path stroke stroke-width fill]
   ^{:key territory-path}
@@ -91,9 +92,30 @@
 (defn generate-frontier [frontier-spec]
   (let [r (+ (:min-radius board-spec) 250)
         frontier-path (path-for board-spec 250 r (:angle-offset frontier-spec) (:angle-width frontier-spec) 1)]
-    (doto
-      (path frontier-path (:stroke-color frontier-spec) 1 (:fill-color frontier-spec))
-      (println))))
+    (path frontier-path (:stroke-color frontier-spec) 1 (:fill-color frontier-spec))))
+
+(def dark-tower-specs
+  [{:angle-offset 45
+    :angle-width 90
+    :stroke-color "black"
+    :fill-color "dimgray"}
+   {:angle-offset 135
+    :angle-width 90
+    :stroke-color "black"
+    :fill-color "dimgray"}
+   {:angle-offset 225
+    :angle-width 90
+    :stroke-color "black"
+    :fill-color "dimgray"}
+   {:angle-offset 315
+    :angle-width 90
+    :stroke-color "black"
+    :fill-color "dimgray"}])
+
+(defn generate-dark-tower [dark-tower-spec]
+  (let [r (:min-radius board-spec)
+        dark-tower-path (path-for board-spec 50 r (:angle-offset dark-tower-spec) (:angle-width dark-tower-spec) 1)]
+    (path dark-tower-path (:stroke-color dark-tower-spec) 1 (:fill-color dark-tower-spec))))
 
 (defn main []
   [:div
@@ -105,12 +127,13 @@
        :width 900
        :height 700
        :style {:border "0.5px solid black"
-               :background-color "gray"}}
+               :background-color "darkgray"}}
     (for [frontier-spec frontier-specs]
       (let [frontier (generate-frontier frontier-spec)]
-        ^{:key frontier}
         frontier))
     (for [kingdom-spec kingdom-specs]
       (for [territory (generate-territories kingdom-spec)]
-        ^{:key territory}
-        territory))]])
+        territory))
+    (for [dark-tower-spec dark-tower-specs]
+      (let [dark-tower (generate-dark-tower dark-tower-spec)]
+        dark-tower))]])
