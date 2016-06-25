@@ -136,4 +136,12 @@
         territory))
     (for [dark-tower-spec dark-tower-specs]
       (let [dark-tower (generate-dark-tower dark-tower-spec)]
-        dark-tower))]])
+        dark-tower))
+    [:rect
+     {:x 415
+      :y 315
+      :width 70
+      :height 70
+      :stroke "black"
+      :stroke-width 1
+      :fill "dimgray"}]]])
