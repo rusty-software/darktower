@@ -22,7 +22,7 @@
           territory-location {:row 2 :idx 0}]
       (is (= expected (neighbors-for territory-location)))))
   (testing "Territories in row 5 have nothing below them"
-    (let [expected [{:row 4 :idx 2} {:row 4 :idx 3} {:row 5 :idx 2} {:row 5 :idx 6}]
+    (let [expected [{:row 4 :idx 2} {:row 4 :idx 3} {:row 5 :idx 2} {:row 5 :idx 4}]
           territory-location {:row 5 :idx 3}]
       (is (= expected (neighbors-for territory-location)))))
   )

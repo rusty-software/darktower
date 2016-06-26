@@ -38,7 +38,7 @@
        (remove-beyond-back-edge-in-row row)))
 
 (defn remove-above-top-row [neighbors]
-  neighbors)
+  (remove #(> (:row %) 5) neighbors))
 
 (defn remove-below-bottom-row [neighbors]
   neighbors)
