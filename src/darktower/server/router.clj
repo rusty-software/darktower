@@ -50,15 +50,35 @@
 (defmethod event :default [{:keys [event]}]
   (log/info "Unhandled event: " event))
 
-(defmethod event :cartagena-cs/new-game [{:keys [uid ?data] :as ev-msg}]
+(defmethod event :darktower/new-game [{:keys [uid ?data] :as ev-msg}]
   (let [new-game-token (model/game-token)]
     (log/info
       "new-game:" new-game-token
       "initialized by:" ?data
       "with uid:" uid)
     (model/initialize-game! uid new-game-token ?data)
-    ((:send-fn channel-socket) uid [:cartagena-cs/new-game-initialized (get @model/app-state new-game-token)])
+    ((:send-fn channel-socket) uid [:darktower/new-game-initialized (get @model/app-state new-game-token)])
     (log/debug "current app-state:" @model/app-state)))
+
+(defmethod event :darktower/join-game [{:keys [uid ?data]}]
+  (let [{:keys [player-name joining-game-token]} ?data
+        game-state (get @model/app-state joining-game-token)]
+    (when game-state
+      (do
+        (log/info "join-game:" uid player-name joining-game-token)
+        (model/join-game! uid player-name joining-game-token)
+        (let [players (get-in @model/app-state [joining-game-token :players])]
+          (broadcast-game-state players [:darktower/player-joined (get @model/app-state joining-game-token)]))))
+    (log/debug "current app-state:" @model/app-state)))
+
+(defmethod event :darktower/start-game [{:keys [?data]}]
+  (let [game-state (get @model/app-state ?data)]
+    (when game-state
+      (do
+        (log/info "start-game:" ?data)
+        (model/start-game! ?data)
+        (let [players (get-in @model/app-state [?data :players])]
+          (broadcast-game-state players [:cartagena-cs/game-started (get @model/app-state ?data)]))))))
 
 (defmethod event :darktower/territory-click [{:keys [uid ?data]}]
   (let [{:keys [territory-info]} ?data]

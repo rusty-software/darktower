@@ -6,5 +6,5 @@
     [reagent.core :as reagent]))
 
 (reagent/render-component
-  [views.board/main]
+  [view/main]
   (. js/document (getElementById "app")))

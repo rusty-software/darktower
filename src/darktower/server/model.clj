@@ -1,4 +1,6 @@
-(ns darktower.server.model)
+(ns darktower.server.model
+  (:require
+    [darktower.server.game :as game]))
 
 (defonce app-state
   (atom {}))
@@ -13,10 +15,34 @@
         remaining-kingdoms (remove #{kingdom} kingdoms)]
     (assoc app-state token {:token token
                             :initialized-by uid
-                            :remaining-colors remaining-kingdoms
+                            :remaining-kingdoms remaining-kingdoms
                             :players [{:uid uid
                                        :name name
                                        :kingdom kingdom}]})))
 
 (defn initialize-game! [uid token name]
   (swap! app-state initialize-game uid token name))
+
+(defn join-game [app-state uid name token]
+  (let [game-state (get app-state token)
+        players (:players game-state)
+        kingdoms (:remaining-kingdoms game-state)
+        kingdom (rand-nth kingdoms)
+        remaining-kingdoms (remove #{kingdom} kingdoms)
+        new-players (conj players {:uid uid
+                                   :name name
+                                   :kingdom kingdom})
+        game-state (assoc game-state :players new-players
+                                     :remaining-kingdoms remaining-kingdoms)]
+    (assoc app-state token game-state)))
+
+(defn join-game! [uid name token]
+  (swap! app-state join-game uid name token))
+
+(defn start-game [app-state token]
+  (let [game-state (get app-state token)
+        initialized-game (game/initialize-game (:players game-state))]
+    (assoc app-state token (merge game-state initialized-game {:game-on? true}))))
+
+(defn start-game! [token]
+  (swap! app-state start-game token))
