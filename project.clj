@@ -10,7 +10,14 @@
                  [org.clojure/clojurescript "1.8.34"]
                  [org.clojure/core.async "0.2.374"
                   :exclusions [org.clojure/tools.reader]]
-                 [reagent "0.5.1"]]
+                 [com.taoensso/sente "1.8.1"]
+                 [com.taoensso/timbre "4.3.1"]
+                 [environ "1.0.2"]
+                 [http-kit "2.1.19"]
+                 [compojure "1.5.0"]
+                 [ring "1.4.0"]
+                 [ring/ring-defaults "0.2.0"]
+                 [ring-cors "0.1.7"][reagent "0.5.1"]]
   
   :plugins [[lein-figwheel "0.5.2"]
             [lein-cljsbuild "1.1.3" :exclusions [[org.clojure/clojure]]]]
@@ -20,6 +27,10 @@
   :source-paths ["src"]
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
+
+  :main darktower.server.main
+
+  :uberjar-name "darktower-standalone.jar"
 
   :profiles {:dev {:env {:dev? "true"}
                    :cljsbuild {:builds
