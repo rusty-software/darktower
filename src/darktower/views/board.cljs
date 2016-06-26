@@ -8,12 +8,12 @@
 
    {:id 1
     :type :frontier
-    :neighbors [{:row 1 :idx 2} {:row 2 :idx 3} {:row 3 :idx 4} {:row 4 :idx 5} {:row 5 :idx 6}]}
+    :neighbors [{:row 1 :idx 0} {:row 2 :idx 0} {:row 3 :idx 0} {:row 4 :idx 0} {:row 5 :idx 0}]}
 
    {:row 1
     :idx 0
     :type :territory
-    :neighbors [:dark-tower {:row 1 :idx 1} {:row 2 :idx 0} {:row 2 :idx 1}]}
+    :neighbors [:dark-tower :frontier {:row 1 :idx 1} {:row 2 :idx 0} {:row 2 :idx 1}]}
    {:row 1
     :idx 1
     :type :territory
@@ -21,45 +21,45 @@
    {:row 1
     :idx 2
     :type :territory
-    :neighbors [:dark-tower :frontier {:row 1 :idx 1} {:row 2 :idx 2} {:row 2 :idx 3}]}
+    :neighbors [:dark-tower {:row 1 :idx 1} {:row 2 :idx 2} {:row 2 :idx 3}]}
 
    {:row 2
     :idx 0
     :type :territory
-    :neighbors []}
+    :neighbors [:frontier {:row 1 :idx 0} {:row 2 :idx 1} {:row 3 :idx 0} {:row 3 :idx 1}]}
    {:row 2
     :idx 1
     :type :territory
-    :neighbors []}
+    :neighbors [{:row 1 :idx 0} {:row 1 :idx 1} {:row 2 :idx 0} {:row 2 :idx 2} {:row 3 :idx 1} {:row 3 :idx 2}]}
    {:row 2
     :idx 2
     :type :ruin
-    :neighbors []}
+    :neighbors [{:row 1 :idx 1} {:row 1 :idx 2} {:row 2 :idx 1} {:row 2 :idx 3} {:row 3 :idx 2} {:row 3 :idx 3}]}
    {:row 2
     :idx 3
     :type :territory
-    :neighbors []}
+    :neighbors [{:row 1 :idx 2} {:row 2 :idx 2} {:row 3 :idx 3} {:row 3 :idx 4}]}
 
    {:row 3
     :idx 0
     :type :territory
-    :neighbors []}
+    :neighbors [:frontier {:row 2 :idx 0} {:row 3 :idx 1} {:row 4 :idx 0} {:row 4 :idx 1}]}
    {:row 3
     :idx 1
     :type :territory
-    :neighbors []}
+    :neighbors [{:row 2 :idx 0} {:row 2 :idx 1} {:row 3 :idx 0} {:row 3 :idx 2} {:row 4 :idx 1} {:row 4 :idx 2}]}
    {:row 3
     :idx 2
     :type :bazaar
-    :neighbors []}
+    :neighbors [{:row 2 :idx 1} {:row 2 :idx 2} {:row 3 :idx 1} {:row 3 :idx 3} {:row 4 :idx 2} {:row 4 :idx 3}]}
    {:row 3
     :idx 3
     :type :territory
-    :neighbors []}
+    :neighbors [{:row 2 :idx 2} {:row 2 :idx 3} {:row 3 :idx 2} {:row 3 :idx 4} {:row 4 :idx 3} {:row 4 :idx 4}]}
    {:row 3
     :idx 4
     :type :territory
-    :neighbors []}
+    :neighbors [{:row 2 :idx 3} {:row 3 :idx 3} {:row 4 :idx 4} {:row 4 :idx 5}]}
 
    {:row 4
     :idx 0
@@ -213,10 +213,77 @@
                      (= (:idx territory-info) (:idx %))) territories-in-kingdom))
     (first (filter #(territory-info territories-in-kingdom)))))
 
+(defn potential-neighbors [{:keys [row idx]}]
+  (let [prev-row (- row 1)
+        next-row (inc row)]
+    [{:row prev-row :idx (- idx 1)}
+     {:row prev-row :idx idx}
+     {:row row :idx (- idx 1)}
+     {:row row :idx (inc idx)}
+     {:row next-row :idx idx}
+     {:row next-row :idx (inc idx)}]))
+
+(defn neighbors [territory-info]
+  (println "clicked on" territory-info)
+  (cond
+    (= :dark-tower territory-info)
+    (for [i (range 0 3)]
+      {:row 1 :idx i})
+
+    (= :frontier territory-info)
+    (for [i (range 1 6)]
+      {:row i :idx 0})
+
+    (:row territory-info)
+    (let [{:keys [row idx]} territory-info
+          maybe-neighbors (potential-neighbors territory-info)]
+      (->> maybe-neighbors
+           (filter #(<= (:idx %))))
+      #_(cond
+        (= 1 row)
+        (println "row 1 gets special treatment")
+
+        (= 5 row)
+        (println "row 5 gets special treatment")
+
+        :else
+        (let [prev-row (- row 1)
+              next-row (inc row)]
+          (->> [{:row prev-row :idx (- idx 1)}
+                {:row prev-row :idx idx}
+                {:row row :idx (- idx 1)}
+                {:row row :idx (inc idx)}
+                {:row next-row :idx idx}
+                {:row next-row :idx (inc idx)}]
+               (filter #(<= 0 (:idx %)))
+               ))
+        #_(cond
+          (zero? idx)
+          [:frontier
+           {:row (- row 1) :idx idx}
+           {:row row :idx (inc idx)}
+           {:row (inc row) :idx idx}
+           {:row (inc row) :idx (inc idx)}]
+
+          (= (+ 1 row) idx)
+          [{:row (- row 1) :idx (- idx 1)}
+           {:row row :idx (- idx 1)}
+           {:row (inc row) :idx idx}
+           {:row (inc row) :idx (inc idx)}]
+
+          :else
+          [{:row (- row 1) :idx (- idx 1)}
+           {:row (- row 1) :idx idx}
+           {:row row :idx (- idx 1)}
+           {:row row :idx (inc idx)}
+           {:row (inc row) :idx idx}
+           {:row (inc row) :idx (inc idx)}])))))
+
 (defn territory-click [dest-info]
-  (let [current-pos {:row 1 :idx 1}
-        neighbors (:neighbors (territory-for current-pos))]
-    (if (some #{dest-info} neighbors)
+  (println "neighbors" (neighbors dest-info))
+  #_(let [current-pos {:row 1 :idx 1}
+        current-neighbors (neighbors current-pos)]
+    (if (some #{dest-info} current-neighbors)
       (println "moving to neighbor")
       (println "NON NEIGHBOR!"))))
 
