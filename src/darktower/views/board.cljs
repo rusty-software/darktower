@@ -1,5 +1,6 @@
 (ns darktower.views.board
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [darktower.communication :as communication]))
 
 (def territories-in-kingdom
   [{:id 0
@@ -279,14 +280,6 @@
            {:row (inc row) :idx idx}
            {:row (inc row) :idx (inc idx)}])))))
 
-(defn territory-click [dest-info]
-  (println "neighbors" (neighbors dest-info))
-  #_(let [current-pos {:row 1 :idx 1}
-        current-neighbors (neighbors current-pos)]
-    (if (some #{dest-info} current-neighbors)
-      (println "moving to neighbor")
-      (println "NON NEIGHBOR!"))))
-
 (defn path [territory-path stroke stroke-width fill dest-info]
   ^{:key territory-path}
   [:path
@@ -294,7 +287,7 @@
     :stroke stroke
     :stroke-width stroke-width
     :fill fill
-    :on-click #(territory-click dest-info)}])
+    :on-click #(communication/territory-click dest-info)}])
 
 (defn generate-territories [kingdom-spec]
   (for [row (range 5 0 -1)

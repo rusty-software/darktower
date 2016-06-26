@@ -8,7 +8,8 @@
     [ring.util.response :as response]
     [taoensso.sente :as sente]
     [taoensso.sente.server-adapters.http-kit :as http-kit]
-    [taoensso.timbre :as log]))
+    [taoensso.timbre :as log]
+    [darktower.server.board :as board]))
 
 (declare channel-socket)
 
@@ -37,10 +38,24 @@
         :access-control-allow-methods [:get :put :post :delete]
         :access-control-allow-credentials ["true"])))
 
+(defn broadcast-game-state [uid event-and-payload]
+  (log/info "broadcasting" event-and-payload "to" uid)
+  ((:send-fn channel-socket) uid event-and-payload)
+  #_(doseq [player players]
+    ((:send-fn channel-socket) (:uid player) event-and-payload)))
+
 (defmulti event :id)
 
 (defmethod event :default [{:keys [event]}]
   (log/info "Unhandled event: " event))
+
+(defmethod event :darktower/territory-click [{:keys [uid ?data]}]
+  (let [{:keys [territory-info]} ?data]
+    (log/info "territory-info" territory-info)
+    (broadcast-game-state uid [:darktower/territory-clicked (board/neighbors-for territory-info)])
+    #_(model/play-card! uid token card from-space)
+    #_(let [players (get-in @model/app-state [token :players])]
+      (broadcast-game-state players [:cartagena-cs/card-played (get @model/app-state token)]))))
 
 (defn start-router []
   (log/info "Starting router...")
