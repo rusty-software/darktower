@@ -1,6 +1,7 @@
 (ns darktower.server.board-test
-  (:require [clojure.test :refer :all]
-            [darktower.server.board :refer :all]))
+  (:require
+    [clojure.test :refer :all]
+    [darktower.server.board :refer :all]))
 
 (deftest potential-neighbors-test
   (testing "All territories have 6 potential neighbors"
