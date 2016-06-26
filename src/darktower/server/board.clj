@@ -1,28 +1,14 @@
 (ns darktower.server.board)
 
 (defn potential-neighbors-for [{:keys [row idx]}]
-  (let [prev-row (- row 1)
+  (let [prev-row (dec row)
         next-row (inc row)]
-    [{:row prev-row :idx (- idx 1)}
+    [{:row prev-row :idx (dec idx)}
      {:row prev-row :idx idx}
-     {:row row :idx (- idx 1)}
+     {:row row :idx (dec idx)}
      {:row row :idx (inc idx)}
      {:row next-row :idx idx}
      {:row next-row :idx (inc idx)}]))
-
-(defn back-edge? [{:keys [row idx]}]
-  (= idx (inc row)))
-
-(defn territory-beyond-back-edge [row territory-info]
-  (and
-    (= (:row territory-info) row)
-    (> (:idx territory-info) (inc row))))
-
-(defn filter-for-back-edge [{:keys [row idx] :as territory-info} maybe-neighbors]
-  (if (back-edge? territory-info)
-    (->> maybe-neighbors
-         (remove #(territory-beyond-back-edge (dec row) %)))
-    maybe-neighbors))
 
 (defn remove-beyond-front-edge [neighbors]
   (remove #(< (:idx %) 0) neighbors))
@@ -41,20 +27,25 @@
   (remove #(> (:row %) 5) neighbors))
 
 (defn remove-below-bottom-row [neighbors]
-  neighbors)
+  (remove #(< (:row %) 1) neighbors))
 
 (defn maybe-add-frontier [idx neighbors]
   (if (zero? idx)
     (conj neighbors :frontier)
     neighbors))
 
+(defn maybe-add-dark-tower [row neighbors]
+  (if (= 1 row)
+    (conj neighbors :dark-tower)
+    neighbors))
+
 (defn neighbors-for [territory-info]
   (cond
-    #_#_(= :dark-tower territory-info)
+    (= :dark-tower territory-info)
     (for [i (range 0 3)]
       {:row 1 :idx i})
 
-    #_#_(= :frontier territory-info)
+    (= :frontier territory-info)
     (for [i (range 1 6)]
       {:row i :idx 0})
 
@@ -67,5 +58,4 @@
            (remove-above-top-row)
            (remove-below-bottom-row)
            (maybe-add-frontier idx)
-
-           ))))
+           (maybe-add-dark-tower row)))))
