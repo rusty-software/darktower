@@ -59,3 +59,18 @@
            (remove-below-bottom-row)
            (maybe-add-frontier idx)
            (maybe-add-dark-tower row)))))
+
+(def territory-types
+  {{:row 2 :idx 1} :ruin
+   {:row 3 :idx 2} :bazaar
+   {:row 4 :idx 1} :sanctuary
+   {:row 4 :idx 4} :tomb
+   {:row 5 :idx 3} :citadel})
+
+(defn type-for [territory-info]
+  (if (:row territory-info)
+    (get territory-types territory-info :territory)
+    territory-info))
+
+(defn territory-for [territory-info]
+  (assoc {:neighbors (neighbors-for territory-info)} :type (type-for territory-info)))

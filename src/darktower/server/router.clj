@@ -9,6 +9,7 @@
     [taoensso.sente :as sente]
     [taoensso.sente.server-adapters.http-kit :as http-kit]
     [taoensso.timbre :as log]
+    [darktower.server.model :as model]
     [darktower.server.board :as board]))
 
 (declare channel-socket)
@@ -49,10 +50,20 @@
 (defmethod event :default [{:keys [event]}]
   (log/info "Unhandled event: " event))
 
+(defmethod event :cartagena-cs/new-game [{:keys [uid ?data] :as ev-msg}]
+  (let [new-game-token (model/game-token)]
+    (log/info
+      "new-game:" new-game-token
+      "initialized by:" ?data
+      "with uid:" uid)
+    (model/initialize-game! uid new-game-token ?data)
+    ((:send-fn channel-socket) uid [:cartagena-cs/new-game-initialized (get @model/app-state new-game-token)])
+    (log/debug "current app-state:" @model/app-state)))
+
 (defmethod event :darktower/territory-click [{:keys [uid ?data]}]
   (let [{:keys [territory-info]} ?data]
     (log/info "territory-info" territory-info)
-    (broadcast-game-state uid [:darktower/territory-clicked (board/neighbors-for territory-info)])
+    (broadcast-game-state uid [:darktower/territory-clicked (board/territory-for territory-info)])
     #_(model/play-card! uid token card from-space)
     #_(let [players (get-in @model/app-state [token :players])]
       (broadcast-game-state players [:cartagena-cs/card-played (get @model/app-state token)]))))

@@ -38,3 +38,18 @@
     (let [expected [{:row 1 :idx 0} {:row 2 :idx 0} {:row 3 :idx 0} {:row 4 :idx 0} {:row 5 :idx 0}]
           territory-location :frontier]
       (is (= expected (neighbors-for territory-location))))))
+
+(deftest type-test
+  (testing "Non-territories are passed through appropriately"
+    (is (= :dark-tower (type-for :dark-tower)))
+    (is (= :frontier (type-for :frontier))))
+  (testing "Non-special locations are passed through appropriately"
+    (is (= :territory (type-for {:row 1 :idx 1})))
+    (is (= :territory (type-for {:row 4 :idx 0})))
+    (is (= :territory (type-for {:row 5 :idx 6}))))
+  (testing "Special locations are passed through appropriately"
+    (is (= :ruin (type-for {:row 2 :idx 1})))
+    (is (= :bazaar (type-for {:row 3 :idx 2})))
+    (is (= :sanctuary (type-for {:row 4 :idx 1})))
+    (is (= :tomb (type-for {:row 4 :idx 4})))
+    (is (= :citadel (type-for {:row 5 :idx 3})))))

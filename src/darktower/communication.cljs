@@ -37,7 +37,7 @@
   (when-let [event (first ?data)]
     (case event
       :darktower/territory-clicked (do
-                                     (println "neighbors from server" (second ?data)))
+                                     (println "territory from server" (second ?data)))
       ))
   (println "recv from server:" ?data))
 
