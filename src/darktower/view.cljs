@@ -118,4 +118,8 @@
    ])
 
 (defn main []
+  [:center
+   [:div
+    [:h1 "Dark Tower"]
+    [:h2 "The Board Game"]]]
   (game-area))
