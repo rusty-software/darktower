@@ -1,6 +1,8 @@
 (ns darktower.view
-  (:require [darktower.model :as model]
-            [darktower.communication :as communication]))
+  (:require [cljs.pprint :as pprint]
+            [darktower.model :as model]
+            [darktower.communication :as communication]
+            [darktower.views.board :as board]))
 
 (def tiles
   {:xlf {:img "extra_large_frontier.png"
@@ -104,7 +106,9 @@
       (recur (rest territory-rows) (+ y (:h ((ffirst territory-rows) tiles))) (conj spaces (spaces-for (first territory-rows) y))))))
 
 (defn game-area []
-  [:div
+  (board/main)
+
+  #_[:div
    {:style {:display "inline-block"
             :vertical-align "top"
             :margin "5px 5px 5px 5px"}}
@@ -256,4 +260,9 @@
        [name-input]
        [start-a-game]
        (when (not (:server-state @model/game-state))
-         [join-a-game])])]])
+         [join-a-game])])
+
+    [:hr]
+    [:div
+     [:span
+      "Client game state: " (with-out-str (pprint/pprint @model/game-state))]]]])

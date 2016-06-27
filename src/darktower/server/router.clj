@@ -40,6 +40,7 @@
         :access-control-allow-credentials ["true"])))
 
 (defn broadcast-game-state [players event-and-payload]
+  (log/info "broadcasting to" players)
   (doseq [player players]
     ((:send-fn channel-socket) (:uid player) event-and-payload)))
 
@@ -79,12 +80,10 @@
           (broadcast-game-state players [:darktower/game-started (get @model/app-state ?data)]))))))
 
 (defmethod event :darktower/territory-click [{:keys [uid ?data]}]
-  (let [{:keys [territory-info]} ?data]
-    (log/info "territory-info" territory-info)
-    (broadcast-game-state uid [:darktower/territory-clicked (board/territory-for territory-info)])
-    #_(model/play-card! uid token card from-space)
-    #_(let [players (get-in @model/app-state [token :players])]
-      (broadcast-game-state players [:cartagena-cs/card-played (get @model/app-state token)]))))
+  (let [{:keys [token territory-info]} ?data]
+    (log/info "token" token "territory-info" territory-info)
+    (let [players (get-in @model/app-state [token :players])]
+      (broadcast-game-state players [:darktower/territory-clicked (board/territory-for territory-info) #_(get @model/app-state token)]))))
 
 (defn start-router []
   (log/info "Starting router...")
