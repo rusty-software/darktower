@@ -7,4 +7,8 @@
     (let [player {:uid nil
                   :name "rusty"
                   :kingdom :zenon}
-          expected (merge player {:starting-territory {:kingdom :zenon :row 5 :idx 3}})])))
+          expected (merge player {:starting-territory {:kingdom :zenon :row 5 :idx 3}
+                                  :warriors 10
+                                  :gold 30
+                                  :food 25})]
+      (is (= expected (initialize-player player))))))
