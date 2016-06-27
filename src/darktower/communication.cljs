@@ -56,6 +56,8 @@
       (do
         (model/update-uid! (:uid @(:state msg)))
         (model/update-server-state! (second ?data)))
+      :darktower/game-started
+      (model/update-server-state! (second ?data))
       :darktower/territory-clicked
       (do
         (println "territory from server" (second ?data)))))

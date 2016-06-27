@@ -39,10 +39,8 @@
         :access-control-allow-methods [:get :put :post :delete]
         :access-control-allow-credentials ["true"])))
 
-(defn broadcast-game-state [uid event-and-payload]
-  (log/info "broadcasting" event-and-payload "to" uid)
-  ((:send-fn channel-socket) uid event-and-payload)
-  #_(doseq [player players]
+(defn broadcast-game-state [players event-and-payload]
+  (doseq [player players]
     ((:send-fn channel-socket) (:uid player) event-and-payload)))
 
 (defmulti event :id)
@@ -78,7 +76,7 @@
         (log/info "start-game:" ?data)
         (model/start-game! ?data)
         (let [players (get-in @model/app-state [?data :players])]
-          (broadcast-game-state players [:cartagena-cs/game-started (get @model/app-state ?data)]))))))
+          (broadcast-game-state players [:darktower/game-started (get @model/app-state ?data)]))))))
 
 (defmethod event :darktower/territory-click [{:keys [uid ?data]}]
   (let [{:keys [territory-info]} ?data]

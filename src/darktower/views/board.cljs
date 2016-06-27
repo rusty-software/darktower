@@ -130,16 +130,16 @@
     :fill-color "salmon"}
    {:angle-offset 141
     :angle-width 78
-    :stroke-color "darkgreen"
-    :fill-color "mediumseagreen"}
+    :stroke-color "deepskyblue"
+    :fill-color "lightcyan"}
    {:angle-offset 231
     :angle-width 78
     :stroke-color "saddlebrown"
     :fill-color "tan"}
    {:angle-offset 321
     :angle-width 78
-    :stroke-color "deepskyblue"
-    :fill-color "lightcyan"}])
+    :stroke-color "darkgreen"
+    :fill-color "mediumseagreen"}])
 
 (def frontier-specs
   [{:angle-offset 27
