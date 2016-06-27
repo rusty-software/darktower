@@ -40,7 +40,6 @@
         :access-control-allow-credentials ["true"])))
 
 (defn broadcast-game-state [players event-and-payload]
-  (log/info "broadcasting to" players)
   (doseq [player players]
     ((:send-fn channel-socket) (:uid player) event-and-payload)))
 

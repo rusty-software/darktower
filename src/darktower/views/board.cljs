@@ -1,6 +1,7 @@
 (ns darktower.views.board
   (:require [clojure.string :as str]
-            [darktower.communication :as communication]))
+            [darktower.communication :as communication]
+            [darktower.model :as model]))
 
 (def territories-in-kingdom
   [{:id 0
@@ -235,6 +236,16 @@
         dark-tower-path (path-for board-spec 50 r (:angle-offset dark-tower-spec) (:angle-width dark-tower-spec) 1)]
     (path dark-tower-path (:stroke-color dark-tower-spec) 1 (:fill-color dark-tower-spec) :dark-tower)))
 
+(defn piece-image [x y w h img]
+  [:g
+   {:dangerouslySetInnerHTML
+    {:__html (str "<image xlink:href=\"" img "\" x=\"" x "\" y=\"" y "\" width=\"" w "\" height=\"" h "\" />")}}])
+
+(defn player-images []
+  (for [player (get-in @model/game-state [:server-state :players])
+        :let [{:keys [kingdom row idx]} (:current-territory player)]]
+    (println "kingdom" kingdom "row" row "idx" idx)))
+
 (defn main []
   [:div
    {:style {:display "inline-block"
@@ -262,4 +273,6 @@
       :height 70
       :stroke "black"
       :stroke-width 1
-      :fill "dimgray"}]]])
+      :fill "dimgray"}]
+    (piece-image 400 300 100 100 "img/dtflag.gif")
+    (player-images)]])

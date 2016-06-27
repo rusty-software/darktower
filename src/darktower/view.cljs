@@ -243,8 +243,7 @@
 (defn main []
   [:center
    [:div
-    [:h1 "Dark Tower"]
-    [:h2 "The Board Game"]
+    [:h1 "Dark Tower: the board game"]
     (if (get-in @model/game-state [:server-state :game-on?])
       [:div
        [game-area]
