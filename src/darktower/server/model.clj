@@ -46,3 +46,19 @@
 
 (defn start-game! [token]
   (swap! app-state start-game token))
+
+(defn player-by-uid [game-state uid]
+  (let [players (:players game-state)]
+    (first (filter #(= uid (:uid %)) players))))
+
+(defn move [app-state uid token territory-info]
+  (let [game-state (get app-state token)]
+    (if (= uid (:current-player game-state))
+      (let [player (player-by-uid game-state uid)
+            moved-player (game/move player territory-info)
+            game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) moved-player))]
+        (assoc app-state token game-state))
+      app-state)))
+
+(defn move! [uid token territory-info]
+  (swap! app-state move uid token territory-info))

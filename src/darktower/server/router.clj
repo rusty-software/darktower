@@ -80,9 +80,9 @@
 
 (defmethod event :darktower/territory-click [{:keys [uid ?data]}]
   (let [{:keys [token territory-info]} ?data]
-    (log/info "token" token "territory-info" territory-info)
+    (model/move! uid token territory-info)
     (let [players (get-in @model/app-state [token :players])]
-      (broadcast-game-state players [:darktower/territory-clicked (board/territory-for territory-info) #_(get @model/app-state token)]))))
+      (broadcast-game-state players [:darktower/territory-clicked (get @model/app-state token)#_(board/territory-for territory-info)]))))
 
 (defn start-router []
   (log/info "Starting router...")

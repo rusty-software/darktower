@@ -8,4 +8,9 @@
 
 (defn initialize-game [players]
   (let [init-players (map initialize-player players)]
-    {:players init-players}))
+    {:players init-players
+     :player-order (vec (map :uid init-players))
+     :current-player (:uid (first init-players))}))
+
+(defn move [player {:keys [kingdom row idx]}]
+  (assoc player :current-territory {:kingcom kingdom :row row :idx idx}))
