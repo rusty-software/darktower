@@ -147,37 +147,45 @@
     :fill-color "mediumseagreen"}])
 
 (def frontier-specs
-  [{:angle-offset 27
+  [{:kingdom :zenon
+    :angle-offset 27
     :angle-width 12
     :stroke-color "gold"
     :fill-color "moccasin"}
-   {:angle-offset 117
+   {:kingdom :arisilon
+    :angle-offset 117
     :angle-width 12
     :stroke-color "gold"
     :fill-color "moccasin"}
-   {:angle-offset 207
+   {:kingdom :brynthia
+    :angle-offset 207
     :angle-width 12
     :stroke-color "gold"
     :fill-color "moccasin"}
-   {:angle-offset 297
+   {:kingdom :durnin
+    :angle-offset 297
     :angle-width 12
     :stroke-color "gold"
     :fill-color "moccasin"}])
 
 (def dark-tower-specs
-  [{:angle-offset 45
+  [{:kingdom :zenon
+    :angle-offset 45
     :angle-width 90
     :stroke-color "black"
     :fill-color "dimgray"}
-   {:angle-offset 135
+   {:kingdom :arisilon
+    :angle-offset 135
     :angle-width 90
     :stroke-color "black"
     :fill-color "dimgray"}
-   {:angle-offset 225
+   {:kingdom :brynthia
+    :angle-offset 225
     :angle-width 90
     :stroke-color "black"
     :fill-color "dimgray"}
-   {:angle-offset 315
+   {:kingdom :durnin
+    :angle-offset 315
     :angle-width 90
     :stroke-color "black"
     :fill-color "dimgray"}])
@@ -212,14 +220,14 @@
         top-line (str/join " " ["L" (:move-x top-arc) (:move-y top-arc)])]
     (str/join " " [bottom-arc-path right-line top-line])))
 
-(defn path [territory-path stroke stroke-width fill dest-info]
+(defn path [kingdom territory-path stroke stroke-width fill dest-info]
   ^{:key territory-path}
   [:path
    {:d territory-path
     :stroke stroke
     :stroke-width stroke-width
     :fill fill
-    :on-click #(communication/territory-click dest-info)}])
+    :on-click #(communication/territory-click (assoc dest-info :kingdom kingdom))}])
 
 (defn row-spec [row]
   {:r (+ (:min-radius board-spec) (* row 50))
@@ -228,23 +236,23 @@
 (defn arc-angle-for [kingdom-spec territory-count]
   (/ (:angle-width kingdom-spec) territory-count))
 
-(defn generate-territories [kingdom-spec]
+(defn generate-territories [{:keys [kingdom angle-offset stroke-color fill-color] :as kingdom-spec}]
   (for [row (range 5 0 -1)
           :let [{:keys [r territory-count]} (row-spec row)
                 arc-angle (arc-angle-for kingdom-spec territory-count)]]
     (for [territory-idx (range 0 territory-count)
-          :let [territory-path (path-for board-spec 50 r (:angle-offset kingdom-spec) arc-angle territory-idx)]]
-      (path territory-path (:stroke-color kingdom-spec) 1 (:fill-color kingdom-spec) {:row row :idx territory-idx}))))
+          :let [territory-path (path-for board-spec 50 r angle-offset arc-angle territory-idx)]]
+      (path kingdom territory-path stroke-color 1 fill-color {:row row :idx territory-idx}))))
 
-(defn generate-frontier [frontier-spec]
+(defn generate-frontier [{:keys [kingdom angle-offset angle-width stroke-color fill-color]}]
   (let [r (+ (:min-radius board-spec) 250)
-        frontier-path (path-for board-spec 250 r (:angle-offset frontier-spec) (:angle-width frontier-spec) 1)]
-    (path frontier-path (:stroke-color frontier-spec) 1 (:fill-color frontier-spec) :frontier)))
+        frontier-path (path-for board-spec 250 r angle-offset angle-width 1)]
+    (path kingdom frontier-path stroke-color 1 fill-color :frontier)))
 
-(defn generate-dark-tower [dark-tower-spec]
+(defn generate-dark-tower [{:keys [kingdom angle-offset angle-width stroke-color fill-color]}]
   (let [r (:min-radius board-spec)
-        dark-tower-path (path-for board-spec 50 r (:angle-offset dark-tower-spec) (:angle-width dark-tower-spec) 1)]
-    (path dark-tower-path (:stroke-color dark-tower-spec) 1 (:fill-color dark-tower-spec) :dark-tower)))
+        dark-tower-path (path-for board-spec 50 r angle-offset angle-width 1)]
+    (path kingdom dark-tower-path stroke-color 1 fill-color :dark-tower)))
 
 (defn piece-image [x y w h img]
   ^{:key (str x "-" y "-" w "-" h "-" img)}
