@@ -13,4 +13,4 @@
      :current-player (:uid (first init-players))}))
 
 (defn move [player {:keys [kingdom row idx]}]
-  (assoc player :current-territory {:kingcom kingdom :row row :idx idx}))
+  (assoc player :current-territory {:kingdom kingdom :row row :idx idx}))

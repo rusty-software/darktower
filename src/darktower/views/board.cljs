@@ -265,8 +265,9 @@
 (defn player-images []
   (for [player (get-in @model/game-state [:server-state :players])
         :let [{:keys [kingdom row idx]} (:current-territory player)
+              _ (println "current territory" kingdom row idx)
               territory-arc (territory-arc-for kingdom row idx)]]
-    (piece-image (+ 10 (:end-x territory-arc)) (+ 10 (:end-y territory-arc)) 30 30 "img/golden_knight.png")))
+    (piece-image (+ (:end-x territory-arc) row 3) (:end-y territory-arc) 30 30 "img/golden_knight.png")))
 
 (defn main []
   [:div

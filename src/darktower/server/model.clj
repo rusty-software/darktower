@@ -1,6 +1,7 @@
 (ns darktower.server.model
   (:require
-    [darktower.server.game :as game]))
+    [darktower.server.game :as game]
+    [taoensso.timbre :as log]))
 
 (defonce app-state
   (atom {}))
@@ -56,6 +57,7 @@
     (if (= uid (:current-player game-state))
       (let [player (player-by-uid game-state uid)
             moved-player (game/move player territory-info)
+            _ (log/info "moved-player" moved-player)
             game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) moved-player))]
         (assoc app-state token game-state))
       app-state)))

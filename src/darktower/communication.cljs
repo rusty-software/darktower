@@ -33,6 +33,7 @@
   (chsk-send! [:darktower/start-game (get-in @model/game-state [:server-state :token])]))
 
 (defn territory-click [territory-info]
+  (println "territory-click" territory-info)
   (chsk-send! [:darktower/territory-click {:token (get-in @model/game-state [:server-state :token])
                                            :territory-info (assoc territory-info :kingdom :zenon)}]))
 
@@ -60,10 +61,8 @@
       :darktower/game-started
       (model/update-server-state! (second ?data))
       :darktower/territory-clicked
-      (do
-        (println "territory from server" (second ?data))
-        (model/update-server-state! (second ?data)))))
-  (println "recv from server:" ?data))
+      (model/update-server-state! (second ?data))))
+  #_(println "recv from server:" ?data))
 
 (defonce router
   (sente/start-client-chsk-router! ch-chsk event-msg-handler))
