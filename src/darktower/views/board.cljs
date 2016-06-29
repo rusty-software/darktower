@@ -14,16 +14,16 @@
     :angle-width 78
     :stroke-color "darkred"
     :fill-color "salmon"
-    :player-img-x-offset -32
-    :player-img-y-offset -16
+    :player-img-x-offset -40
+    :player-img-y-offset -20
     :player-img "img/golden_knight.png"}
    {:kingdom :brynthia
     :angle-offset 141
     :angle-width 78
     :stroke-color "deepskyblue"
     :fill-color "lightcyan"
-    :player-img-x-offset -16
-    :player-img-y-offset -32
+    :player-img-x-offset -20
+    :player-img-y-offset -40
     :player-img "img/golden_knight.png"}
    {:kingdom :durnin
     :angle-offset 231
@@ -31,14 +31,14 @@
     :stroke-color "saddlebrown"
     :fill-color "tan"
     :player-img-x-offset 0
-    :player-img-y-offset -16
+    :player-img-y-offset -20
     :player-img "img/golden_knight.png"}
    {:kingdom :zenon
     :angle-offset 321
     :angle-width 78
     :stroke-color "darkgreen"
     :fill-color "mediumseagreen"
-    :player-img-x-offset 0
+    :player-img-x-offset -16
     :player-img-y-offset 0
     :player-img "img/golden_knight.png"}])
 
@@ -174,7 +174,7 @@
               x (+ (/ (+ move-x end-x) 2) player-img-x-offset)
               y (+ (/ (+ move-y end-y) 2) player-img-y-offset)
               ]]
-    (piece-image x y 30 30 player-img)))
+    (piece-image x y 32 32 player-img)))
 
 (defn main []
   [:div
