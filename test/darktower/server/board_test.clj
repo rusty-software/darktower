@@ -34,12 +34,13 @@
     (let [expected [{:row 1 :idx 0} {:row 1 :idx 1} {:row 1 :idx 2}]
           territory-location {:type :dark-tower}]
       (is (= expected (neighbors-for territory-location)))))
-  (testing "Frontier is only bordered by index 0"
+  (testing "Frontier is only bordered by index 0 of *next* kingdom"
     (let [expected [{:row 1 :idx 0} {:row 2 :idx 0} {:row 3 :idx 0} {:row 4 :idx 0} {:row 5 :idx 0}]
           territory-location {:type :frontier}]
-      (is (= expected (neighbors-for territory-location)))))
-  (testing "Neighbors for non-frontiers are all in the same kingdom")
-  (testing "Frontiers are different"))
+      (is (= expected (neighbors-for territory-location)))
+      (is (= 1 0))))
+  (testing "Territories at edge border their own frontier"
+    (is (= 1 0))))
 
 (deftest type-test
   (testing "Non-territories are passed through appropriately"
