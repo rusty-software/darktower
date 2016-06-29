@@ -33,7 +33,6 @@
   (chsk-send! [:darktower/start-game (get-in @model/game-state [:server-state :token])]))
 
 (defn territory-click [territory-info]
-  (println "territory-click" territory-info)
   (chsk-send! [:darktower/territory-click {:token (get-in @model/game-state [:server-state :token])
                                            :territory-info territory-info}]))
 

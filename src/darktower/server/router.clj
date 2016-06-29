@@ -83,7 +83,7 @@
     (log/info "territory-click data" ?data)
     (model/move! uid token territory-info)
     (let [players (get-in @model/app-state [token :players])]
-      (broadcast-game-state players [:darktower/territory-clicked (get @model/app-state token)#_(board/territory-for territory-info)]))))
+      (broadcast-game-state players [:darktower/territory-clicked (get @model/app-state token)]))))
 
 (defn start-router []
   (log/info "Starting router...")

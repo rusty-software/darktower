@@ -3,122 +3,6 @@
             [darktower.communication :as communication]
             [darktower.model :as model]))
 
-(def territories-in-kingdom
-  [{:id 0
-    :type :dark-tower
-    :neighbors [{:row 1 :idx 0} {:row 1 :idx 1} {:row 1 :idx 2}]}
-
-   {:id 1
-    :type :frontier
-    :neighbors [{:row 1 :idx 0} {:row 2 :idx 0} {:row 3 :idx 0} {:row 4 :idx 0} {:row 5 :idx 0}]}
-
-   {:row 1
-    :idx 0
-    :type :territory
-    :neighbors [:dark-tower :frontier {:row 1 :idx 1} {:row 2 :idx 0} {:row 2 :idx 1}]}
-   {:row 1
-    :idx 1
-    :type :territory
-    :neighbors [:dark-tower {:row 1 :idx 0} {:row 1 :idx 2} {:row 2 :idx 1} {:row 2 :idx 2}]}
-   {:row 1
-    :idx 2
-    :type :territory
-    :neighbors [:dark-tower {:row 1 :idx 1} {:row 2 :idx 2} {:row 2 :idx 3}]}
-
-   {:row 2
-    :idx 0
-    :type :territory
-    :neighbors [:frontier {:row 1 :idx 0} {:row 2 :idx 1} {:row 3 :idx 0} {:row 3 :idx 1}]}
-   {:row 2
-    :idx 1
-    :type :territory
-    :neighbors [{:row 1 :idx 0} {:row 1 :idx 1} {:row 2 :idx 0} {:row 2 :idx 2} {:row 3 :idx 1} {:row 3 :idx 2}]}
-   {:row 2
-    :idx 2
-    :type :ruin
-    :neighbors [{:row 1 :idx 1} {:row 1 :idx 2} {:row 2 :idx 1} {:row 2 :idx 3} {:row 3 :idx 2} {:row 3 :idx 3}]}
-   {:row 2
-    :idx 3
-    :type :territory
-    :neighbors [{:row 1 :idx 2} {:row 2 :idx 2} {:row 3 :idx 3} {:row 3 :idx 4}]}
-
-   {:row 3
-    :idx 0
-    :type :territory
-    :neighbors [:frontier {:row 2 :idx 0} {:row 3 :idx 1} {:row 4 :idx 0} {:row 4 :idx 1}]}
-   {:row 3
-    :idx 1
-    :type :territory
-    :neighbors [{:row 2 :idx 0} {:row 2 :idx 1} {:row 3 :idx 0} {:row 3 :idx 2} {:row 4 :idx 1} {:row 4 :idx 2}]}
-   {:row 3
-    :idx 2
-    :type :bazaar
-    :neighbors [{:row 2 :idx 1} {:row 2 :idx 2} {:row 3 :idx 1} {:row 3 :idx 3} {:row 4 :idx 2} {:row 4 :idx 3}]}
-   {:row 3
-    :idx 3
-    :type :territory
-    :neighbors [{:row 2 :idx 2} {:row 2 :idx 3} {:row 3 :idx 2} {:row 3 :idx 4} {:row 4 :idx 3} {:row 4 :idx 4}]}
-   {:row 3
-    :idx 4
-    :type :territory
-    :neighbors [{:row 2 :idx 3} {:row 3 :idx 3} {:row 4 :idx 4} {:row 4 :idx 5}]}
-
-   {:row 4
-    :idx 0
-    :type :territory
-    :neighbors []}
-   {:row 4
-    :idx 1
-    :type :tomb
-    :neighbors []}
-   {:row 4
-    :idx 2
-    :type :territory
-    :neighbors []}
-   {:row 4
-    :idx 3
-    :type :territory
-    :neighbors []}
-   {:row 4
-    :idx 4
-    :type :sanctuary
-    :neighbors []}
-   {:row 4
-    :idx 1
-    :type :territory
-    :neighbors []}
-
-   {:row 5
-    :idx 0
-    :type :territory
-    :neighbors []}
-   {:row 5
-    :idx 1
-    :type :territory
-    :neighbors []}
-   {:row 5
-    :idx 2
-    :type :territory
-    :neighbors []}
-   {:row 5
-    :idx 3
-    :type :citadel
-    :neighbors []}
-   {:row 5
-    :idx 4
-    :type :territory
-    :neighbors []}
-   {:row 5
-    :idx 5
-    :type :territory
-    :neighbors []}
-   {:row 5
-    :idx 6
-    :type :territory
-    :neighbors []}
-
-   ])
-
 (def board-spec
   {:min-radius 100
    :cx 450
@@ -129,22 +13,34 @@
     :angle-offset 51
     :angle-width 78
     :stroke-color "darkred"
-    :fill-color "salmon"}
+    :fill-color "salmon"
+    :player-img-x-offset -32
+    :player-img-y-offset -16
+    :player-img "img/golden_knight.png"}
    {:kingdom :brynthia
     :angle-offset 141
     :angle-width 78
     :stroke-color "deepskyblue"
-    :fill-color "lightcyan"}
+    :fill-color "lightcyan"
+    :player-img-x-offset -16
+    :player-img-y-offset -32
+    :player-img "img/golden_knight.png"}
    {:kingdom :durnin
     :angle-offset 231
     :angle-width 78
     :stroke-color "saddlebrown"
-    :fill-color "tan"}
+    :fill-color "tan"
+    :player-img-x-offset 0
+    :player-img-y-offset -16
+    :player-img "img/golden_knight.png"}
    {:kingdom :zenon
     :angle-offset 321
     :angle-width 78
     :stroke-color "darkgreen"
-    :fill-color "mediumseagreen"}])
+    :fill-color "mediumseagreen"
+    :player-img-x-offset 0
+    :player-img-y-offset 0
+    :player-img "img/golden_knight.png"}])
 
 (def frontier-specs
   [{:kingdom :zenon
@@ -273,9 +169,12 @@
 (defn player-images []
   (for [player (get-in @model/game-state [:server-state :players])
         :let [{:keys [kingdom row idx]} (:current-territory player)
-              _ (println "current territory" kingdom row idx)
-              territory-arc (territory-arc-for kingdom row idx)]]
-    (piece-image (+ (:end-x territory-arc) row 3) (:end-y territory-arc) 30 30 "img/golden_knight.png")))
+              {:keys [player-img player-img-x-offset player-img-y-offset]} (first (filter #(= kingdom (:kingdom %)) kingdom-specs))
+              {:keys [move-x move-y end-x end-y]} (territory-arc-for kingdom row idx)
+              x (+ (/ (+ move-x end-x) 2) player-img-x-offset)
+              y (+ (/ (+ move-y end-y) 2) player-img-y-offset)
+              ]]
+    (piece-image x y 30 30 player-img)))
 
 (defn main []
   [:div
