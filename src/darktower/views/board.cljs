@@ -47,44 +47,60 @@
     :angle-offset 27
     :angle-width 12
     :stroke-color "gold"
-    :fill-color "moccasin"}
+    :fill-color "moccasin"
+    :player-img-x-offset 200
+    :player-img-y-offset -100}
    {:kingdom :arisilon
     :angle-offset 117
     :angle-width 12
     :stroke-color "gold"
-    :fill-color "moccasin"}
+    :fill-color "moccasin"
+    :player-img-x-offset 0
+    :player-img-y-offset 0}
    {:kingdom :brynthia
     :angle-offset 207
     :angle-width 12
     :stroke-color "gold"
-    :fill-color "moccasin"}
+    :fill-color "moccasin"
+    :player-img-x-offset 0
+    :player-img-y-offset 0}
    {:kingdom :durnin
     :angle-offset 297
     :angle-width 12
     :stroke-color "gold"
-    :fill-color "moccasin"}])
+    :fill-color "moccasin"
+    :player-img-x-offset 0
+    :player-img-y-offset 0}])
 
 (def dark-tower-specs
   [{:kingdom :zenon
     :angle-offset 45
     :angle-width 90
     :stroke-color "black"
-    :fill-color "dimgray"}
+    :fill-color "dimgray"
+    :player-img-x-offset 0
+    :player-img-y-offset 0}
    {:kingdom :arisilon
     :angle-offset 135
     :angle-width 90
     :stroke-color "black"
-    :fill-color "dimgray"}
+    :fill-color "dimgray"
+    :player-img-x-offset 0
+    :player-img-y-offset 0}
    {:kingdom :brynthia
     :angle-offset 225
     :angle-width 90
     :stroke-color "black"
-    :fill-color "dimgray"}
+    :fill-color "dimgray"
+    :player-img-x-offset 0
+    :player-img-y-offset 0}
    {:kingdom :durnin
     :angle-offset 315
     :angle-width 90
     :stroke-color "black"
-    :fill-color "dimgray"}])
+    :fill-color "dimgray"
+    :player-img-x-offset 0
+    :player-img-y-offset 0}])
 
 ;; Thank you, smart people!  http://jsbin.com/cibicecuto/edit?html,js,output
 (defn polar-to-cartesian [cx cy r angle-in-degrees]
@@ -123,7 +139,10 @@
     :stroke stroke
     :stroke-width stroke-width
     :fill fill
-    :on-click #(communication/territory-click (assoc dest-info :kingdom kingdom))}])
+    :on-click #(communication/territory-click
+                (if (map? dest-info)
+                  (assoc dest-info :kingdom kingdom)
+                  {:type dest-info :kingdom kingdom}))}])
 
 (defn row-spec [row]
   {:r (+ (:min-radius board-spec) (* row 50))
@@ -168,13 +187,23 @@
 
 (defn player-images []
   (for [player (get-in @model/game-state [:server-state :players])
-        :let [{:keys [kingdom row idx]} (:current-territory player)
-              {:keys [player-img player-img-x-offset player-img-y-offset]} (first (filter #(= kingdom (:kingdom %)) kingdom-specs))
+        :let [{:keys [kingdom row idx type]} (:current-territory player)
+              location-specs (if (not (nil? type))
+                               (do
+                                 (println "non-territory location spec")
+                                 (if (= :dark-tower type)
+                                   dark-tower-specs
+                                   frontier-specs))
+                               kingdom-specs)
+              {:keys [player-img-x-offset player-img-y-offset]} (first (filter #(= kingdom (:kingdom %)) location-specs))
+              _ (println "offsets" player-img-x-offset player-img-y-offset)
+              #_#_{:keys [player-img-x-offset player-img-y-offset]} (first (filter #(= kingdom (:kingdom %)) kingdom-specs))
               {:keys [move-x move-y end-x end-y]} (territory-arc-for kingdom row idx)
               x (+ (/ (+ move-x end-x) 2) player-img-x-offset)
-              y (+ (/ (+ move-y end-y) 2) player-img-y-offset)
-              ]]
-    (piece-image x y 32 32 player-img)))
+              y (+ (/ (+ move-y end-y) 2) player-img-y-offset)]]
+    (do
+      (println "piece img x y" x y)
+      (piece-image x y 32 32 "img/golden_knight.png"))))
 
 (defn main []
   [:div

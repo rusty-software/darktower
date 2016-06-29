@@ -1,4 +1,5 @@
-(ns darktower.server.game)
+(ns darktower.server.game
+  (:require [taoensso.timbre :as log]))
 
 (defn initialize-player [player]
   (assoc player :current-territory {:kingdom (:kingdom player) :row 5 :idx 3}
@@ -12,5 +13,10 @@
      :player-order (vec (map :uid init-players))
      :current-player (:uid (first init-players))}))
 
-(defn move [player {:keys [kingdom row idx]}]
-  (assoc player :current-territory {:kingdom kingdom :row row :idx idx}))
+(defn move [player {:keys [kingdom row idx type]}]
+  (let [current-territory (cond-> {:kingdom kingdom :row row :idx idx}
+                                  (not (nil? type))
+                                  (assoc :type type))
+        uplayer (assoc player :current-territory current-territory)]
+    (log/info "uplayer" uplayer)
+    uplayer))

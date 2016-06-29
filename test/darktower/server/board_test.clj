@@ -32,17 +32,17 @@
       (is (= expected (neighbors-for territory-location)))))
   (testing "Dark Tower is only bordered by row 1"
     (let [expected [{:row 1 :idx 0} {:row 1 :idx 1} {:row 1 :idx 2}]
-          territory-location :dark-tower]
+          territory-location {:type :dark-tower}]
       (is (= expected (neighbors-for territory-location)))))
   (testing "Frontier is only bordered by index 0"
     (let [expected [{:row 1 :idx 0} {:row 2 :idx 0} {:row 3 :idx 0} {:row 4 :idx 0} {:row 5 :idx 0}]
-          territory-location :frontier]
+          territory-location {:type :frontier}]
       (is (= expected (neighbors-for territory-location))))))
 
 (deftest type-test
   (testing "Non-territories are passed through appropriately"
-    (is (= :dark-tower (type-for :dark-tower)))
-    (is (= :frontier (type-for :frontier))))
+    (is (= :dark-tower (type-for {:type :dark-tower})))
+    (is (= :frontier (type-for {:type :frontier}))))
   (testing "Non-special locations are passed through appropriately"
     (is (= :territory (type-for {:row 1 :idx 1})))
     (is (= :territory (type-for {:row 4 :idx 0})))

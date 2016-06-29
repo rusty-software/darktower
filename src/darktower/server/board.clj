@@ -41,11 +41,11 @@
 
 (defn neighbors-for [territory-info]
   (cond
-    (= :dark-tower territory-info)
+    (= :dark-tower (:type territory-info))
     (for [i (range 0 3)]
       {:row 1 :idx i})
 
-    (= :frontier territory-info)
+    (= :frontier (:type territory-info))
     (for [i (range 1 6)]
       {:row i :idx 0})
 
@@ -70,7 +70,7 @@
 (defn type-for [territory-info]
   (if (:row territory-info)
     (get territory-types territory-info :territory)
-    territory-info))
+    (:type territory-info)))
 
 (defn territory-for [territory-info]
   (assoc {:neighbors (neighbors-for territory-info)} :type (type-for territory-info)))
