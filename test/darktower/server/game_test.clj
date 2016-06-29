@@ -27,3 +27,17 @@
         (is (= "15" (last player-order)))))
     (testing "Current player is first in players list"
       (is (= "14" (:current-player game-state))))))
+
+(def player
+  {:uid "15"
+   :name "rusty"
+   :kingdom :arisilon})
+
+(deftest move-test
+  (testing "Movement allowed to adjacent territories"
+    (let [current-territory {:kingdom :zenon :row 3 :idx 2}
+          neighbors [{}]
+          player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2})
+          expected (assoc player :move-result :moved :current-territory {:kingdom :zenon :row 3 :idx 1})
+          actual (move player {:kingdom :zenon :row 3 :idx 1})]
+      (is (= expected actual)))))
