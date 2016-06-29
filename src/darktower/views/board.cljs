@@ -48,59 +48,59 @@
     :angle-width 12
     :stroke-color "gold"
     :fill-color "moccasin"
-    :player-img-x-offset 200
+    :player-img-x-offset 190
     :player-img-y-offset -100}
    {:kingdom :arisilon
     :angle-offset 117
     :angle-width 12
     :stroke-color "gold"
     :fill-color "moccasin"
-    :player-img-x-offset 0
-    :player-img-y-offset 0}
+    :player-img-x-offset 56
+    :player-img-y-offset 180}
    {:kingdom :brynthia
     :angle-offset 207
     :angle-width 12
     :stroke-color "gold"
     :fill-color "moccasin"
-    :player-img-x-offset 0
-    :player-img-y-offset 0}
+    :player-img-x-offset -200
+    :player-img-y-offset 48}
    {:kingdom :durnin
     :angle-offset 297
     :angle-width 12
     :stroke-color "gold"
     :fill-color "moccasin"
-    :player-img-x-offset 0
-    :player-img-y-offset 0}])
+    :player-img-x-offset -80
+    :player-img-y-offset -208}])
 
 (def dark-tower-specs
-  [{:kingdom :zenon
+  [{:kingdom :brynthia
     :angle-offset 45
     :angle-width 90
     :stroke-color "black"
     :fill-color "dimgray"
-    :player-img-x-offset 0
-    :player-img-y-offset 0}
-   {:kingdom :arisilon
+    :player-img-x-offset -48
+    :player-img-y-offset -48}
+   {:kingdom :durnin
     :angle-offset 135
     :angle-width 90
     :stroke-color "black"
     :fill-color "dimgray"
     :player-img-x-offset 0
-    :player-img-y-offset 0}
-   {:kingdom :brynthia
+    :player-img-y-offset -48}
+   {:kingdom :zenon
     :angle-offset 225
     :angle-width 90
     :stroke-color "black"
     :fill-color "dimgray"
-    :player-img-x-offset 0
+    :player-img-x-offset 16
     :player-img-y-offset 0}
-   {:kingdom :durnin
+   {:kingdom :arisilon
     :angle-offset 315
     :angle-width 90
     :stroke-color "black"
     :fill-color "dimgray"
-    :player-img-x-offset 0
-    :player-img-y-offset 0}])
+    :player-img-x-offset -24
+    :player-img-y-offset 8}])
 
 ;; Thank you, smart people!  http://jsbin.com/cibicecuto/edit?html,js,output
 (defn polar-to-cartesian [cx cy r angle-in-degrees]
