@@ -5,10 +5,10 @@
 
 (deftest next-kingdom-test
   (testing "Kingdoms are ordered correctly"
-    (is (= :brynthia (next-kingdom {:kingdom :arisilon})))
-    (is (= :durnin (next-kingdom {:kingdom :brynthia})))
-    (is (= :zenon (next-kingdom {:kingdom :durnin})))
-    (is (= :arisilon (next-kingdom {:kingdom :zenon})))))
+    (is (= :brynthia (next-kingdom :arisilon)))
+    (is (= :durnin (next-kingdom :brynthia)))
+    (is (= :zenon (next-kingdom :durnin)))
+    (is (= :arisilon (next-kingdom :zenon)))))
 
 (deftest potential-neighbors-test
   (testing "All territories have 6 potential neighbors"
@@ -31,16 +31,16 @@
                     {:kingdom :arisilon :row 5 :idx 5}]
           territory-location {:kingdom :arisilon :row 4 :idx 4}]
       (is (= expected (neighbors-for territory-location)))))
-  (testing "Territories (excluding rows 1 and 5) at end border 4 others"
-    (let [expected [{:kingdom :arisilon :row 1 :idx 2}
+  (testing "Territories (excluding rows 1 and 5) at end border 4 others and frontier"
+    (let [expected [{:kingdom :arisilon :type :frontier}
+                    {:kingdom :arisilon :row 1 :idx 2}
                     {:kingdom :arisilon :row 2 :idx 2}
                     {:kingdom :arisilon :row 3 :idx 3}
                     {:kingdom :arisilon :row 3 :idx 4}]
           territory-location {:kingdom :arisilon :row 2 :idx 3}]
       (is (= expected (neighbors-for territory-location)))))
-  (testing "Territories (excluding rows 1 and 5) at 0 border a frontier and 4 others"
-    (let [expected [{:kingdom :arisilon :type :frontier}
-                    {:kingdom :arisilon :row 1 :idx 0}
+  (testing "Territories (excluding rows 1 and 5) at 0 border 4 others"
+    (let [expected [{:kingdom :arisilon :row 1 :idx 0}
                     {:kingdom :arisilon :row 2 :idx 1}
                     {:kingdom :arisilon :row 3 :idx 0}
                     {:kingdom :arisilon :row 3 :idx 1}]
@@ -75,10 +75,14 @@
                     {:kingdom :brynthia :row 5 :idx 0}]
           territory-location {:kingdom :arisilon :type :frontier}
           actual (neighbors-for territory-location)]
-      (is (= expected actual))
-      (is (every? :brynthia (map :kingdom actual)))))
+      (is (= expected actual))))
   (testing "Territories at edge border their own frontier"
-    (is (= 1 0))))
+    (let [territory-infos [{:kingdom :arisilon :row 1 :idx 2}
+                           {:kingdom :arisilon :row 2 :idx 3}
+                           {:kingdom :arisilon :row 3 :idx 4}
+                           {:kingdom :arisilon :row 4 :idx 5}
+                           {:kingdom :arisilon :row 5 :idx 6}]]
+      (map #(is (some #{{:kingdom :arisilon :type :frontier}} (neighbors-for %))) territory-infos))))
 
 (deftest type-test
   (testing "Non-territories are passed through appropriately"
