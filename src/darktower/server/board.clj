@@ -3,7 +3,10 @@
 (def kingdoms [:arisilon :brynthia :durnin :zenon])
 
 (defn next-kingdom [{:keys [kingdom]}]
-  )
+  (let [i (.indexOf kingdoms kingdom)]
+    (if (= i (dec (count kingdoms)))
+      (first kingdoms)
+      (get kingdoms (inc i)))))
 
 (defn potential-neighbors-for [{:keys [kingdom row idx]}]
   (let [prev-row (dec row)
@@ -34,14 +37,14 @@
 (defn remove-below-bottom-row [neighbors]
   (remove #(< (:row %) 1) neighbors))
 
-(defn maybe-add-frontier [idx neighbors]
+(defn maybe-add-frontier [kingdom idx neighbors]
   (if (zero? idx)
-    (conj neighbors :frontier)
+    (conj neighbors {:kingdom kingdom :type :frontier})
     neighbors))
 
-(defn maybe-add-dark-tower [row neighbors]
+(defn maybe-add-dark-tower [kingdom row neighbors]
   (if (= 1 row)
-    (conj neighbors :dark-tower)
+    (conj neighbors {:kingdom kingdom :type :dark-tower})
     neighbors))
 
 (defn neighbors-for [territory-info]
@@ -62,7 +65,7 @@
            (remove-beyond-back-edge row)
            (remove-above-top-row)
            (remove-below-bottom-row)
-           (maybe-add-frontier idx)
+           (maybe-add-frontier (:kingdom territory-info) idx)
            (maybe-add-dark-tower row)))))
 
 (def territory-types
