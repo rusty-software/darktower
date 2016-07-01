@@ -35,9 +35,18 @@
 
 (deftest move-test
   (testing "Movement allowed to adjacent territories"
-    (let [current-territory {:kingdom :zenon :row 3 :idx 2}
-          neighbors [{}]
-          player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2})
+    (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2})
           expected (assoc player :move-result :moved :current-territory {:kingdom :zenon :row 3 :idx 1})
           actual (move player {:kingdom :zenon :row 3 :idx 1})]
+      (is (= expected actual)))
+    (let [player (assoc player :current-territory {:kingdom :zenon :row 1 :idx 2})
+          expected (assoc player :move-result :moved :current-territory {:kingdom :zenon :type :frontier})
+          actual (move player {:kingdom :zenon :type :frontier})]
+      (is (= expected actual))))
+  (testing "Movement to non-adjacent territories is not allowed"
+    (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2})
+          expected (assoc player :move-result :invalid
+                                 :reason "Destination must be adjacent to your current territory!"
+                                 :current-territory {:kingdom :zenon :row 3 :idx 2})
+          actual (move player {:kingdom :zenon :row 3 :idx 0})]
       (is (= expected actual)))))

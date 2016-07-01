@@ -14,9 +14,16 @@
      :current-player (:uid (first init-players))}))
 
 (defn move [player {:keys [kingdom row idx type]}]
-  (let [destination (cond-> {:kingdom kingdom :row row :idx idx}
-                      (not (nil? type))
-                      (assoc :type type))
+  (let [destination (cond-> {:kingdom kingdom}
+
+                            (not (nil? row))
+                            (assoc :row row)
+
+                            (not (nil? idx))
+                            (assoc :idx idx)
+
+                            (not (nil? type))
+                            (assoc :type type))
         uplayer (assoc player :move-result :moved :current-territory destination)]
     (log/info "uplayer" uplayer)
     uplayer))
