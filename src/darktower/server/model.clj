@@ -1,6 +1,7 @@
 (ns darktower.server.model
   (:require
     [darktower.server.game :as game]
+    [darktower.server.board :as board]
     [taoensso.timbre :as log]))
 
 (defonce app-state
@@ -9,11 +10,9 @@
 (defn game-token []
   (Integer/toString (rand-int (Math/pow 36 6)) 36))
 
-(def kingdoms [:arisilon :brynthia :durnin :zenon])
-
 (defn initialize-game [app-state uid token name]
-  (let [kingdom (rand-nth kingdoms)
-        remaining-kingdoms (remove #{kingdom} kingdoms)]
+  (let [kingdom (rand-nth board/kingdoms)
+        remaining-kingdoms (remove #{kingdom} board/kingdoms)]
     (assoc app-state token {:token token
                             :initialized-by uid
                             :remaining-kingdoms remaining-kingdoms

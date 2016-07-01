@@ -1,14 +1,19 @@
 (ns darktower.server.board)
 
-(defn potential-neighbors-for [{:keys [row idx]}]
+(def kingdoms [:arisilon :brynthia :durnin :zenon])
+
+(defn next-kingdom [{:keys [kingdom]}]
+  )
+
+(defn potential-neighbors-for [{:keys [kingdom row idx]}]
   (let [prev-row (dec row)
         next-row (inc row)]
-    [{:row prev-row :idx (dec idx)}
-     {:row prev-row :idx idx}
-     {:row row :idx (dec idx)}
-     {:row row :idx (inc idx)}
-     {:row next-row :idx idx}
-     {:row next-row :idx (inc idx)}]))
+    [{:kingdom kingdom :row prev-row :idx (dec idx)}
+     {:kingdom kingdom :row prev-row :idx idx}
+     {:kingdom kingdom :row row :idx (dec idx)}
+     {:kingdom kingdom :row row :idx (inc idx)}
+     {:kingdom kingdom :row next-row :idx idx}
+     {:kingdom kingdom :row next-row :idx (inc idx)}]))
 
 (defn remove-beyond-front-edge [neighbors]
   (remove #(< (:idx %) 0) neighbors))
@@ -43,11 +48,11 @@
   (cond
     (= :dark-tower (:type territory-info))
     (for [i (range 0 3)]
-      {:row 1 :idx i})
+      {:kingdom (:kingdom territory-info) :row 1 :idx i})
 
     (= :frontier (:type territory-info))
     (for [i (range 1 6)]
-      {:row i :idx 0})
+      {:kingdom (next-kingdom (:kingdom territory-info)) :row i :idx 0})
 
     (:row territory-info)
     (let [{:keys [row idx]} territory-info
