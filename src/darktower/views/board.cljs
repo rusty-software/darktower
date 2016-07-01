@@ -139,6 +139,7 @@
     :stroke stroke
     :stroke-width stroke-width
     :fill fill
+    :cursor "pointer"
     :on-click #(communication/territory-click
                 (if (map? dest-info)
                   (assoc dest-info :kingdom kingdom)
