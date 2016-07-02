@@ -28,23 +28,23 @@
 
 (defn safe-move [player destination]
   (let [current-territory (:current-territory player)
-        neighbors (board/neighbors-for current-territory)
-        result (cond
-                 (some #{destination} neighbors)
-                 {:move-result :moved :current-territory (normalized-territory destination)}
+        neighbors (board/neighbors-for current-territory)]
+    (cond
+      (some #{destination} neighbors)
+      {:move-result :moved :current-territory (normalized-territory destination)}
 
-                 (and
-                   (= (:kingdom destination) (:kingdom current-territory))
-                   (:pegasus player))
-                 {:move-result :moved-pegasus :current-territory (normalized-territory destination)}
+      (and
+        (= (:kingdom destination) (:kingdom current-territory))
+        (:pegasus player))
+      {:move-result :moved-pegasus :current-territory (normalized-territory destination)}
 
-                 :else
-                 {:move-result :invalid :reason "Destination must be adjacent to your current territory!" :current-territory current-territory})
-        uplayer  (if (= :moved-pegasus (:move-result result))
-                   (merge (dissoc player :pegasus) result)
-                   (merge player result))]
-    (log/info "uplayer" uplayer)
-    uplayer))
+      :else
+      {:move-result :invalid :reason "Destination must be adjacent to your current territory!" :current-territory current-territory})))
 
 (defn move [player destination]
-  (safe-move player destination))
+  (let [result (safe-move player destination)
+        updated-player (if (= :moved-pegasus (:move-result result))
+                         (merge (dissoc player :pegasus) result)
+                         (merge player result))]
+    (log/info "updated-player" updated-player)
+    updated-player))
