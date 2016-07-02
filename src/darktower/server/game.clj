@@ -26,13 +26,25 @@
     (not (nil? type))
     (assoc :type type)))
 
-(defn move [player destination]
+(defn safe-move [player destination]
   (let [current-territory (:current-territory player)
         neighbors (board/neighbors-for current-territory)
-        result (if (some #{destination} neighbors)
+        result (cond
+                 (some #{destination} neighbors)
                  {:move-result :moved :current-territory (normalized-territory destination)}
-                 {:move-result :invalid :reason "Destination must be adjacent to your current territory!" :current-territory current-territory})
 
-        uplayer (merge player result)]
+                 (and
+                   (= (:kingdom destination) (:kingdom current-territory))
+                   (:pegasus player))
+                 {:move-result :moved-pegasus :current-territory (normalized-territory destination)}
+
+                 :else
+                 {:move-result :invalid :reason "Destination must be adjacent to your current territory!" :current-territory current-territory})
+        uplayer  (if (= :moved-pegasus (:move-result result))
+                   (merge (dissoc player :pegasus) result)
+                   (merge player result))]
     (log/info "uplayer" uplayer)
     uplayer))
+
+(defn move [player destination]
+  (safe-move player destination))
