@@ -122,7 +122,65 @@
       (is (= expected actual))))))
 
 (deftest dragon-test
-  (testing "Dragon takes 25% (rounded down) of a player's warriors and gold and adds them to its own collection")
-  (testing "Warrior count cannot drop below 1")
-  (testing "Dragon with sword adds dragon's collection to players, resetting its own")
-  (testing "Warrior and gold counts cannot exceed 99"))
+  (testing "Dragon takes 25% (rounded down) of a player's warriors and gold and adds them to its own collection"
+    (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2}
+                               :warriors 10
+                               :gold 10)
+          dragon-hoard {:warriors 10 :gold 10}
+          expected {:move-result :dragon
+                    :current-territory {:kingdom :zenon :row 3 :idx 1}
+                    :dragon-hoard {:warriors 12 :gold 12}
+                    :warriors 8
+                    :gold 8}
+          actual (dragon-attack player dragon-hoard {:kingdom :zenon :row 3 :idx 1})]
+      (is (= expected actual))))
+  (testing "Dragon always takes at least one where possible"
+    (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2}
+                               :warriors 2
+                               :gold 2)
+          dragon-hoard {:warriors 10 :gold 10}
+          expected {:move-result :dragon
+                    :current-territory {:kingdom :zenon :row 3 :idx 1}
+                    :dragon-hoard {:warriors 11 :gold 11}
+                    :warriors 1
+                    :gold 1}
+          actual (dragon-attack player dragon-hoard {:kingdom :zenon :row 3 :idx 1})]
+      (is (= expected actual))))
+  (testing "Warrior count cannot drop below 1"
+    (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2}
+                               :warriors 1
+                               :gold 1)
+          dragon-hoard {:warriors 10 :gold 10}
+          expected {:move-result :dragon
+                    :current-territory {:kingdom :zenon :row 3 :idx 1}
+                    :dragon-hoard dragon-hoard
+                    :warriors 1
+                    :gold 1}
+          actual (dragon-attack player dragon-hoard {:kingdom :zenon :row 3 :idx 1})]
+      (is (= expected actual))))
+  (testing "Dragon with sword adds dragon's collection to players, resetting its own"
+    (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2}
+                               :warriors 10
+                               :gold 10
+                               :sword true)
+          dragon-hoard {:warriors 10 :gold 10}
+          expected {:move-result :dragon-sword
+                    :current-territory {:kingdom :zenon :row 3 :idx 1}
+                    :dragon-hoard {:warriors 0 :gold 0}
+                    :warriors 20
+                    :gold 20}
+          actual (dragon-attack player dragon-hoard {:kingdom :zenon :row 3 :idx 1})]
+      (is (= expected actual))))
+  (testing "Warrior and gold counts cannot exceed 99"
+    (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2}
+                               :warriors 98
+                               :gold 98
+                               :sword true)
+          dragon-hoard {:warriors 10 :gold 10}
+          expected {:move-result :dragon-sword
+                    :current-territory {:kingdom :zenon :row 3 :idx 1}
+                    :dragon-hoard {:warriors 0 :gold 0}
+                    :warriors 99
+                    :gold 99}
+          actual (dragon-attack player dragon-hoard {:kingdom :zenon :row 3 :idx 1})]
+      (is (= expected actual)))))

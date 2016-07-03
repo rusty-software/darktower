@@ -51,6 +51,21 @@
     {:move-result :plague-healer :warriors (min 99 (+ warriors 2)) :current-territory destination}
     {:move-result :plague :warriors (max 1 (- warriors 2)) :current-territory destination}))
 
+(defn dragon-attack [{:keys [sword warriors gold]} {dragon-warriors :warriors dragon-gold :gold} destination]
+  (if sword
+    {:move-result :dragon-sword
+     :dragon-hoard {:warriors 0 :gold 0}
+     :warriors (min 99 (+ warriors dragon-warriors))
+     :gold (min 99 (+ gold dragon-gold))
+     :current-territory destination}
+    (let [warriors-taken (if (= 1 warriors) 0 (max 1 (int (* 0.25 warriors))))
+          gold-taken (if (= 1 gold) 0 (max 1 (int (* 0.25 gold))))]
+      {:move-result :dragon
+       :dragon-hoard {:warriors (+ dragon-warriors warriors-taken) :gold (+ dragon-gold gold-taken)}
+       :warriors (- warriors warriors-taken)
+       :gold (- gold gold-taken)
+       :current-territory destination})))
+
 (defn move [player destination]
   (let [result (safe-move player destination)
         updated-player (if (= :moved-pegasus (:move-result result))
