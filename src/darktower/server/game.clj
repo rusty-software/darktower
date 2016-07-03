@@ -71,11 +71,11 @@
 
 (defn roll-action [roll]
   (cond
-    (<= roll 50) safe-move
-    (<= roll 70) battle
-    (<= roll 80) lost
-    (<= roll 90) plague
-    (<= roll 100) dragon-attack))
+    (<= roll 50) (with-meta 'safe-move {:name "safe-move"})
+    (<= roll 70) (with-meta 'battle {:name "battle"})
+    (<= roll 80) (with-meta 'lost {:name "lost"})
+    (<= roll 90) (with-meta 'plague {:name "plague"})
+    (<= roll 100) (with-meta 'dragon-attack {:name "dragon-attack"})))
 
 (defn move [player destination]
   (let [roll (rand-nth (range 1 101))

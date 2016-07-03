@@ -184,3 +184,20 @@
                     :gold 99}
           actual (dragon-attack player dragon-hoard {:kingdom :zenon :row 3 :idx 1})]
       (is (= expected actual)))))
+
+(deftest roll-action-test
+  (testing "50 or lower is a safe-move"
+    (is (= 'safe-move (roll-action 1)))
+    (is (= 'safe-move (roll-action 50))))
+  (testing "51 to 70 is battle"
+    (is (= 'battle (roll-action 51)))
+    (is (= 'battle (roll-action 70))))
+  (testing "71 to 80 is lost"
+    (is (= 'lost (roll-action 71)))
+    (is (= 'lost (roll-action 80))))
+  (testing "81 to 90 is plague"
+    (is (= 'plague (roll-action 81)))
+    (is (= 'plague (roll-action 90))))
+  (testing "91 to 100 is dragon attack"
+    (is (= 'dragon-attack (roll-action 91)))
+    (is (= 'dragon-attack (roll-action 100)))))
