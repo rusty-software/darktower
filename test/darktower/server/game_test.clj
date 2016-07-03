@@ -70,3 +70,59 @@
                     :current-territory {:kingdom :zenon :row 1 :idx 2}}
           actual (safe-move player {:kingdom :arisilon :row 3 :idx 0})]
       (is (= expected actual)))))
+
+(deftest lost-test
+  (testing "Lost leaves the player on the original territory"
+    (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2})
+          expected {:move-result :lost :current-territory {:kingdom :zenon :row 3 :idx 2}}
+          actual (lost player {:kingdom :zenon :row 3 :idx 1})]
+      (is (= expected actual))))
+  (testing "Lost with scout advances and grants the player another turn"
+    (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2}
+                               :scout true)
+          expected {:move-result :lost-scout :extra-turn true :current-territory {:kingdom :zenon :row 3 :idx 1}}
+          actual (lost player {:kingdom :zenon :row 3 :idx 1})]
+      (is (= expected actual)))))
+
+(deftest plague-test
+  (testing "Plague reduces the player's warrior count by 2"
+    (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2}
+                               :warriors 10)
+          expected {:move-result :plague
+                    :current-territory {:kingdom :zenon :row 3 :idx 1}
+                    :warriors 8}
+          actual (plague player {:kingdom :zenon :row 3 :idx 1})]
+      (is (= expected actual))))
+  (testing "Warrior count cannot drop below 1"
+    (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2}
+                               :warriors 2)
+          expected {:move-result :plague
+                    :current-territory {:kingdom :zenon :row 3 :idx 1}
+                    :warriors 1}
+          actual (plague player {:kingdom :zenon :row 3 :idx 1})]
+      (is (= expected actual))))
+  (testing "Plague with healer increases warrior count by 2"
+    (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2}
+                               :warriors 10
+                               :healer true)
+          expected {:move-result :plague-healer
+                    :current-territory {:kingdom :zenon :row 3 :idx 1}
+                    :warriors 12}
+          actual (plague player {:kingdom :zenon :row 3 :idx 1})]
+      (is (= expected actual))))
+  (testing "Warrior count cannot exceed 99"
+    (testing "Plague with healer increases warrior count by 2"
+    (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2}
+                               :warriors 98
+                               :healer true)
+          expected {:move-result :plague-healer
+                    :current-territory {:kingdom :zenon :row 3 :idx 1}
+                    :warriors 99}
+          actual (plague player {:kingdom :zenon :row 3 :idx 1})]
+      (is (= expected actual))))))
+
+(deftest dragon-test
+  (testing "Dragon takes 25% (rounded down) of a player's warriors and gold and adds them to its own collection")
+  (testing "Warrior count cannot drop below 1")
+  (testing "Dragon with sword adds dragon's collection to players, resetting its own")
+  (testing "Warrior and gold counts cannot exceed 99"))

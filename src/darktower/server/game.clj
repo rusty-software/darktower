@@ -41,6 +41,16 @@
       :else
       {:move-result :invalid :reason "Destination must be adjacent to your current territory!" :current-territory current-territory})))
 
+(defn lost [{:keys [scout current-territory]} destination]
+  (if scout
+    {:move-result :lost-scout :extra-turn true :current-territory destination}
+    {:move-result :lost :current-territory current-territory}))
+
+(defn plague [{:keys [healer warriors]} destination]
+  (if healer
+    {:move-result :plague-healer :warriors (min 99 (+ warriors 2)) :current-territory destination}
+    {:move-result :plague :warriors (max 1 (- warriors 2)) :current-territory destination}))
+
 (defn move [player destination]
   (let [result (safe-move player destination)
         updated-player (if (= :moved-pegasus (:move-result result))
