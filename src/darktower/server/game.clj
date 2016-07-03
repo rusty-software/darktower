@@ -41,6 +41,9 @@
       :else
       {:move-result :invalid :reason "Destination must be adjacent to your current territory!" :current-territory current-territory})))
 
+(defn battle [player]
+  (log/info "battle not implemented"))
+
 (defn lost [{:keys [scout current-territory]} destination]
   (if scout
     {:move-result :lost-scout :extra-turn true :current-territory destination}
@@ -66,8 +69,18 @@
        :gold (- gold gold-taken)
        :current-territory destination})))
 
+(defn roll-action [roll]
+  (cond
+    (<= roll 50) safe-move
+    (<= roll 70) battle
+    (<= roll 80) lost
+    (<= roll 90) plague
+    (<= roll 100) dragon-attack))
+
 (defn move [player destination]
-  (let [result (safe-move player destination)
+  (let [roll (rand-nth (range 1 101))
+        move-fn (roll-action roll)
+        result (move-fn player destination)
         updated-player (if (= :moved-pegasus (:move-result result))
                          (merge (dissoc player :pegasus) result)
                          (merge player result))]
