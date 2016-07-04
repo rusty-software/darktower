@@ -26,20 +26,25 @@
     (not (nil? type))
     (assoc :type type)))
 
-(defn safe-move [player destination]
+(defn valid-move [player destination]
   (let [current-territory (:current-territory player)
         neighbors (board/neighbors-for current-territory)]
     (cond
       (some #{destination} neighbors)
-      {:move-result :moved :current-territory (normalized-territory destination)}
+      {:valid? true}
 
       (and
         (= (:kingdom destination) (:kingdom current-territory))
         (:pegasus player))
-      {:move-result :moved-pegasus :current-territory (normalized-territory destination)}
+      {:valid? true :pegasus-required? true}
 
       :else
-      {:move-result :invalid :reason "Destination must be adjacent to your current territory!" :current-territory current-territory})))
+      {:valid? false :reason "Destination must be adjacent to your current territory!"})))
+
+(defn safe-move [player pegasus-required? destination]
+  (if pegasus-required?
+    {:move-result :moved :pegasus-required? true :current-territory (normalized-territory destination)}
+    {:move-result :moved :current-territory (normalized-territory destination)}))
 
 (defn battle [player]
   (log/info "battle not implemented"))
@@ -71,18 +76,23 @@
 
 (defn roll-action [roll]
   (cond
-    (<= roll 50) (with-meta 'safe-move {:name "safe-move"})
-    (<= roll 70) (with-meta 'battle {:name "battle"})
-    (<= roll 80) (with-meta 'lost {:name "lost"})
-    (<= roll 90) (with-meta 'plague {:name "plague"})
-    (<= roll 100) (with-meta 'dragon-attack {:name "dragon-attack"})))
+    (<= roll 50) safe-move #_(with-meta 'safe-move {:name "safe-move"})
+    (<= roll 70) battle #_(with-meta 'battle {:name "battle"})
+    (<= roll 80) lost #_(with-meta 'lost {:name "lost"})
+    (<= roll 90) plague #_(with-meta 'plague {:name "plague"})
+    (<= roll 100) dragon-attack #_(with-meta 'dragon-attack {:name "dragon-attack"})))
 
 (defn move [player destination]
   (let [roll (rand-nth (range 1 101))
         move-fn (roll-action roll)
-        result (move-fn player destination)
-        updated-player (if (= :moved-pegasus (:move-result result))
-                         (merge (dissoc player :pegasus) result)
-                         (merge player result))]
+        result (if (= 'dragon-attack move-fn)
+                 (move-fn player {:warriors 0 :gold 0} destination)
+                 (move-fn player destination))
+        _ (log/info "move-result" result)
+        updated-player (cond-> player
+                         (:warriors result) (assoc :warriors (:warriors result))
+                         (:gold result) (assoc :gold (:gold result))
+                         (:reason result) (assoc :reason (:reason result))
+                         :always (assoc :move-result (:move-result result) :current-territory (:current-territory result)))]
     (log/info "updated-player" updated-player)
     updated-player))

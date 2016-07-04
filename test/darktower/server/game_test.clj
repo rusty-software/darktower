@@ -33,43 +33,49 @@
    :name "rusty"
    :kingdom :arisilon})
 
-(deftest safe-move-test
+(deftest valid-move-test
   (testing "Movement allowed to adjacent territories"
     (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2})
-          expected {:move-result :moved :current-territory {:kingdom :zenon :row 3 :idx 1}}
-          actual (safe-move player {:kingdom :zenon :row 3 :idx 1})]
+          expected {:valid? true}
+          actual (valid-move player {:kingdom :zenon :row 3 :idx 1})]
       (is (= expected actual)))
     (let [player (assoc player :current-territory {:kingdom :zenon :row 1 :idx 2})
-          expected {:move-result :moved :current-territory {:kingdom :zenon :type :frontier}}
-          actual (safe-move player {:kingdom :zenon :type :frontier})]
+          expected {:valid? true}
+          actual (valid-move player {:kingdom :zenon :type :frontier})]
       (is (= expected actual))))
   (testing "Movement to non-adjacent territories"
     (testing "When the player has no pegasus, movement is not allowed"
       (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2})
-            expected {:move-result :invalid
-                      :reason "Destination must be adjacent to your current territory!"
-                      :current-territory {:kingdom :zenon :row 3 :idx 2}}
-            actual (safe-move player {:kingdom :zenon :row 3 :idx 0})]
+            expected {:valid? false
+                      :reason "Destination must be adjacent to your current territory!"}
+            actual (valid-move player {:kingdom :zenon :row 3 :idx 0})]
         (is (= expected actual))))
     (testing "When the player has a pegasus, movement is allowed and the pegasus is expended"
       (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2}
                                  :pegasus true)
-            expected {:move-result :moved-pegasus :current-territory {:kingdom :zenon :row 1 :idx 0}}
-            actual (safe-move player {:kingdom :zenon :row 1 :idx 0})]
+            expected {:valid? true :pegasus-required? true}
+            actual (valid-move player {:kingdom :zenon :row 1 :idx 0})]
         (is (= expected actual)))))
   (testing "Movement to another kingdom is only allowed from previous kingdom's frontier, even if the player has a pegasus"
     (let [player (assoc player :current-territory {:kingdom :zenon :type :frontier}
                                :pegasus true)
-          expected {:move-result :moved :current-territory {:kingdom :arisilon :row 3 :idx 0}}
-          actual (safe-move player {:kingdom :arisilon :row 3 :idx 0})]
+          expected {:valid? true}
+          actual (valid-move player {:kingdom :arisilon :row 3 :idx 0})]
       (is (= expected actual)))
     (let [player (assoc player :current-territory {:kingdom :zenon :row 1 :idx 2}
                                :pegasus true)
-          expected {:move-result :invalid
-                    :reason "Destination must be adjacent to your current territory!"
-                    :current-territory {:kingdom :zenon :row 1 :idx 2}}
-          actual (safe-move player {:kingdom :arisilon :row 3 :idx 0})]
+          expected {:valid? false
+                    :reason "Destination must be adjacent to your current territory!"}
+          actual (valid-move player {:kingdom :arisilon :row 3 :idx 0})]
       (is (= expected actual)))))
+
+(deftest safe-move-test
+  (testing "Moves player from one adjacent territory to another"
+    (let [expected {:move-result :moved :current-territory {:kingdom :arisilon :row 3 :idx 0}}]
+      (is (= expected (safe-move nil false {:kingdom :arisilon :row 3 :idx 0})))))
+  (testing "Indicates that a pegasus was used"
+    (let [expected {:move-result :moved :pegasus-required? true :current-territory {:kingdom :arisilon :row 3 :idx 0}}]
+      (is (= expected (safe-move nil true {:kingdom :arisilon :row 3 :idx 0}))))))
 
 (deftest lost-test
   (testing "Lost leaves the player on the original territory"
@@ -184,20 +190,3 @@
                     :gold 99}
           actual (dragon-attack player dragon-hoard {:kingdom :zenon :row 3 :idx 1})]
       (is (= expected actual)))))
-
-(deftest roll-action-test
-  (testing "50 or lower is a safe-move"
-    (is (= 'safe-move (roll-action 1)))
-    (is (= 'safe-move (roll-action 50))))
-  (testing "51 to 70 is battle"
-    (is (= 'battle (roll-action 51)))
-    (is (= 'battle (roll-action 70))))
-  (testing "71 to 80 is lost"
-    (is (= 'lost (roll-action 71)))
-    (is (= 'lost (roll-action 80))))
-  (testing "81 to 90 is plague"
-    (is (= 'plague (roll-action 81)))
-    (is (= 'plague (roll-action 90))))
-  (testing "91 to 100 is dragon attack"
-    (is (= 'dragon-attack (roll-action 91)))
-    (is (= 'dragon-attack (roll-action 100)))))
