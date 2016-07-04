@@ -1,12 +1,22 @@
 (ns darktower.server.game
   (:require [taoensso.timbre :as log]
-            [darktower.server.board :as board]))
+            [schema.core :as s]
+            [darktower.server.board :as board]
+            [darktower.server.schema :as schema]))
 
-(defn initialize-player [player]
+(s/defn initialize-player [player] :- schema/Player
   (assoc player :current-territory {:kingdom (:kingdom player) :row 5 :idx 3}
                 :warriors 10
                 :gold 30
-                :food 25))
+                :food 25
+                :scout false
+                :healer false
+                :beast false
+                :brass-key false
+                :silver-key false
+                :gold-key false
+                :pegasus false
+                :sword false))
 
 (defn initialize-game [players]
   (let [init-players (map initialize-player players)]
@@ -46,37 +56,36 @@
     {:move-result :moved :pegasus-required? true :current-territory (normalized-territory destination)}
     {:move-result :moved :current-territory (normalized-territory destination)}))
 
-(defn battle [player destination]
+(defn battle [player]
   (log/info "battle not implemented"))
 
-(defn lost [{:keys [scout current-territory]} destination]
+(defn lost [{:keys [scout last-territory] :as player}]
   (if scout
-    {:move-result :lost-scout :extra-turn true :current-territory destination}
-    {:move-result :lost :current-territory current-territory}))
+    (assoc player :encounter-result :lost :extra-turn true)
+    (assoc player :encounter-result :lost :current-territory last-territory)))
 
-(defn plague [{:keys [healer warriors]} destination]
+(defn plague [{:keys [healer warriors] :as player}]
   (if healer
-    {:move-result :plague-healer :warriors (min 99 (+ warriors 2)) :current-territory destination}
-    {:move-result :plague :warriors (max 1 (- warriors 2)) :current-territory destination}))
+    (assoc player :encounter-result :plague :warriors (min 99 (+ warriors 2)))
+    (assoc player :encounter-result :plague :warriors (max 1 (- warriors 2)))))
 
-(defn dragon-attack [{:keys [sword warriors gold]} {dragon-warriors :warriors dragon-gold :gold} destination]
-  (if sword
-    {:move-result :dragon-sword
-     :dragon-hoard {:warriors 0 :gold 0}
-     :warriors (min 99 (+ warriors dragon-warriors))
-     :gold (min 99 (+ gold dragon-gold))
-     :current-territory destination}
-    (let [warriors-taken (if (= 1 warriors) 0 (max 1 (int (* 0.25 warriors))))
-          gold-taken (if (= 1 gold) 0 (max 1 (int (* 0.25 gold))))]
-      {:move-result :dragon
-       :dragon-hoard {:warriors (+ dragon-warriors warriors-taken) :gold (+ dragon-gold gold-taken)}
-       :warriors (- warriors warriors-taken)
-       :gold (- gold gold-taken)
-       :current-territory destination})))
+(defn dragon-attack [{:keys [sword warriors gold] :as player} dragon-hoard]
+  (let [{dragon-warriors :warriors dragon-gold :gold} dragon-hoard]
+    (if sword
+      {:player (assoc player :encounter-result :dragon-attack
+                             :warriors (min 99 (+ warriors dragon-warriors))
+                             :gold (min 99 (+ gold dragon-gold)))
+       :dragon-hoard {:warriors 0 :gold 0}}
+      (let [warriors-taken (if (= 1 warriors) 0 (max 1 (int (* 0.25 warriors))))
+            gold-taken (if (= 1 gold) 0 (max 1 (int (* 0.25 gold))))]
+        {:player (assoc player :encounter-result :dragon-attack
+                               :warriors (- warriors warriors-taken)
+                               :gold (- gold gold-taken))
+         :dragon-hoard {:warriors (+ dragon-warriors warriors-taken) :gold (+ dragon-gold gold-taken)}}))))
 
-(defn move-action [roll player destination other-move-info]
+#_(defn move-action [roll player & [game-state]]
   (cond
-    (<= roll 50) (safe-move destination (:pegasus-required? other-move-info))
+    (<= roll 50) (safe-move  )
     (<= roll 70) (battle player destination)
     (<= roll 80) (lost player destination)
     (<= roll 90) (plague player destination)
@@ -90,13 +99,23 @@
     (>= 90 roll) :plague
     (>= 100 roll) :dragon-attack))
 
-(defn encounter-territory [player game-state])
-(defn encounter-location [player location])
+(defn encounter-territory [player dragon-hoard]
+  (let [roll-action (roll-result (rand-nth (range 1 101)))]
+    (cond
+      (= :safe-move roll-action) player
+      (= :battle roll-action) (battle player)
+      (= :lost roll-action) (lost player)
+      (= :plague roll-action) (plague player)
+      (= :dragon-attack roll-action) (dragon-attack player dragon-hoard))))
 
-(defn move [player game-state]
+(defn encounter-location [player location]
+  (log/info "encountering location" location)
+  player)
+
+(defn encounter [player dragon-hoard]
   (let [territory-type (board/type-for (dissoc (:current-territory player) :kingdom))]
     (if (= :territory territory-type)
-      (encounter-territory player game-state)
+      (encounter-territory player dragon-hoard)
       (encounter-location player territory-type)))
 
   #_(let [roll-action (roll-result (rand-nth (range 1 101)))]

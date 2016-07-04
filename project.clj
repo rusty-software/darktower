@@ -18,7 +18,8 @@
                  [ring "1.4.0"]
                  [ring/ring-defaults "0.2.0"]
                  [ring-cors "0.1.7"]
-                 [reagent "0.6.0-rc"]]
+                 [reagent "0.6.0-rc"]
+                 [prismatic/schema "1.1.2"]]
   
   :plugins [[lein-figwheel "0.5.2"]
             [lein-cljsbuild "1.1.3" :exclusions [[org.clojure/clojure]]]]
