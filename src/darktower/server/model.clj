@@ -55,9 +55,18 @@
   (let [game-state (get app-state token)]
     (if (= uid (:current-player game-state))
       (let [player (player-by-uid game-state uid)
-            moved-player (game/move player territory-info)
-            game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) moved-player))]
-        (assoc app-state token game-state))
+            validation (game/valid-move player territory-info)]
+        (if (:valid? validation)
+          (let [player (cond-> player
+                         (:pegasus-required? validation) (dissoc :pegasus)
+                         :always (assoc :last-territory (:current-territory player)
+                                        :current-territory territory-info))
+                updated-player (game/move player game-state)
+                updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) updated-player))]
+            (assoc app-state token updated-game-state))
+          (let [updated-player (merge player validation)
+                updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) updated-player))]
+            (assoc app-state token updated-game-state))))
       app-state)))
 
 (defn move! [uid token territory-info]

@@ -41,12 +41,12 @@
       :else
       {:valid? false :reason "Destination must be adjacent to your current territory!"})))
 
-(defn safe-move [player pegasus-required? destination]
+(defn safe-move [destination pegasus-required?]
   (if pegasus-required?
     {:move-result :moved :pegasus-required? true :current-territory (normalized-territory destination)}
     {:move-result :moved :current-territory (normalized-territory destination)}))
 
-(defn battle [player]
+(defn battle [player destination]
   (log/info "battle not implemented"))
 
 (defn lost [{:keys [scout current-territory]} destination]
@@ -74,25 +74,56 @@
        :gold (- gold gold-taken)
        :current-territory destination})))
 
-(defn roll-action [roll]
+(defn move-action [roll player destination other-move-info]
   (cond
-    (<= roll 50) safe-move #_(with-meta 'safe-move {:name "safe-move"})
-    (<= roll 70) battle #_(with-meta 'battle {:name "battle"})
-    (<= roll 80) lost #_(with-meta 'lost {:name "lost"})
-    (<= roll 90) plague #_(with-meta 'plague {:name "plague"})
-    (<= roll 100) dragon-attack #_(with-meta 'dragon-attack {:name "dragon-attack"})))
+    (<= roll 50) (safe-move destination (:pegasus-required? other-move-info))
+    (<= roll 70) (battle player destination)
+    (<= roll 80) (lost player destination)
+    (<= roll 90) (plague player destination)
+    (<= roll 100) dragon-attack))
 
-(defn move [player destination]
-  (let [roll (rand-nth (range 1 101))
-        move-fn (roll-action roll)
-        result (if (= 'dragon-attack move-fn)
-                 (move-fn player {:warriors 0 :gold 0} destination)
-                 (move-fn player destination))
-        _ (log/info "move-result" result)
-        updated-player (cond-> player
-                         (:warriors result) (assoc :warriors (:warriors result))
-                         (:gold result) (assoc :gold (:gold result))
-                         (:reason result) (assoc :reason (:reason result))
-                         :always (assoc :move-result (:move-result result) :current-territory (:current-territory result)))]
-    (log/info "updated-player" updated-player)
-    updated-player))
+(defn roll-result [roll]
+  (cond
+    (>= 50 roll) :safe-move
+    (>= 70 roll) :battle
+    (>= 80 roll) :lost
+    (>= 90 roll) :plague
+    (>= 100 roll) :dragon-attack))
+
+(defn encounter-territory [player game-state])
+(defn encounter-location [player location])
+
+(defn move [player game-state]
+  (let [territory-type (board/type-for (dissoc (:current-territory player) :kingdom))]
+    (if (= :territory territory-type)
+      (encounter-territory player game-state)
+      (encounter-location player territory-type)))
+
+  #_(let [roll-action (roll-result (rand-nth (range 1 101)))]
+    (if (and (= :lost roll-action))
+      (assoc player :current-territory (:last-territory player)
+                    :encounter-result :lost)))
+  #_(let [roll (rand-nth (range 1 101))
+            result (-action roll player game-state)
+            _ (log/info "move-action result" result)
+            updated-player (cond-> player
+                             (:warriors result) (assoc :warriors (:warriors result))
+                             (:gold result) (assoc :gold (:gold result))
+                             (:reason result) (assoc :reason (:reason result))
+                             :always (assoc :move-result (:move-result result) :current-territory (:current-territory result)))]
+        (log/info "updated-player" updated-player)
+        updated-player))
+#_(defn move [player destination]
+  (let [validation (valid-move player destination)]
+    (if (:valid? validation)
+      #_(let [roll (rand-nth (range 1 101))
+            result (move-action roll player destination {:dragon-hoard dragon-hoard :pegasus-required? (:pegasus-required? validation)})
+            _ (log/info "move-action result" result)
+            updated-player (cond-> player
+                             (:warriors result) (assoc :warriors (:warriors result))
+                             (:gold result) (assoc :gold (:gold result))
+                             (:reason result) (assoc :reason (:reason result))
+                             :always (assoc :move-result (:move-result result) :current-territory (:current-territory result)))]
+        (log/info "updated-player" updated-player)
+        updated-player)
+      (merge player validation))))
