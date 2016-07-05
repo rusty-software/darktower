@@ -203,14 +203,10 @@
                                    frontier-specs))
                                kingdom-specs)
               {:keys [player-img-x-offset player-img-y-offset]} (first (filter #(= kingdom (:kingdom %)) location-specs))
-              _ (println "offsets" player-img-x-offset player-img-y-offset)
-              #_#_{:keys [player-img-x-offset player-img-y-offset]} (first (filter #(= kingdom (:kingdom %)) kingdom-specs))
               {:keys [move-x move-y end-x end-y]} (territory-arc-for kingdom row idx)
               x (+ (/ (+ move-x end-x) 2) player-img-x-offset)
               y (+ (/ (+ move-y end-y) 2) player-img-y-offset)]]
-    (do
-      (println "piece img x y" x y)
-      (piece-image x y 32 32 "img/golden_knight.png"))))
+    (piece-image x y 32 32 "img/golden_knight.png")))
 
 (defn main []
   [:div
@@ -241,6 +237,16 @@
       :stroke-width 1
       :fill "dimgray"}]
     (piece-image 400 300 100 100 "img/dtflag.gif")
+    (for [[x y] [[336 68] [682 420] [516 582] [172 420]]]
+      (piece-image x y 48 48 "img/sanctuary.gif"))
+    (for [[x y] [[512 68] [682 240] [336 582] [172 240]]]
+      (piece-image x y 48 48 "img/tomb.gif"))
     (for [[x y] [[425 100] [650 325] [425 550] [200 325]]]
       (piece-image x y 48 48 "img/bazaar.gif"))
+    (for [[x y] [[400 156] [600 296] [452 500] [252 360]]]
+      (piece-image x y 48 48 "img/bazaar.gif"))
+    (piece-image 426 4 42 42 "img/zenon_citadel.png")
+    (piece-image 750 324 42 42 "img/arisilon_citadel.png")
+    (piece-image 426 654 42 42 "img/brynthia_citadel.png")
+    (piece-image 100 324 42 42 "img/durnin_citadel.png")
     (player-images)]])
