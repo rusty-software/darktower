@@ -176,6 +176,12 @@
    {:dangerouslySetInnerHTML
     {:__html (str "<image xlink:href=\"" img "\" x=\"" x "\" y=\"" y "\" width=\"" w "\" height=\"" h "\" />")}}])
 
+(defn piece-image-rotated [x y w h img rotation]
+  ^{:key (str x "-" y "-" w "-" h "-" img)}
+  [:g
+   {:dangerouslySetInnerHTML
+    {:__html (str "<image xlink:href=\"" img "\" x=\"" x "\" y=\"" y "\" width=\"" w "\" height=\"" h "\" transform=\"rotate(" rotation ")\" />")}}])
+
 (defn territory-arc-for [kingdom row idx]
   (let [{:keys [r territory-count]} (row-spec row)
         kingdom-spec (first (filter #(= kingdom (:kingdom %)) kingdom-specs))
@@ -235,4 +241,6 @@
       :stroke-width 1
       :fill "dimgray"}]
     (piece-image 400 300 100 100 "img/dtflag.gif")
+    (for [[x y] [[425 100] [650 325] [425 550] [200 325]]]
+      (piece-image x y 48 48 "img/bazaar.gif"))
     (player-images)]])
