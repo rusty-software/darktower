@@ -244,7 +244,7 @@
     (for [[x y] [[425 100] [650 325] [425 550] [200 325]]]
       (piece-image x y 48 48 "img/bazaar.gif"))
     (for [[x y] [[400 156] [600 296] [452 500] [252 360]]]
-      (piece-image x y 48 48 "img/bazaar.gif"))
+      (piece-image x y 48 48 "img/ruin.gif"))
     (piece-image 426 4 42 42 "img/zenon_citadel.png")
     (piece-image 750 324 42 42 "img/arisilon_citadel.png")
     (piece-image 426 654 42 42 "img/brynthia_citadel.png")
