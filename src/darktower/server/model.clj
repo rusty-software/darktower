@@ -56,13 +56,18 @@
     (if (= uid (:current-player game-state))
       (let [player (player-by-uid game-state uid)
             validation (game/valid-move player destination)]
+        (log/info "validation" validation)
         (if (:valid? validation)
           (let [moved-player (cond-> player
                                (:pegasus-required? validation) (dissoc :pegasus)
-                               :always (assoc :current-territory destination
+                               :always (assoc :current-territory (game/normalized-territory destination)
                                               :last-territory (:current-territory player)))
-                updated-player (game/encounter moved-player (:dragon-hoard game-state))
-                updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) updated-player))]
+                encounter-result (game/encounter moved-player (:dragon-hoard game-state))
+                _ (log/info "encounter-result" encounter-result)
+                updated-game-state (cond-> game-state
+                                     (:dragon-hoard encounter-result)
+                                     (assoc :dragon-hoard (:dragon-hoard encounter-result))
+                                     :always (assoc :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player encounter-result))))]
             (assoc app-state token updated-game-state))
           (let [updated-player (merge player validation)
                 updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) updated-player))]

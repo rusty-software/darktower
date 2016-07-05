@@ -22,7 +22,8 @@
   (let [init-players (map initialize-player players)]
     {:players init-players
      :player-order (vec (map :uid init-players))
-     :current-player (:uid (first init-players))}))
+     :current-player (:uid (first init-players))
+     :dragon-hoard {:warriors 0 :gold 0}}))
 
 (defn normalized-territory [{:keys [kingdom row idx type]}]
   (cond-> {:kingdom kingdom}
@@ -52,6 +53,7 @@
       {:valid? false :reason "Destination must be adjacent to your current territory!"})))
 
 (defn safe-move [player]
+  (log/info "safe-move")
   {:player player})
 
 (defn battle [player]
@@ -59,16 +61,19 @@
   {:player player})
 
 (defn lost [{:keys [scout last-territory] :as player}]
+  (log/info "lost")
   (if scout
     {:player (assoc player :encounter-result :lost :extra-turn true)}
     {:player (assoc player :encounter-result :lost :current-territory last-territory)}))
 
 (defn plague [{:keys [healer warriors] :as player}]
+  (log/info "plague")
   (if healer
     {:player (assoc player :encounter-result :plague :warriors (min 99 (+ warriors 2)))}
     {:player (assoc player :encounter-result :plague :warriors (max 1 (- warriors 2)))}))
 
 (defn dragon-attack [{:keys [sword warriors gold] :as player} dragon-hoard]
+  (log/info "dragon-attack")
   (let [{dragon-warriors :warriors dragon-gold :gold} dragon-hoard]
     (if sword
       {:player (assoc player :encounter-result :dragon-attack
@@ -93,7 +98,7 @@
 (defn encounter-territory [player dragon-hoard]
   (let [roll-action (roll-result (rand-nth (range 1 101)))]
     (cond
-      (= :safe-move roll-action) {:player player}
+      (= :safe-move roll-action) (safe-move player)
       (= :battle roll-action) (battle player)
       (= :lost roll-action) (lost player)
       (= :plague roll-action) (plague player)
@@ -101,7 +106,7 @@
 
 (defn encounter-location [player location]
   (log/info "encountering location" location)
-  player)
+  {:player player})
 
 (defn encounter [player dragon-hoard]
   (let [territory-type (board/type-for (dissoc (:current-territory player) :kingdom))]
