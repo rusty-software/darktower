@@ -78,54 +78,50 @@
           actual (valid-move player {:kingdom :arisilon :row 3 :idx 0})]
       (is (= expected actual)))))
 
-#_(deftest safe-move-test
-  (testing "Moves player from one adjacent territory to another"
-    (let [expected {:move-result :moved :current-territory {:kingdom :arisilon :row 3 :idx 0}}]
-      (is (= expected (safe-move nil false {:kingdom :arisilon :row 3 :idx 0})))))
-  (testing "Indicates that a pegasus was used"
-    (let [expected {:move-result :moved :pegasus-required? true :current-territory {:kingdom :arisilon :row 3 :idx 0}}]
-      (is (= expected (safe-move nil true {:kingdom :arisilon :row 3 :idx 0}))))))
+(deftest safe-move-test
+  (testing "Passes the player through"
+    (is (= {:player player} (safe-move player)))))
 
 (deftest lost-test
   (testing "Lost moves the player back to the last territory"
     (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2}
                                :last-territory {:kingdom :zenon :row 3 :idx 1})
-          expected (assoc player :encounter-result :lost
-                                 :current-territory {:kingdom :zenon :row 3 :idx 1}
-                                 :last-territory {:kingdom :zenon :row 3 :idx 1})
+          expected {:player (assoc player :encounter-result :lost
+                                          :current-territory {:kingdom :zenon :row 3 :idx 1}
+                                          :last-territory {:kingdom :zenon :row 3 :idx 1})}
           actual (lost player)]
       (is (= expected actual))))
   (testing "Lost with scout advances and grants the player another turn"
     (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2}
-                               :last-territory {:kingdom :zenon :row 3 :idx 1}
-                               :scout true)
-          expected (assoc player :encounter-result :lost
-                                 :current-territory {:kingdom :zenon :row 3 :idx 2}
-                                 :last-territory {:kingdom :zenon :row 3 :idx 1}
-                                 :scout true
-                                 :extra-turn true)
+                                         :last-territory {:kingdom :zenon :row 3 :idx 1}
+                                         :scout true)
+          expected {:player (assoc player :encounter-result :lost
+                                          :current-territory {:kingdom :zenon :row 3 :idx 2}
+                                          :last-territory {:kingdom :zenon :row 3 :idx 1}
+                                          :scout true
+                                          :extra-turn true)}
           actual (lost player)]
       (is (= expected actual)))))
 
 (deftest plague-test
   (testing "Plague reduces the player's warrior count by 2"
     (let [player (assoc player :warriors 10)
-          expected (assoc player :encounter-result :plague :warriors 8)
+          expected {:player (assoc player :encounter-result :plague :warriors 8)}
           actual (plague player)]
       (is (= expected actual))))
   (testing "Warrior count cannot drop below 1"
     (let [player (assoc player :warriors 2)
-          expected (assoc player :encounter-result :plague :warriors 1)
+          expected {:player (assoc player :encounter-result :plague :warriors 1)}
           actual (plague player)]
       (is (= expected actual))))
   (testing "Plague with healer increases warrior count by 2"
     (let [player (assoc player :warriors 10 :healer true)
-          expected (assoc player :encounter-result :plague :warriors 12 :healer true)
+          expected {:player (assoc player :encounter-result :plague :warriors 12 :healer true)}
           actual (plague player)]
       (is (= expected actual))))
   (testing "Warrior count cannot exceed 99"
     (let [player (assoc player :warriors 98 :healer true)
-          expected (assoc player :encounter-result :plague :warriors 99 :healer true)
+          expected {:player (assoc player :encounter-result :plague :warriors 99 :healer true)}
           actual (plague player)]
       (is (= expected actual)))))
 
@@ -139,53 +135,39 @@
                     :dragon-hoard {:warriors 12 :gold 12}}
           actual (dragon-attack player dragon-hoard)]
       (is (= expected actual))))
-#_  (testing "Dragon always takes at least one where possible"
-    (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2}
-                               :warriors 2
-                               :gold 2)
+  (testing "Dragon always takes at least one where possible"
+    (let [player (assoc player :warriors 2 :gold 2)
           dragon-hoard {:warriors 10 :gold 10}
-          expected {:move-result :dragon
-                    :current-territory {:kingdom :zenon :row 3 :idx 1}
-                    :dragon-hoard {:warriors 11 :gold 11}
-                    :warriors 1
-                    :gold 1}
-          actual (dragon-attack player dragon-hoard {:kingdom :zenon :row 3 :idx 1})]
+          expected {:player (assoc player :encounter-result :dragon-attack
+                                          :warriors 1
+                                          :gold 1)
+                    :dragon-hoard {:warriors 11 :gold 11}}
+          actual (dragon-attack player dragon-hoard)]
       (is (= expected actual))))
-#_  (testing "Warrior count cannot drop below 1"
-    (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2}
-                               :warriors 1
-                               :gold 1)
+  (testing "Warrior count cannot drop below 1"
+    (let [player (assoc player :warriors 1 :gold 1)
           dragon-hoard {:warriors 10 :gold 10}
-          expected {:move-result :dragon
-                    :current-territory {:kingdom :zenon :row 3 :idx 1}
-                    :dragon-hoard dragon-hoard
-                    :warriors 1
-                    :gold 1}
-          actual (dragon-attack player dragon-hoard {:kingdom :zenon :row 3 :idx 1})]
+          expected {:player (assoc player :encounter-result :dragon-attack
+                                          :warriors 1
+                                          :gold 1)
+                    :dragon-hoard {:warriors 10 :gold 10}}
+          actual (dragon-attack player dragon-hoard)]
       (is (= expected actual))))
-#_  (testing "Dragon with sword adds dragon's collection to players, resetting its own"
-    (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2}
-                               :warriors 10
-                               :gold 10
-                               :sword true)
+  (testing "Dragon with sword adds dragon's collection to players, resetting its own"
+   (let [player (assoc player :warriors 10 :gold 10 :sword true)
           dragon-hoard {:warriors 10 :gold 10}
-          expected {:move-result :dragon-sword
-                    :current-territory {:kingdom :zenon :row 3 :idx 1}
-                    :dragon-hoard {:warriors 0 :gold 0}
-                    :warriors 20
-                    :gold 20}
-          actual (dragon-attack player dragon-hoard {:kingdom :zenon :row 3 :idx 1})]
+          expected {:player (assoc player :encounter-result :dragon-attack
+                                          :warriors 20
+                                          :gold 20)
+                    :dragon-hoard {:warriors 0 :gold 0}}
+          actual (dragon-attack player dragon-hoard)]
       (is (= expected actual))))
-#_  (testing "Warrior and gold counts cannot exceed 99"
-    (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2}
-                               :warriors 98
-                               :gold 98
-                               :sword true)
+  (testing "Warrior and gold counts cannot exceed 99"
+    (let [player (assoc player :warriors 98 :gold 98 :sword true)
           dragon-hoard {:warriors 10 :gold 10}
-          expected {:move-result :dragon-sword
-                    :current-territory {:kingdom :zenon :row 3 :idx 1}
-                    :dragon-hoard {:warriors 0 :gold 0}
-                    :warriors 99
-                    :gold 99}
-          actual (dragon-attack player dragon-hoard {:kingdom :zenon :row 3 :idx 1})]
+          expected {:player (assoc player :encounter-result :dragon-attack
+                                          :warriors 99
+                                          :gold 99)
+                    :dragon-hoard {:warriors 0 :gold 0}}
+          actual (dragon-attack player dragon-hoard)]
       (is (= expected actual)))))

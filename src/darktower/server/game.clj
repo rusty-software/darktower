@@ -51,23 +51,22 @@
       :else
       {:valid? false :reason "Destination must be adjacent to your current territory!"})))
 
-(defn safe-move [destination pegasus-required?]
-  (if pegasus-required?
-    {:move-result :moved :pegasus-required? true :current-territory (normalized-territory destination)}
-    {:move-result :moved :current-territory (normalized-territory destination)}))
+(defn safe-move [player]
+  {:player player})
 
 (defn battle [player]
-  (log/info "battle not implemented"))
+  (log/info "battle not implemented")
+  {:player player})
 
 (defn lost [{:keys [scout last-territory] :as player}]
   (if scout
-    (assoc player :encounter-result :lost :extra-turn true)
-    (assoc player :encounter-result :lost :current-territory last-territory)))
+    {:player (assoc player :encounter-result :lost :extra-turn true)}
+    {:player (assoc player :encounter-result :lost :current-territory last-territory)}))
 
 (defn plague [{:keys [healer warriors] :as player}]
   (if healer
-    (assoc player :encounter-result :plague :warriors (min 99 (+ warriors 2)))
-    (assoc player :encounter-result :plague :warriors (max 1 (- warriors 2)))))
+    {:player (assoc player :encounter-result :plague :warriors (min 99 (+ warriors 2)))}
+    {:player (assoc player :encounter-result :plague :warriors (max 1 (- warriors 2)))}))
 
 (defn dragon-attack [{:keys [sword warriors gold] :as player} dragon-hoard]
   (let [{dragon-warriors :warriors dragon-gold :gold} dragon-hoard]
@@ -83,14 +82,6 @@
                                :gold (- gold gold-taken))
          :dragon-hoard {:warriors (+ dragon-warriors warriors-taken) :gold (+ dragon-gold gold-taken)}}))))
 
-#_(defn move-action [roll player & [game-state]]
-  (cond
-    (<= roll 50) (safe-move  )
-    (<= roll 70) (battle player destination)
-    (<= roll 80) (lost player destination)
-    (<= roll 90) (plague player destination)
-    (<= roll 100) dragon-attack))
-
 (defn roll-result [roll]
   (cond
     (>= 50 roll) :safe-move
@@ -102,7 +93,7 @@
 (defn encounter-territory [player dragon-hoard]
   (let [roll-action (roll-result (rand-nth (range 1 101)))]
     (cond
-      (= :safe-move roll-action) player
+      (= :safe-move roll-action) {:player player}
       (= :battle roll-action) (battle player)
       (= :lost roll-action) (lost player)
       (= :plague roll-action) (plague player)
