@@ -170,17 +170,18 @@
         dark-tower-path (path-for board-spec 50 r angle-offset angle-width 1)]
     (path kingdom dark-tower-path stroke-color 1 fill-color :dark-tower)))
 
-(defn piece-image [x y w h img]
-  ^{:key (str x "-" y "-" w "-" h "-" img)}
-  [:g
-   {:dangerouslySetInnerHTML
-    {:__html (str "<image xlink:href=\"" img "\" x=\"" x "\" y=\"" y "\" width=\"" w "\" height=\"" h "\" />")}}])
-
-(defn piece-image-rotated [x y w h img rotation]
-  ^{:key (str x "-" y "-" w "-" h "-" img)}
-  [:g
-   {:dangerouslySetInnerHTML
-    {:__html (str "<image xlink:href=\"" img "\" x=\"" x "\" y=\"" y "\" width=\"" w "\" height=\"" h "\" transform=\"rotate(" rotation ")\" />")}}])
+(defn piece-image [x y w h img click-fn]
+  (if click-fn
+    ^{:key (str x "-" y "-" w "-" h "-" img)}
+    [:g
+     {:on-click click-fn
+      :cursor "pointer"
+      :dangerouslySetInnerHTML
+      {:__html (str "<image xlink:href=\"" img "\" x=\"" x "\" y=\"" y "\" width=\"" w "\" height=\"" h "\" />")}}]
+    ^{:key (str x "-" y "-" w "-" h "-" img)}
+    [:g
+     {:dangerouslySetInnerHTML
+      {:__html (str "<image xlink:href=\"" img "\" x=\"" x "\" y=\"" y "\" width=\"" w "\" height=\"" h "\" />")}}]))
 
 (defn territory-arc-for [kingdom row idx]
   (let [{:keys [r territory-count]} (row-spec row)
@@ -206,7 +207,7 @@
               {:keys [move-x move-y end-x end-y]} (territory-arc-for kingdom row idx)
               x (+ (/ (+ move-x end-x) 2) player-img-x-offset)
               y (+ (/ (+ move-y end-y) 2) player-img-y-offset)]]
-    (piece-image x y 32 32 "img/golden_knight.png")))
+    (piece-image x y 32 32 "img/golden_knight.png" nil)))
 
 (defn main []
   [:div
@@ -236,17 +237,17 @@
       :stroke "black"
       :stroke-width 1
       :fill "dimgray"}]
-    (piece-image 400 300 100 100 "img/dtflag.gif")
-    (for [[x y] [[336 68] [682 420] [516 582] [172 420]]]
-      (piece-image x y 48 48 "img/sanctuary.gif"))
-    (for [[x y] [[512 68] [682 240] [336 582] [172 240]]]
-      (piece-image x y 48 48 "img/tomb.gif"))
-    (for [[x y] [[425 100] [650 325] [425 550] [200 325]]]
-      (piece-image x y 48 48 "img/bazaar.gif"))
-    (for [[x y] [[400 156] [600 296] [452 500] [252 360]]]
-      (piece-image x y 48 48 "img/ruin.gif"))
-    (piece-image 426 4 42 42 "img/zenon_citadel.png")
-    (piece-image 750 324 42 42 "img/arisilon_citadel.png")
-    (piece-image 426 654 42 42 "img/brynthia_citadel.png")
-    (piece-image 100 324 42 42 "img/durnin_citadel.png")
+    (piece-image 400 300 100 100 "img/dtflag.gif" nil)
+    (for [[x y kingdom] [[336 68 :zenon] [682 240 :arisilon] [516 582 :brynthia] [172 420 :durnin]]]
+      (piece-image x y 48 48 "img/sanctuary.gif" #(communication/territory-click {:kingdom kingdom :row 4 :idx 1})))
+    (for [[x y kingdom] [[512 68 :zenon] [682 420 :arisilon] [336 582 :brynthia] [172 240 :durnin]]]
+      (piece-image x y 48 48 "img/tomb.gif" #(communication/territory-click {:kingdom kingdom :row 4 :idx 4})))
+    (for [[x y kingdom] [[425 100 :zenon] [650 325 :arisilon] [425 550 :brynthia] [200 325 :durnin]]]
+      (piece-image x y 48 48 "img/bazaar.gif" #(communication/territory-click {:kingdom kingdom :row 3 :idx 2})))
+    (for [[x y kingdom] [[400 156 :zenon] [600 296 :arisilon] [452 500 :brynthia] [252 360 :durnin]]]
+      (piece-image x y 48 48 "img/ruin.gif" #(communication/territory-click {:kingdom kingdom :row 2 :idx 1})))
+    (piece-image 426 4 42 42 "img/zenon_citadel.png" #(communication/territory-click {:kingdom :zenon :row 5 :idx 3}))
+    (piece-image 750 324 42 42 "img/arisilon_citadel.png" #(communication/territory-click {:kingdom :arisilon :row 5 :idx 3}))
+    (piece-image 426 654 42 42 "img/brynthia_citadel.png" #(communication/territory-click {:kingdom :brynthia :row 5 :idx 3}))
+    (piece-image 100 324 42 42 "img/durnin_citadel.png" #(communication/territory-click {:kingdom :durnin :row 5 :idx 3}))
     (player-images)]])

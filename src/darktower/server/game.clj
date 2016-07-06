@@ -112,33 +112,4 @@
   (let [territory-type (board/type-for (dissoc (:current-territory player) :kingdom))]
     (if (= :territory territory-type)
       (encounter-territory player dragon-hoard)
-      (encounter-location player territory-type)))
-
-  #_(let [roll-action (roll-result (rand-nth (range 1 101)))]
-    (if (and (= :lost roll-action))
-      (assoc player :current-territory (:last-territory player)
-                    :encounter-result :lost)))
-  #_(let [roll (rand-nth (range 1 101))
-            result (-action roll player game-state)
-            _ (log/info "move-action result" result)
-            updated-player (cond-> player
-                             (:warriors result) (assoc :warriors (:warriors result))
-                             (:gold result) (assoc :gold (:gold result))
-                             (:reason result) (assoc :reason (:reason result))
-                             :always (assoc :move-result (:move-result result) :current-territory (:current-territory result)))]
-        (log/info "updated-player" updated-player)
-        updated-player))
-#_(defn move [player destination]
-  (let [validation (valid-move player destination)]
-    (if (:valid? validation)
-      #_(let [roll (rand-nth (range 1 101))
-            result (move-action roll player destination {:dragon-hoard dragon-hoard :pegasus-required? (:pegasus-required? validation)})
-            _ (log/info "move-action result" result)
-            updated-player (cond-> player
-                             (:warriors result) (assoc :warriors (:warriors result))
-                             (:gold result) (assoc :gold (:gold result))
-                             (:reason result) (assoc :reason (:reason result))
-                             :always (assoc :move-result (:move-result result) :current-territory (:current-territory result)))]
-        (log/info "updated-player" updated-player)
-        updated-player)
-      (merge player validation))))
+      (encounter-location player territory-type))))
