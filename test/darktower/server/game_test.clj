@@ -80,7 +80,7 @@
 
 (deftest safe-move-test
   (testing "Passes the player through"
-    (is (= {:player player} (safe-move player)))))
+    (is (= {:player player :encounter-result :safe-move} (safe-move player)))))
 
 (deftest lost-test
   (testing "Lost moves the player back to the last territory"
@@ -181,4 +181,6 @@
     (is (zero? (:food (feed {:warriors 60 :food 4}))))
     (is (zero? (:food (feed {:warriors 75 :food 5}))))
     (is (zero? (:food (feed {:warriors 90 :food 6}))))
-    (is (zero? (:food (feed {:warriors 99 :food 7}))))))
+    (is (zero? (:food (feed {:warriors 99 :food 7})))))
+  (testing "Food level cannot drop below 0"
+    (is (zero? (:food (feed {:warriors 1 :food 0}))))))

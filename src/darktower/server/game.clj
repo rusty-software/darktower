@@ -53,7 +53,6 @@
       {:valid? false :message "Destination must be adjacent to your current territory!"})))
 
 (defn safe-move [player]
-  (log/info "safe-move")
   {:player player :encounter-result :safe-move})
 
 (defn battle [player]
@@ -61,19 +60,16 @@
   {:player player})
 
 (defn lost [{:keys [scout last-territory] :as player}]
-  (log/info "lost")
   (if scout
     {:player (assoc player :encounter-result :lost :extra-turn true)}
     {:player (assoc player :encounter-result :lost :current-territory last-territory)}))
 
 (defn plague [{:keys [healer warriors] :as player}]
-  (log/info "plague")
   (if healer
     {:player (assoc player :encounter-result :plague :warriors (min 99 (+ warriors 2)))}
     {:player (assoc player :encounter-result :plague :warriors (max 1 (- warriors 2)))}))
 
 (defn dragon-attack [{:keys [sword warriors gold] :as player} dragon-hoard]
-  (log/info "dragon-attack")
   (let [{dragon-warriors :warriors dragon-gold :gold} dragon-hoard]
     (if sword
       {:player (assoc player :encounter-result :dragon-attack
@@ -116,5 +112,5 @@
 
 (defn feed [{:keys [warriors food]}]
   (if (= warriors 99)
-    {:food (- food 7)}
-    {:food (- food (inc (int (/ warriors 15.1))))}))
+    {:food (max 0 (- food 7))}
+    {:food (max 0 (- food (inc (int (/ warriors 15.1)))))}))
