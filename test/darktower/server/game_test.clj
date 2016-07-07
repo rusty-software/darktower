@@ -56,7 +56,7 @@
     (testing "When the player has no pegasus, movement is not allowed"
       (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2})
             expected {:valid? false
-                      :reason "Destination must be adjacent to your current territory!"}
+                      :message "Destination must be adjacent to your current territory!"}
             actual (valid-move player {:kingdom :zenon :row 3 :idx 0})]
         (is (= expected actual))))
     (testing "When the player has a pegasus, movement is allowed and the pegasus is expended"
@@ -74,7 +74,7 @@
     (let [player (assoc player :current-territory {:kingdom :zenon :row 1 :idx 2}
                                :pegasus true)
           expected {:valid? false
-                    :reason "Destination must be adjacent to your current territory!"}
+                    :message "Destination must be adjacent to your current territory!"}
           actual (valid-move player {:kingdom :arisilon :row 3 :idx 0})]
       (is (= expected actual)))))
 
@@ -171,3 +171,14 @@
                     :dragon-hoard {:warriors 0 :gold 0}}
           actual (dragon-attack player dragon-hoard)]
       (is (= expected actual)))))
+
+(deftest feed-test
+  (testing "Food level reduced by appropriate amounts"
+    (is (zero? (:food (feed {:warriors 1 :food 1}))))
+    (is (zero? (:food (feed {:warriors 15 :food 1}))))
+    (is (zero? (:food (feed {:warriors 30 :food 2}))))
+    (is (zero? (:food (feed {:warriors 45 :food 3}))))
+    (is (zero? (:food (feed {:warriors 60 :food 4}))))
+    (is (zero? (:food (feed {:warriors 75 :food 5}))))
+    (is (zero? (:food (feed {:warriors 90 :food 6}))))
+    (is (zero? (:food (feed {:warriors 99 :food 7}))))))

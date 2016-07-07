@@ -58,7 +58,10 @@
             validation (game/valid-move player destination)]
         (log/info "validation" validation)
         (if (:valid? validation)
-          (let [moved-player (cond-> player
+          (let [updated-player (-> player
+                                   (dissoc :message)
+                                   (assoc :food (game/feed player)))
+                moved-player (cond-> updated-player
                                (:pegasus-required? validation) (dissoc :pegasus)
                                :always (assoc :current-territory (game/normalized-territory destination)
                                               :last-territory (:current-territory player)))

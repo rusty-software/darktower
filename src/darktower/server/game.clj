@@ -50,7 +50,7 @@
       {:valid? true :pegasus-required? true}
 
       :else
-      {:valid? false :reason "Destination must be adjacent to your current territory!"})))
+      {:valid? false :message "Destination must be adjacent to your current territory!"})))
 
 (defn safe-move [player]
   (log/info "safe-move")
@@ -113,3 +113,8 @@
     (if (= :territory territory-type)
       (encounter-territory player dragon-hoard)
       (encounter-location player territory-type))))
+
+(defn feed [{:keys [warriors food]}]
+  (if (= warriors 99)
+    {:food (- food 7)}
+    {:food (- food (inc (int (/ warriors 15.1))))}))
