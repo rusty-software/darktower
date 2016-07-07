@@ -60,7 +60,7 @@
         (if (:valid? validation)
           (let [updated-player (-> player
                                    (dissoc :message)
-                                   (assoc :food (game/feed player)))
+                                   (assoc :food (:food (game/feed player))))
                 moved-player (cond-> updated-player
                                (:pegasus-required? validation) (dissoc :pegasus)
                                :always (assoc :current-territory (game/normalized-territory destination)

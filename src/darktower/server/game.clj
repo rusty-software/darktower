@@ -54,7 +54,7 @@
 
 (defn safe-move [player]
   (log/info "safe-move")
-  {:player player})
+  {:player player :encounter-result :safe-move})
 
 (defn battle [player]
   (log/info "battle not implemented")
@@ -106,7 +106,7 @@
 
 (defn encounter-location [player location]
   (log/info "encountering location" location)
-  {:player player})
+  {:player player :encounter-result location})
 
 (defn encounter [player dragon-hoard]
   (let [territory-type (board/type-for (dissoc (:current-territory player) :kingdom))]
