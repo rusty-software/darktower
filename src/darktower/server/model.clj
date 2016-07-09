@@ -11,8 +11,8 @@
   (Integer/toString (rand-int (Math/pow 36 6)) 36))
 
 (defn initialize-game [app-state uid token name]
-  (let [kingdom (rand-nth board/kingdoms)
-        remaining-kingdoms (remove #{kingdom} board/kingdoms)]
+  (let [kingdom (first board/kingdoms)
+        remaining-kingdoms (rest board/kingdoms)]
     (assoc app-state token {:token token
                             :initialized-by uid
                             :remaining-kingdoms remaining-kingdoms
@@ -27,8 +27,8 @@
   (let [game-state (get app-state token)
         players (:players game-state)
         kingdoms (:remaining-kingdoms game-state)
-        kingdom (rand-nth kingdoms)
-        remaining-kingdoms (remove #{kingdom} kingdoms)
+        kingdom (first kingdoms)
+        remaining-kingdoms (rest kingdoms)
         new-players (conj players {:uid uid
                                    :name name
                                    :kingdom kingdom})
@@ -56,7 +56,6 @@
     (if (= uid (:current-player game-state))
       (let [player (player-by-uid game-state uid)
             validation (game/valid-move player destination)]
-        (log/info "validation" validation)
         (if (:valid? validation)
           (let [updated-player (-> player
                                    (dissoc :message)

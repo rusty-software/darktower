@@ -1,2 +1,59 @@
-/* some style */
+/**
+ * Body
+ * ----------------------------------------------------------------------------
+ */
+body {
+	color: #141412;
+	font-family: "Metamorphous", Helvetica, sans-serif;
+	line-height: 1.5;
+	text-rendering: optimizeLegibility;
+	vertical-align: baseline;
+	/*background-image: url("../img/cartagena_bg_01.jpg");*/
+	background-size: cover;
+}
+
+/**
+ * Headings
+ * ----------------------------------------------------------------------------
+ */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	clear: both;
+	line-height: 1.0;
+	font-family: "Pirata One"
+}
+
+h1 {
+	font-size: 48px;
+	margin: 33px 0;
+}
+
+h2 {
+	font-size: 30px;
+	margin: 5px 0;
+}
+
+h3 {
+	font-size: 22px;
+	margin: 22px 0;
+}
+
+h4 {
+	font-size: 20px;
+	margin: 25px 0;
+}
+
+h5 {
+	font-size: 18px;
+	margin: 30px 0;
+}
+
+h6 {
+	font-size: 16px;
+	margin: 36px 0;
+}
 

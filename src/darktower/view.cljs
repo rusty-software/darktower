@@ -19,7 +19,9 @@
    [:div {:id "player-data"}
     [:table
      [:tr
-      [:th "Player 1 binding"][:th "Player 2 binding"][:th "Player 3 binding"][:th "Player 4 binding"]]
+      (for [player (get-in @model/game-state [:server-state :players])]
+        [:th (str (:name player) " of " (name (:kingdom player)))])
+      ]
      [:tr
       [:td "Player 1 data"][:td "Player 2 data"][:td "Player 3 data"][:td "Player 4 data"]]]]])
 
@@ -141,7 +143,7 @@
 (defn main []
   [:center
    [:div
-    [:h3 "Dark Tower: the board game"]
+    [:h2 "Dark Tower: the board game"]
     (if (get-in @model/game-state [:server-state :game-on?])
       [:div
        [game-area]
