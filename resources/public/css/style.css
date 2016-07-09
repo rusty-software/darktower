@@ -57,3 +57,45 @@ h6 {
 	margin: 36px 0;
 }
 
+/**
+ * Tables
+ * ----------------------------------------------------------------------------
+ */
+table {
+    background: rgba(255, 255, 255, 0.3);
+	border: 1px solid #ededed;
+	border-collapse: collapse;
+	border-spacing: 0;
+	font-size: 16px;
+	line-height: 2;
+	margin: 0 0 20px;
+	width: 100%;
+}
+
+caption,
+th,
+td {
+	font-weight: normal;
+	text-align: left;
+}
+
+caption {
+	font-size: 16px;
+	margin: 20px 0;
+}
+
+th {
+	font-weight: bold;
+	text-transform: uppercase;
+	padding: 6px 10px 6px 10px;
+    word-wrap: break-word;
+}
+
+td {
+	padding: 6px 10px 6px 10px;
+    word-wrap: break-word;
+}
+
+td.bold {
+    font-weight: bold;
+}

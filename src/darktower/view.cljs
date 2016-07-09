@@ -7,7 +7,21 @@
 (defn game-area []
   (board/main))
 
-(defn current-player [])
+(defn player [uid]
+  (let [players (get-in @model/game-state [:server-state :players])]
+    (first (filter #(= uid (:uid %)) players))))
+
+(defn current-player []
+  (player (get-in @model/game-state [:server-state :current-player])))
+
+(def ordered-keys [:warriors :gold :food :scout :healer :beast :brass-key :silver-key :gold-key :pegasus :sword])
+
+(defn data-row-for [data-key players]
+  [:tr
+   [:td (name data-key)]
+   (for [player players]
+     [:td (get player data-key)])])
+
 (defn player-area []
   [:div
    {:style
@@ -19,11 +33,13 @@
    [:div {:id "player-data"}
     [:table
      [:tr
+      [:th]
       (for [player (get-in @model/game-state [:server-state :players])]
-        [:th (str (:name player) " of " (name (:kingdom player)))])
-      ]
-     [:tr
-      [:td "Player 1 data"][:td "Player 2 data"][:td "Player 3 data"][:td "Player 4 data"]]]]])
+        (do
+          [:th (str (:name player) " of " (name (:kingdom player)))]))]
+     (for [data-key ordered-keys
+           :let [players (get-in @model/game-state [:server-state :players])]]
+       (data-row-for data-key players))]]])
 
 (defn name-input []
   [:div
