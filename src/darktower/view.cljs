@@ -8,7 +8,20 @@
   (board/main))
 
 (defn current-player [])
-(defn player-area [])
+(defn player-area []
+  [:div
+   {:style
+    {:display "inline-block"
+     :width "400px"}}
+   [:div {:id "darktower"}
+    [:div {:id "darktower-display"}
+     [:text "Dark tower display"]]]
+   [:div {:id "player-data"}
+    [:table
+     [:tr
+      [:th "Player 1 binding"][:th "Player 2 binding"][:th "Player 3 binding"][:th "Player 4 binding"]]
+     [:tr
+      [:td "Player 1 data"][:td "Player 2 data"][:td "Player 3 data"][:td "Player 4 data"]]]]])
 
 (defn name-input []
   [:div
