@@ -9,6 +9,7 @@ body {
 	text-rendering: optimizeLegibility;
 	vertical-align: baseline;
 	/*background-image: url("../img/cartagena_bg_01.jpg");*/
+	background-color: papayawhip;
 	background-size: cover;
 }
 
@@ -33,7 +34,7 @@ h1 {
 }
 
 h2 {
-	font-size: 30px;
+	font-size: 40px;
 	margin: 5px 0;
 }
 
@@ -66,7 +67,7 @@ table {
 	border: 1px solid #ededed;
 	border-collapse: collapse;
 	border-spacing: 0;
-	font-size: 16px;
+	font-size: 14px;
 	line-height: 2;
 	margin: 0 0 20px;
 	width: 100%;

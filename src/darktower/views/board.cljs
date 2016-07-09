@@ -46,28 +46,28 @@
   [{:kingdom :zenon
     :angle-offset 27
     :angle-width 12
-    :stroke-color "gold"
+    :stroke-color "#553900"
     :fill-color "moccasin"
     :player-img-x-offset 190
     :player-img-y-offset -100}
    {:kingdom :arisilon
     :angle-offset 117
     :angle-width 12
-    :stroke-color "gold"
+    :stroke-color "#553900"
     :fill-color "moccasin"
     :player-img-x-offset 56
     :player-img-y-offset 180}
    {:kingdom :brynthia
     :angle-offset 207
     :angle-width 12
-    :stroke-color "gold"
+    :stroke-color "#553900"
     :fill-color "moccasin"
     :player-img-x-offset -200
     :player-img-y-offset 48}
    {:kingdom :durnin
     :angle-offset 297
     :angle-width 12
-    :stroke-color "gold"
+    :stroke-color "#553900"
     :fill-color "moccasin"
     :player-img-x-offset -80
     :player-img-y-offset -208}])
@@ -217,8 +217,8 @@
    [:svg
       {:id "svg-box"
        :width 900
-       :height 700
-       :style {:border "0.5px solid black"
+       :height 710
+       #_#_:style {:border "0.5px solid black"
                :background-color "darkgray"}}
     (for [frontier-spec frontier-specs]
       (let [frontier (generate-frontier frontier-spec)]

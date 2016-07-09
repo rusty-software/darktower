@@ -26,17 +26,20 @@
   [:div
    {:style
     {:display "inline-block"
-     :width "400px"}}
+     :width "490px"}}
    [:div {:id "darktower"}
     [:div {:id "darktower-display"}
-     [:text "Dark tower display"]]]
+     [:img {:src "img/victory.jpg"}]
+     [:br]
+     [:button "Yes"]
+     [:button "No"]]]
    [:div {:id "player-data"}
     [:table
      [:tr
       [:th]
       (for [player (get-in @model/game-state [:server-state :players])]
         (do
-          [:th (str (:name player) " of " (name (:kingdom player)))]))]
+          [:th (:name player)]))]
      (for [data-key ordered-keys
            :let [players (get-in @model/game-state [:server-state :players])]]
        (data-row-for data-key players))]]])
@@ -159,7 +162,7 @@
 (defn main []
   [:center
    [:div
-    [:h2 "Dark Tower: the board game"]
+    [:h2 "Dark Tower"]
     (if (get-in @model/game-state [:server-state :game-on?])
       [:div
        [game-area]
