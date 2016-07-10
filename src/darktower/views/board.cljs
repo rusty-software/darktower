@@ -16,7 +16,7 @@
     :fill-color "salmon"
     :player-img-x-offset -40
     :player-img-y-offset -20
-    :player-img "img/golden_knight.png"}
+    :player-img "img/red_knight.png"}
    {:kingdom :brynthia
     :angle-offset 141
     :angle-width 78
@@ -24,7 +24,7 @@
     :fill-color "lightcyan"
     :player-img-x-offset -20
     :player-img-y-offset -40
-    :player-img "img/golden_knight.png"}
+    :player-img "img/blue_knight.png"}
    {:kingdom :durnin
     :angle-offset 231
     :angle-width 78
@@ -40,7 +40,7 @@
     :fill-color "mediumseagreen"
     :player-img-x-offset -16
     :player-img-y-offset 0
-    :player-img "img/golden_knight.png"}])
+    :player-img "img/green_knight.png"}])
 
 (def frontier-specs
   [{:kingdom :zenon
@@ -193,21 +193,25 @@
              (+ (:angle-offset kingdom-spec) (* idx arc-angle))
              (+ (:angle-offset kingdom-spec) (* (inc idx) arc-angle)))))
 
+(defn location-spec-for [kingdom location-specs]
+  (first (filter #(= kingdom (:kingdom %)) location-specs)))
+
 (defn player-images []
   (for [player (get-in @model/game-state [:server-state :players])
         :let [{:keys [kingdom row idx type]} (:current-territory player)
               location-specs (if (not (nil? type))
                                (do
-                                 (println "non-territory location spec")
                                  (if (= :dark-tower type)
                                    dark-tower-specs
                                    frontier-specs))
                                kingdom-specs)
-              {:keys [player-img-x-offset player-img-y-offset]} (first (filter #(= kingdom (:kingdom %)) location-specs))
+              {:keys [player-img-x-offset player-img-y-offset]} (location-spec-for kingdom location-specs)
+              player-img (:player-img (location-spec-for (:kingdom player) kingdom-specs))
+              _ (println "player-img" player-img)
               {:keys [move-x move-y end-x end-y]} (territory-arc-for kingdom row idx)
               x (+ (/ (+ move-x end-x) 2) player-img-x-offset)
               y (+ (/ (+ move-y end-y) 2) player-img-y-offset)]]
-    (piece-image x y 32 32 "img/golden_knight.png" nil)))
+    (piece-image x y 32 32 player-img nil)))
 
 (defn main []
   [:div
