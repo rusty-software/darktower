@@ -35,6 +35,13 @@
    :dragon-attack {:img "img/dragon.jpg"}
    :safe-move {:img "img/victory.jpg"}})
 
+(defn end-turn-button []
+  [:button
+   {:id "btn-end-turn"
+    :class "button end-turn"
+    :on-click #(communication/end-turn)}
+   "End Turn"])
+
 (defn player-area []
   [:div
    {:style
@@ -46,8 +53,7 @@
        [:div
         [:img {:src (get-in encounter-result-specs [(:encounter-result (current-player)) :img])}]
         [:br]
-        [:button "Yes"]
-        [:button "No"]])]]
+        [end-turn-button]])]]
    [:div {:id "player-data"}
     [:table
      [:tr

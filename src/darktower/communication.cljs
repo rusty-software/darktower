@@ -36,6 +36,10 @@
   (chsk-send! [:darktower/territory-click {:token (get-in @model/game-state [:server-state :token])
                                            :territory-info territory-info}]))
 
+(defn end-turn []
+  (println "click-side end turn called")
+  (chsk-send! [:darktower/end-turn {:token (get-in @model/game-state [:server-state :token])}]))
+
 (defmulti event-msg-handler :id)
 
 (defmethod event-msg-handler :default [{:keys [event]}]
@@ -57,9 +61,7 @@
       (do
         (model/update-uid! (:uid @(:state msg)))
         (model/update-server-state! (second ?data)))
-      :darktower/game-started
-      (model/update-server-state! (second ?data))
-      :darktower/territory-clicked
+
       (model/update-server-state! (second ?data))))
   #_(println "recv from server:" ?data))
 

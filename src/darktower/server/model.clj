@@ -51,9 +51,6 @@
   (let [players (:players game-state)]
     (first (filter #(= uid (:uid %)) players))))
 
-(defn player-turn-is-over? [player]
-  true)
-
 (defn next-player
   [current-player player-order]
   (let [current-player-index (.indexOf player-order current-player)]
@@ -61,8 +58,10 @@
       (get player-order 0)
       (get player-order (inc current-player-index)))))
 
-(defn rotate-current-player [game-state]
-  (assoc game-state :current-player (next-player (:current-player game-state) (:player-order game-state))))
+(defn rotate-current-player [app-state token]
+  (let [game-state (get app-state token)
+        updated-game-state (assoc game-state :current-player (next-player (:current-player game-state) (:player-order game-state)))]
+    (assoc app-state token updated-game-state)))
 
 (defn move [app-state uid token destination]
   (let [game-state (get app-state token)]
@@ -83,10 +82,8 @@
                                      (:dragon-hoard encounter-result)
                                      (assoc :dragon-hoard (:dragon-hoard encounter-result))
 
-                                     (player-turn-is-over? player)
-                                     (rotate-current-player)
-
-                                     :always (assoc :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player encounter-result))))]
+                                     :always
+                                     (assoc :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player encounter-result))))]
             (assoc app-state token updated-game-state))
           (let [updated-player (merge player validation)
                 updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) updated-player))]
@@ -95,3 +92,7 @@
 
 (defn move! [uid token territory-info]
   (swap! app-state move uid token territory-info))
+
+(defn end-turn! [token]
+  (log/info "model end-turn!" token)
+  (swap! app-state rotate-current-player token))
