@@ -53,7 +53,7 @@
       {:valid? false :message "Destination must be adjacent to your current territory!"})))
 
 (defn safe-move [player]
-  {:player player :encounter-result :safe-move})
+  {:player (assoc player :encounter-result :safe-move)})
 
 (defn brigands-for [{:keys [warriors]}]
   (let [delta (/ warriors 4)

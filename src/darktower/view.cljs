@@ -14,6 +14,9 @@
 (defn current-player []
   (player (get-in @model/game-state [:server-state :current-player])))
 
+(defn my-turn []
+  (= (:uid @model/game-state) (:uid (current-player))))
+
 (def ordered-keys [:warriors :gold :food :scout :healer :beast :brass-key :silver-key :gold-key :pegasus :sword])
 
 (defn data-row-for [data-key players]
@@ -26,6 +29,12 @@
   (for [player-id (get-in @model/game-state [:server-state :player-order])]
     (player player-id)))
 
+(def encounter-result-specs
+  {:lost {:img "img/lost.jpg"}
+   :plague {:img "img/plague.jpg"}
+   :dragon-attack {:img "img/dragon.jpg"}
+   :safe-move {:img "img/victory.jpg"}})
+
 (defn player-area []
   [:div
    {:style
@@ -33,10 +42,12 @@
      :width "490px"}}
    [:div {:id "darktower"}
     [:div {:id "darktower-display"}
-     [:img {:src "img/victory.jpg"}]
-     [:br]
-     [:button "Yes"]
-     [:button "No"]]]
+     (when (my-turn)
+       [:div
+        [:img {:src (get-in encounter-result-specs [(:encounter-result (current-player)) :img])}]
+        [:br]
+        [:button "Yes"]
+        [:button "No"]])]]
    [:div {:id "player-data"}
     [:table
      [:tr
