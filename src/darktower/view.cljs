@@ -22,6 +22,10 @@
    (for [player players]
      [:td (get player data-key)])])
 
+(defn ordered-players []
+  (for [player-id (get-in @model/game-state [:server-state :player-order])]
+    (player player-id)))
+
 (defn player-area []
   [:div
    {:style
@@ -37,11 +41,11 @@
     [:table
      [:tr
       [:th]
-      (for [player (get-in @model/game-state [:server-state :players])]
+      (for [player (ordered-players)]
         (do
           [:th (:name player)]))]
      (for [data-key ordered-keys
-           :let [players (get-in @model/game-state [:server-state :players])]]
+           :let [players (ordered-players)]]
        (data-row-for data-key players))]]])
 
 (defn name-input []

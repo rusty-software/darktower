@@ -8,7 +8,7 @@
   (atom {}))
 
 (defn game-token []
-  (Integer/toString (rand-int (Math/pow 36 6)) 36))
+  (Integer/toString (rand-int (Math/pow 36 4)) 36))
 
 (defn initialize-game [app-state uid token name]
   (let [kingdom (first board/kingdoms)
