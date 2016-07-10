@@ -55,9 +55,14 @@
 (defn safe-move [player]
   {:player player :encounter-result :safe-move})
 
+(defn brigands-for [{:keys [warriors]}]
+  (let [delta (/ warriors 4)
+        min-brigands (min 99 (int (* 3 delta)))
+        max-brigands (max 3 (int (+ warriors delta)))]
+    {:brigands (rand-nth (range min-brigands (inc max-brigands)))}))
+
 (defn battle [player]
-  (log/info "battle not implemented")
-  {:player player})
+  {:player player :brigands (brigands-for player) :in-battle? true})
 
 (defn lost [{:keys [scout last-territory] :as player}]
   (if scout

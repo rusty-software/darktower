@@ -183,4 +183,6 @@
     [:hr]
     [:div
      [:span
+      {:style {:font-family "Helvetica"
+               :font-size "10px"}}
       "Client game state: " (with-out-str (pprint/pprint @model/game-state))]]]])

@@ -51,6 +51,19 @@
   (let [players (:players game-state)]
     (first (filter #(= uid (:uid %)) players))))
 
+(defn player-turn-is-over? [player]
+  true)
+
+(defn next-player
+  [current-player player-order]
+  (let [current-player-index (.indexOf player-order current-player)]
+    (if (= current-player-index (dec (count player-order)))
+      (get player-order 0)
+      (get player-order (inc current-player-index)))))
+
+(defn rotate-current-player [game-state]
+  (assoc game-state :current-player (next-player (:current-player game-state) (:player-order game-state))))
+
 (defn move [app-state uid token destination]
   (let [game-state (get app-state token)]
     (if (= uid (:current-player game-state))
@@ -69,6 +82,10 @@
                 updated-game-state (cond-> game-state
                                      (:dragon-hoard encounter-result)
                                      (assoc :dragon-hoard (:dragon-hoard encounter-result))
+
+                                     (player-turn-is-over? player)
+                                     (rotate-current-player)
+
                                      :always (assoc :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player encounter-result))))]
             (assoc app-state token updated-game-state))
           (let [updated-player (merge player validation)
