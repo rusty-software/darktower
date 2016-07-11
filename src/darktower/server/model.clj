@@ -53,14 +53,19 @@
 
 (defn next-player
   [current-player player-order]
+  (log/info "current player" current-player)
   (let [current-player-index (.indexOf player-order current-player)]
+    (log/info "current player index" current-player-index)
     (if (= current-player-index (dec (count player-order)))
       (get player-order 0)
       (get player-order (inc current-player-index)))))
 
 (defn rotate-current-player [app-state token]
   (let [game-state (get app-state token)
-        updated-game-state (assoc game-state :current-player (next-player (:current-player game-state) (:player-order game-state)))]
+        next (next-player (:current-player game-state) (:player-order game-state))
+        _ (log/info "next player" next)
+        updated-game-state (assoc game-state :current-player next)]
+    (log/info "updated game state" updated-game-state)
     (assoc app-state token updated-game-state)))
 
 (defn move [app-state uid token destination]
@@ -94,5 +99,4 @@
   (swap! app-state move uid token territory-info))
 
 (defn end-turn! [token]
-  (log/info "model end-turn!" token)
   (swap! app-state rotate-current-player token))

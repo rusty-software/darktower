@@ -221,9 +221,7 @@
    [:svg
       {:id "svg-box"
        :width 900
-       :height 710
-       #_#_:style {:border "0.5px solid black"
-               :background-color "darkgray"}}
+       :height 710}
     (for [frontier-spec frontier-specs]
       (let [frontier (generate-frontier frontier-spec)]
         frontier))

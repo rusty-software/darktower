@@ -86,10 +86,10 @@
       (broadcast-game-state players [:darktower/territory-clicked (get @model/app-state token)]))))
 
 (defmethod event :darktower/end-turn [{:keys [?data]}]
-  (log/info "router end-turn" ?data)
   (let [{:keys [token]} ?data]
     (model/end-turn! token)
     (let [players (get-in @model/app-state [?data :players])]
+      (log/info "pre broadcast" (get @model/app-state token))
       (broadcast-game-state players [:darktower/turn-ended (get @model/app-state token)]))))
 
 (defn start-router []

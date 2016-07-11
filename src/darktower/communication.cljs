@@ -61,8 +61,14 @@
       (do
         (model/update-uid! (:uid @(:state msg)))
         (model/update-server-state! (second ?data)))
+      :darktower/turn-ended
+      (do
+        (println "second data" (second ?data))
+        (model/update-server-state! (second ?data)))
 
-      (model/update-server-state! (second ?data))))
+      (do
+        (println "one of the default handled")
+        (model/update-server-state! (second ?data)))))
   #_(println "recv from server:" ?data))
 
 (defonce router

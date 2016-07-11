@@ -49,11 +49,15 @@
      :width "490px"}}
    [:div {:id "darktower"}
     [:div {:id "darktower-display"}
-     (when (my-turn)
+     (if (my-turn)
        [:div
+        [:text "Your turn."]
+        [:br]
         [:img {:src (get-in encounter-result-specs [(:encounter-result (current-player)) :img])}]
         [:br]
-        [end-turn-button]])]]
+        [end-turn-button]]
+       [:div
+        [:text (str (:name (current-player)) "'s turn.")]])]]
    [:div {:id "player-data"}
     [:table
      [:tr
