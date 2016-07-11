@@ -88,7 +88,7 @@
 (defmethod event :darktower/end-turn [{:keys [?data]}]
   (let [{:keys [token]} ?data]
     (model/end-turn! token)
-    (let [players (get-in @model/app-state [?data :players])]
+    (let [players (get-in @model/app-state [token :players])]
       (log/info "pre broadcast" (get @model/app-state token))
       (broadcast-game-state players [:darktower/turn-ended (get @model/app-state token)]))))
 
