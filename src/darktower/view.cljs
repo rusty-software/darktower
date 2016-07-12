@@ -53,7 +53,21 @@
        [:div
         [:text "Your turn."]
         [:br]
-        [:img {:src (get-in encounter-result-specs [(:encounter-result (current-player)) :img])}]
+        [:div {:style {:display "inline-block"
+                       :background-color "gray"}}
+         [:div
+          {:style
+           {:font-family "Orbitron"
+            :font-size "88px"
+            :color "red"
+            :display "inline-block"
+            :background-color "black"
+            :vertical-align "bottom"}}
+          "99"]
+         [:div
+          {:style {:display "inline-block"
+                   :vertical-align "top"}}
+          [:img {:src (get-in encounter-result-specs [(:encounter-result (current-player)) :img])}]]]
         [:br]
         [end-turn-button]]
        [:div
