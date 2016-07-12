@@ -53,20 +53,13 @@
        [:div
         [:text "Your turn."]
         [:br]
-        [:div {:style {:display "inline-block"
-                       :background-color "gray"}}
+        [:div
+         {:class "dt-display"}
          [:div
-          {:style
-           {:font-family "Orbitron"
-            :font-size "88px"
-            :color "red"
-            :display "inline-block"
-            :background-color "black"
-            :vertical-align "bottom"}}
+          {:class "dt-digits"}
           "99"]
          [:div
-          {:style {:display "inline-block"
-                   :vertical-align "top"}}
+          {:class "dt-image"}
           [:img {:src (get-in encounter-result-specs [(:encounter-result (current-player)) :img])}]]]
         [:br]
         [end-turn-button]]
