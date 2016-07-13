@@ -33,7 +33,8 @@
   {:lost {:img "img/lost.jpg"}
    :plague {:img "img/plague.jpg"}
    :dragon-attack {:img "img/dragon.jpg"}
-   :safe-move {:img "img/victory.jpg"}})
+   :safe-move {:img "img/victory.jpg"}
+   :battle {:img "img/brigands.jpg"}})
 
 (defn end-turn-button []
   [:button
@@ -57,7 +58,7 @@
          {:class "dt-display"}
          [:div
           {:class "dt-digits"}
-          "99"]
+          (get (:encounter-result (current-player)) :brigands)]
          [:div
           {:class "dt-image"}
           [:img {:src (get-in encounter-result-specs [(:encounter-result (current-player)) :img])}]]]

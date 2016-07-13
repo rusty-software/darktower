@@ -62,7 +62,7 @@
     {:brigands (rand-nth (range min-brigands (inc max-brigands)))}))
 
 (defn battle [player]
-  {:player player :brigands (brigands-for player) :in-battle? true})
+  {:player player :encounter-result :battle :brigands (brigands-for player)})
 
 (defn lost [{:keys [scout last-territory] :as player}]
   (if scout
