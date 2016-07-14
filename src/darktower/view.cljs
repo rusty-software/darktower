@@ -58,7 +58,8 @@
          {:class "dt-display"}
          [:div
           {:class "dt-digits"}
-          (get (:encounter-result (current-player)) :brigands)]
+          (let [brigand-count (:brigands (current-player))]
+            (if (<= 0 brigand-count 9) (str "0" brigand-count) brigand-count))]
          [:div
           {:class "dt-image"}
           [:img {:src (get-in encounter-result-specs [(:encounter-result (current-player)) :img])}]]]

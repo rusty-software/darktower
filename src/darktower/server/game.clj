@@ -59,10 +59,10 @@
   (let [delta (/ warriors 4)
         min-brigands (min 99 (int (* 3 delta)))
         max-brigands (max 3 (int (+ warriors delta)))]
-    {:brigands (rand-nth (range min-brigands (inc max-brigands)))}))
+    (rand-nth (range min-brigands (inc max-brigands)))))
 
 (defn battle [player]
-  {:player player :encounter-result :battle :brigands (brigands-for player)})
+  {:player (assoc player :encounter-result :battle :brigands (brigands-for player))})
 
 (defn lost [{:keys [scout last-territory] :as player}]
   (if scout
