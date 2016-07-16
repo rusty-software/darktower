@@ -79,7 +79,8 @@
     (if sword
       {:player (assoc player :encounter-result :dragon-attack
                              :warriors (min 99 (+ warriors dragon-warriors))
-                             :gold (min 99 (+ gold dragon-gold)))
+                             :gold (min 99 (+ gold dragon-gold))
+                             :sword false)
        :dragon-hoard {:warriors 0 :gold 0}}
       (let [warriors-taken (if (= 1 warriors) 0 (max 1 (int (* 0.25 warriors))))
             gold-taken (if (= 1 gold) 0 (max 1 (int (* 0.25 gold))))]

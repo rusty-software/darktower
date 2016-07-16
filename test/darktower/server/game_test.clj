@@ -80,7 +80,7 @@
 
 (deftest safe-move-test
   (testing "Passes the player through"
-    (is (= {:player player :encounter-result :safe-move} (safe-move player)))))
+    (is (= {:player (assoc player :encounter-result :safe-move)} (safe-move player)))))
 
 (deftest lost-test
   (testing "Lost moves the player back to the last territory"
@@ -158,7 +158,8 @@
           dragon-hoard {:warriors 10 :gold 10}
           expected {:player (assoc player :encounter-result :dragon-attack
                                           :warriors 20
-                                          :gold 20)
+                                          :gold 20
+                                          :sword false)
                     :dragon-hoard {:warriors 0 :gold 0}}
           actual (dragon-attack player dragon-hoard)]
       (is (= expected actual))))
@@ -167,7 +168,8 @@
           dragon-hoard {:warriors 10 :gold 10}
           expected {:player (assoc player :encounter-result :dragon-attack
                                           :warriors 99
-                                          :gold 99)
+                                          :gold 99
+                                          :sword false)
                     :dragon-hoard {:warriors 0 :gold 0}}
           actual (dragon-attack player dragon-hoard)]
       (is (= expected actual)))))
