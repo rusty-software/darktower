@@ -30,11 +30,14 @@
     (player player-id)))
 
 (def encounter-result-specs
-  {:lost {:img "img/lost.jpg"}
-   :plague {:img "img/plague.jpg"}
-   :dragon-attack {:img "img/dragon.jpg"}
-   :safe-move {:img "img/victory.jpg"}
-   :battle {:img "img/brigands.jpg"}})
+  {:lost {:images ["img/lost.jpg"]}
+   :lost-scout {:images ["img/lost.jpg" "img/scout.jpg"]}
+   :plague {:images ["img/plague.jpg"]}
+   :plague-healer {:images ["img/plague.jpg" "img/healer.jpg"]}
+   :dragon-attack {:images ["img/dragon.jpg"]}
+   :dragon-attack-sword {:images ["img/dragon.jpg" "img/sword.jpg"]}
+   :safe-move {:images ["img/victory.jpg"]}
+   :battle {:images ["img/brigands.jpg"]}})
 
 (defn end-turn-button []
   [:button
@@ -42,6 +45,11 @@
     :class "button end-turn"
     :on-click #(communication/end-turn)}
    "End Turn"])
+
+(defn display-encounter-result-for [encounter-result]
+  (let [images (get-in encounter-result-specs [encounter-result :images])]
+    (for [image images]
+      [:img {:src image}])))
 
 (defn player-area []
   [:div
@@ -62,7 +70,7 @@
             (if (<= 0 brigand-count 9) (str "0" brigand-count) brigand-count))]
          [:div
           {:class "dt-image"}
-          [:img {:src (get-in encounter-result-specs [(:encounter-result (current-player)) :img])}]]]
+          (display-encounter-result-for (:encounter-result (current-player)))]]
         [:br]
         [end-turn-button]]
        [:div

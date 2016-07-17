@@ -207,7 +207,6 @@
                                kingdom-specs)
               {:keys [player-img-x-offset player-img-y-offset]} (location-spec-for kingdom location-specs)
               player-img (:player-img (location-spec-for (:kingdom player) kingdom-specs))
-              _ (println "player-img" player-img)
               {:keys [move-x move-y end-x end-y]} (territory-arc-for kingdom row idx)
               x (+ (/ (+ move-x end-x) 2) player-img-x-offset)
               y (+ (/ (+ move-y end-y) 2) player-img-y-offset)]]
