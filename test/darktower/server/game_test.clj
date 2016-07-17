@@ -95,7 +95,7 @@
     (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2}
                                          :last-territory {:kingdom :zenon :row 3 :idx 1}
                                          :scout true)
-          expected {:player (assoc player :encounter-result :lost
+          expected {:player (assoc player :encounter-result :lost-scout
                                           :current-territory {:kingdom :zenon :row 3 :idx 2}
                                           :last-territory {:kingdom :zenon :row 3 :idx 1}
                                           :scout true
@@ -116,12 +116,12 @@
       (is (= expected actual))))
   (testing "Plague with healer increases warrior count by 2"
     (let [player (assoc player :warriors 10 :healer true)
-          expected {:player (assoc player :encounter-result :plague :warriors 12 :healer true)}
+          expected {:player (assoc player :encounter-result :plague-healer :warriors 12 :healer true)}
           actual (plague player)]
       (is (= expected actual))))
   (testing "Warrior count cannot exceed 99"
     (let [player (assoc player :warriors 98 :healer true)
-          expected {:player (assoc player :encounter-result :plague :warriors 99 :healer true)}
+          expected {:player (assoc player :encounter-result :plague-healer :warriors 99 :healer true)}
           actual (plague player)]
       (is (= expected actual)))))
 
@@ -156,7 +156,7 @@
   (testing "Dragon with sword adds dragon's collection to players, resetting its own"
    (let [player (assoc player :warriors 10 :gold 10 :sword true)
           dragon-hoard {:warriors 10 :gold 10}
-          expected {:player (assoc player :encounter-result :dragon-attack
+          expected {:player (assoc player :encounter-result :dragon-attack-sword
                                           :warriors 20
                                           :gold 20
                                           :sword false)
@@ -166,7 +166,7 @@
   (testing "Warrior and gold counts cannot exceed 99"
     (let [player (assoc player :warriors 98 :gold 98 :sword true)
           dragon-hoard {:warriors 10 :gold 10}
-          expected {:player (assoc player :encounter-result :dragon-attack
+          expected {:player (assoc player :encounter-result :dragon-attack-sword
                                           :warriors 99
                                           :gold 99
                                           :sword false)

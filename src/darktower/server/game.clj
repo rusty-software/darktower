@@ -66,18 +66,18 @@
 
 (defn lost [{:keys [scout last-territory] :as player}]
   (if scout
-    {:player (assoc player :encounter-result :lost :extra-turn true)}
+    {:player (assoc player :encounter-result :lost-scout :extra-turn true)}
     {:player (assoc player :encounter-result :lost :current-territory last-territory)}))
 
 (defn plague [{:keys [healer warriors] :as player}]
   (if healer
-    {:player (assoc player :encounter-result :plague :warriors (min 99 (+ warriors 2)))}
+    {:player (assoc player :encounter-result :plague-healer :warriors (min 99 (+ warriors 2)))}
     {:player (assoc player :encounter-result :plague :warriors (max 1 (- warriors 2)))}))
 
 (defn dragon-attack [{:keys [sword warriors gold] :as player} dragon-hoard]
   (let [{dragon-warriors :warriors dragon-gold :gold} dragon-hoard]
     (if sword
-      {:player (assoc player :encounter-result :dragon-attack
+      {:player (assoc player :encounter-result :dragon-attack-sword
                              :warriors (min 99 (+ warriors dragon-warriors))
                              :gold (min 99 (+ gold dragon-gold))
                              :sword false)
