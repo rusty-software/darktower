@@ -2,7 +2,6 @@
   (:require
     [darktower.autoinit]
     [darktower.view :as view]
-    [darktower.views.board :as views.board]
     [reagent.core :as reagent]))
 
 (reagent/render-component
