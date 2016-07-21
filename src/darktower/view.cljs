@@ -1,5 +1,8 @@
 (ns darktower.view
+  (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:require [cljs.pprint :as pprint]
+            [cljs.core.async :refer [put! chan <! >! timeout close!]]
+            [reagent.core :as r]
             [darktower.model :as model]
             [darktower.communication :as communication]
             [darktower.views.board :as board]))
@@ -20,10 +23,13 @@
 (def ordered-keys [:warriors :gold :food :scout :healer :beast :brass-key :silver-key :gold-key :pegasus :sword])
 
 (defn data-row-for [data-key players]
+  ^{:key (str "tr-" data-key players)}
   [:tr
    [:td (name data-key)]
-   (for [player players]
-     [:td (get player data-key)])])
+   (doall
+     (for [player players]
+       ^{:key (str "td-" player data-key)}
+       [:td (get player data-key)]))])
 
 (defn ordered-players []
   (for [player-id (get-in @model/game-state [:server-state :player-order])]
@@ -46,8 +52,28 @@
     :on-click #(communication/end-turn)}
    "End Turn"])
 
+(defn coll->chan [coll]
+  (let [ch (chan)]
+    (go
+      (loop [coll coll]
+        (when-let [[delay data] (first coll)]
+          (<! (timeout (* 3000 delay)))
+          (>! ch data)
+          (recur (rest coll))))
+      (close! ch))
+    ch))
+
 (defn display-encounter-result-for [encounter-result]
-  (let [images (get-in encounter-result-specs [encounter-result :images])]
+  (let [img-src (atom "")
+        images [[0 "img/lost.jpg"] [3 "img/scout.jpg"]] #_(get-in encounter-result-specs [encounter-result :images])
+        data-chan (coll->chan images)]
+    (go-loop []
+      (when-let [image (<! data-chan)]
+        (println "image" image)
+        (reset! img-src image)
+        (recur)))
+    [:img {:src @img-src}])
+  #_(let [images (get-in encounter-result-specs [encounter-result :images])]
     (for [image images]
       [:img {:src image}])))
 
@@ -70,7 +96,17 @@
             (if (<= 0 brigand-count 9) (str "0" brigand-count) brigand-count))]
          [:div
           {:class "dt-image"}
-          (display-encounter-result-for (:encounter-result (current-player)))]]
+          #_(let [img-src (r/atom "")
+                images [[0 "img/lost.jpg"] [3 "img/scout.jpg"]] #_(get-in encounter-result-specs [encounter-result :images])
+                data-chan (coll->chan images)]
+            (go-loop []
+              (when-let [image (<! data-chan)]
+                (println "image" image)
+                (reset! img-src image)
+                (recur)))
+            [:img {:src @img-src}])
+
+          #_(display-encounter-result-for (:encounter-result (current-player)))]]
         [:br]
         [end-turn-button]]
        [:div
@@ -79,12 +115,14 @@
     [:table
      [:tr
       [:th]
-      (for [player (ordered-players)]
-        (do
+      (doall
+        (for [player (ordered-players)]
+          ^{:key (str "th-" (:name player))}
           [:th (:name player)]))]
-     (for [data-key ordered-keys
-           :let [players (ordered-players)]]
-       (data-row-for data-key players))]]])
+     (doall
+       (for [data-key ordered-keys
+             :let [players (ordered-players)]]
+         (data-row-for data-key players)))]]])
 
 (defn name-input []
   [:div
