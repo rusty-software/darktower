@@ -57,7 +57,6 @@
     (go
       (loop [coll coll]
         (when-let [[delay data] (first coll)]
-          (println "rest" (rest coll))
           (<! (timeout (* 3000 delay)))
           (>! ch data)
           (recur (rest coll))))
@@ -65,7 +64,7 @@
     ch))
 
 (defn display-encounter-result-for [encounter-result]
-  (let [img-src (atom "")
+  (let [img-src (r/atom "")
         images [[0 "img/lost.jpg"] [3 "img/scout.jpg"]] #_(get-in encounter-result-specs [encounter-result :images])
         data-chan (coll->chan images)]
     (go-loop []
@@ -80,7 +79,7 @@
 
 (defn delay-tuple [encounter-result-images]
   (if (> (count encounter-result-images) 1)
-    [[0 (first encounter-result-images)] (map #(into [3] (vector %)) (rest encounter-result-images))]
+    [[0 (first encounter-result-images)] [3 (last encounter-result-images)]]
     [[0 (first encounter-result-images)]]))
 
 (defn player-area []
