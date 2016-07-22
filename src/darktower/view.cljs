@@ -57,6 +57,7 @@
     (go
       (loop [coll coll]
         (when-let [[delay data] (first coll)]
+          (println "rest" (rest coll))
           (<! (timeout (* 3000 delay)))
           (>! ch data)
           (recur (rest coll))))
@@ -77,6 +78,11 @@
     (for [image images]
       [:img {:src image}])))
 
+(defn delay-tuple [encounter-result-images]
+  (if (> (count encounter-result-images) 1)
+    [[0 (first encounter-result-images)] (map #(into [3] (vector %)) (rest encounter-result-images))]
+    [[0 (first encounter-result-images)]]))
+
 (defn player-area []
   [:div
    {:style
@@ -96,14 +102,16 @@
             (if (<= 0 brigand-count 9) (str "0" brigand-count) brigand-count))]
          [:div
           {:class "dt-image"}
-          #_(let [img-src (r/atom "")
-                images [[0 "img/lost.jpg"] [3 "img/scout.jpg"]] #_(get-in encounter-result-specs [encounter-result :images])
-                data-chan (coll->chan images)]
-            (go-loop []
-              (when-let [image (<! data-chan)]
-                (println "image" image)
-                (reset! img-src image)
-                (recur)))
+          (let [img-src (r/atom "img/victory.jpg")
+                encounter-result (:encounter-result (current-player))]
+            (when encounter-result
+              (let [images (delay-tuple (get-in encounter-result-specs [encounter-result :images]))
+                    data-chan (coll->chan images)]
+                (go-loop []
+                  (when-let [image (<! data-chan)]
+                    (println "image" image)
+                    (reset! img-src image)
+                    (recur)))))
             [:img {:src @img-src}])
 
           #_(display-encounter-result-for (:encounter-result (current-player)))]]
