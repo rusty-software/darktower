@@ -106,8 +106,33 @@ td.bold {
  * ----------------------------------------------------------------------------
  */
 .button.end-turn {
-    background-color: #F44336;
-    border: none;
+    background-color: #d9534f;
+    border-color: #d43f3a;
+    border: 1px solid;
+    border-radius: 4px;
+    color: white;
+    padding: 10px 10px;
+    text-align: center;
+    display: inline-block;
+    font-size: 12px;
+    cursor: pointer;
+}
+.button.fight {
+    background-color: #5cb85c;
+    border-color: #4cae4c;
+    border: 1px solid;
+    border-radius: 4px;
+    color: white;
+    padding: 10px 10px;
+    text-align: center;
+    display: inline-block;
+    font-size: 12px;
+    cursor: pointer;
+}
+.button.flee {
+    background-color: #f0ad4e;
+    border-color: #eea236;
+    border: 1px solid;
     border-radius: 4px;
     color: white;
     padding: 10px 10px;
@@ -123,7 +148,7 @@ td.bold {
  */
 .dt-display {
     display: inline-block;
-    background-color: black;
+    /*background-color: black;*/
 }
 
 .dt-digits {

@@ -52,35 +52,26 @@
     :on-click #(communication/end-turn)}
    "End Turn"])
 
-(defn coll->chan [coll]
-  (let [ch (chan)]
-    (go
-      (loop [coll coll]
-        (when-let [[delay data] (first coll)]
-          (<! (timeout (* 3000 delay)))
-          (>! ch data)
-          (recur (rest coll))))
-      (close! ch))
-    ch))
+(defn fight-button []
+  [:button
+   {:id "btn-fight"
+    :class "button fight"
+    :on-click #(communication/end-turn)}
+   "Fight"])
 
-(defn display-encounter-result-for [encounter-result]
-  (let [img-src (r/atom "")
-        images [[0 "img/lost.jpg"] [3 "img/scout.jpg"]] #_(get-in encounter-result-specs [encounter-result :images])
-        data-chan (coll->chan images)]
-    (go-loop []
-      (when-let [image (<! data-chan)]
-        (println "image" image)
-        (reset! img-src image)
-        (recur)))
-    [:img {:src @img-src}])
-  #_(let [images (get-in encounter-result-specs [encounter-result :images])]
-    (for [image images]
-      [:img {:src image}])))
+(defn flee-button []
+  [:button
+   {:id "btn-flee"
+    :class "button flee"
+    :on-click #(communication/end-turn)}
+   "Flee"])
 
-(defn delay-tuple [encounter-result-images]
-  (if (> (count encounter-result-images) 1)
-    [[0 (first encounter-result-images)] [3 (last encounter-result-images)]]
-    [[0 (first encounter-result-images)]]))
+(defn battle-display [warriors brigands]
+  [:div
+   [:span (str warriors " warriors; " brigands " brigands")]
+   [:br]
+   (fight-button)
+   (flee-button)])
 
 (defn player-area []
   [:div
@@ -96,24 +87,15 @@
         [:div
          {:class "dt-display"}
          [:div
-          {:class "dt-digits"}
-          (let [brigand-count (:brigands (current-player))]
-            (if (<= 0 brigand-count 9) (str "0" brigand-count) brigand-count))]
-         [:div
           {:class "dt-image"}
-          (let [img-src (r/atom "img/victory.jpg")
-                encounter-result (:encounter-result (current-player))]
+          (let [{:keys [encounter-result warriors brigands]} (current-player)]
             (when encounter-result
-              (let [images (delay-tuple (get-in encounter-result-specs [encounter-result :images]))
-                    data-chan (coll->chan images)]
-                (go-loop []
-                  (when-let [image (<! data-chan)]
-                    (println "image" image)
-                    (reset! img-src image)
-                    (recur)))))
-            [:img {:src @img-src}])
-
-          #_(display-encounter-result-for (:encounter-result (current-player)))]]
+              [:div
+               (let [images (get-in encounter-result-specs [encounter-result :images])]
+                 (for [image images]
+                   [:img {:src image}]))
+               (when (= :battle encounter-result)
+                 (battle-display warriors brigands))]))]]
         [:br]
         [end-turn-button]]
        [:div
