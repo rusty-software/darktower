@@ -45,6 +45,9 @@
    :safe-move {:images ["img/victory.jpg"]}
    :battle {:images ["img/brigands.jpg"]}})
 
+(defn display-buttons [buttons]
+  [:div (for [button buttons] [button])])
+
 (defn end-turn-button []
   [:button
    {:id "btn-end-turn"
@@ -56,22 +59,20 @@
   [:button
    {:id "btn-fight"
     :class "button fight"
-    :on-click #(communication/end-turn)}
+    :on-click #(communication/fight)}
    "Fight"])
 
 (defn flee-button []
   [:button
    {:id "btn-flee"
     :class "button flee"
-    :on-click #(communication/end-turn)}
+    :on-click #(communication/flee)}
    "Flee"])
 
 (defn battle-display [warriors brigands]
   [:div
    [:span (str warriors " warriors; " brigands " brigands")]
-   [:br]
-   (fight-button)
-   (flee-button)])
+   (display-buttons [fight-button flee-button])])
 
 (defn player-area []
   [:div
@@ -86,32 +87,32 @@
         [:br]
         [:div
          {:class "dt-display"}
-         [:div
-          {:class "dt-image"}
-          (let [{:keys [encounter-result warriors brigands]} (current-player)]
+         (let [{:keys [encounter-result warriors brigands]} (current-player)]
+           [:div
+            {:class "dt-image"}
             (when encounter-result
               [:div
                (let [images (get-in encounter-result-specs [encounter-result :images])]
                  (for [image images]
                    [:img {:src image}]))
-               (when (= :battle encounter-result)
-                 (battle-display warriors brigands))]))]]
-        [:br]
-        [end-turn-button]]
+               (if (= :battle encounter-result)
+                 (battle-display warriors brigands)
+                 (display-buttons [end-turn-button]))])])]]
        [:div
         [:text (str (:name (current-player)) "'s turn.")]])]]
    [:div {:id "player-data"}
     [:table
-     [:tr
-      [:th]
+     [:tbody
+      [:tr
+       [:th]
+       (doall
+         (for [player (ordered-players)]
+           ^{:key (str "th-" (:name player))}
+           [:th (:name player)]))]
       (doall
-        (for [player (ordered-players)]
-          ^{:key (str "th-" (:name player))}
-          [:th (:name player)]))]
-     (doall
-       (for [data-key ordered-keys
-             :let [players (ordered-players)]]
-         (data-row-for data-key players)))]]])
+        (for [data-key ordered-keys
+              :let [players (ordered-players)]]
+          (data-row-for data-key players)))]]]])
 
 (defn name-input []
   [:div

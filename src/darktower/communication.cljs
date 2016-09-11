@@ -37,8 +37,13 @@
                                            :territory-info territory-info}]))
 
 (defn end-turn []
-  (println "click-side end turn called")
   (chsk-send! [:darktower/end-turn {:token (get-in @model/game-state [:server-state :token])}]))
+
+(defn fight []
+  (chsk-send! [:darktower/fight {:token (get-in @model/game-state [:server-state :token])}]))
+
+(defn flee []
+  (chsk-send! [:darktower/flee {:token (get-in @model/game-state [:server-state :token])}]))
 
 (defmulti event-msg-handler :id)
 

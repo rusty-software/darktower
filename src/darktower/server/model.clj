@@ -96,3 +96,9 @@
 
 (defn end-turn! [token]
   (swap! app-state rotate-current-player token))
+
+(defn fight! [token]
+  (log/info "fighting"))
+
+(defn flee! [token]
+  (log/info "fleeing"))

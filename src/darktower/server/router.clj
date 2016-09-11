@@ -91,6 +91,18 @@
     (let [players (get-in @model/app-state [token :players])]
       (broadcast-game-state players [:darktower/turn-ended (get @model/app-state token)]))))
 
+(defmethod event :darktower/fight [{:keys [?data]}]
+  (let [{:keys [token]} ?data]
+    (model/fight! token)
+    (let [players (get-in @model/app-state [token :players])]
+      (broadcast-game-state players [:darktower/fought (get @model/app-state token)]))))
+
+(defmethod event :darktower/flee [{:keys [?data]}]
+  (let [{:keys [token]} ?data]
+    (model/flee! token)
+    (let [players (get-in @model/app-state [token :players])]
+      (broadcast-game-state players [:darktower/fled (get @model/app-state token)]))))
+
 (defn start-router []
   (log/info "Starting router...")
   (defonce router
