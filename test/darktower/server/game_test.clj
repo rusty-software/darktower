@@ -186,3 +186,9 @@
     (is (zero? (:food (feed {:warriors 99 :food 7})))))
   (testing "Food level cannot drop below 0"
     (is (zero? (:food (feed {:warriors 1 :food 0}))))))
+
+(deftest flee-test
+  (testing "Fleeing reduces the warrior count by 1"
+    (is (= 1 (get-in (flee {:warriors 2}) [:player :warriors]))))
+  (testing "Fleeing cannot reduce warrior count below 1"
+    (is (= 1 (get-in (flee {:warriors 1}) [:player :warriors])))))

@@ -97,9 +97,9 @@
     (let [players (get-in @model/app-state [token :players])]
       (broadcast-game-state players [:darktower/fought (get @model/app-state token)]))))
 
-(defmethod event :darktower/flee [{:keys [?data]}]
+(defmethod event :darktower/flee [{:keys [uid ?data]}]
   (let [{:keys [token]} ?data]
-    (model/flee! token)
+    (model/flee! uid token)
     (let [players (get-in @model/app-state [token :players])]
       (broadcast-game-state players [:darktower/fled (get @model/app-state token)]))))
 

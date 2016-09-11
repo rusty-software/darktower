@@ -120,3 +120,6 @@
   (if (= warriors 99)
     {:food (max 0 (- food 7))}
     {:food (max 0 (- food (inc (int (/ warriors 15.1)))))}))
+
+(defn flee [{:keys [warriors] :as player}]
+  {:player (assoc player :encounter-result :fled :warriors (max 1 (- warriors 1)))})

@@ -100,5 +100,14 @@
 (defn fight! [token]
   (log/info "fighting"))
 
-(defn flee! [token]
-  (log/info "fleeing"))
+(defn flee [app-state uid token]
+  (let [game-state (get app-state token)]
+    (if (= uid (:current-player game-state))
+      (let [player (player-by-uid game-state uid)
+            flee-result (game/flee player)
+            updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player flee-result)))]
+        (assoc app-state token updated-game-state))
+      app-state)))
+
+(defn flee! [uid token]
+  (swap! app-state flee uid token))
