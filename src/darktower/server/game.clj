@@ -97,8 +97,16 @@
     (>= 90 roll) :plague
     (>= 100 roll) :dragon-attack))
 
+(defn roll-100 []
+  (rand-nth (range 1 101)))
+
+(defn winning-chance [warriors brigands]
+  (if (> warriors brigands)
+    (* 100 (- 0.75 (/ brigands (* 4 warriors))))
+    (* 100 (+ 0.25 (/ warriors (* 4 brigands))))))
+
 (defn encounter-territory [player dragon-hoard]
-  (let [roll-action (roll-result (rand-nth (range 1 101)))]
+  (let [roll-action (roll-result (roll-100))]
     (cond
       (= :safe-move roll-action) (safe-move player)
       (= :battle roll-action) (battle player)

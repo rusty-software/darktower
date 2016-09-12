@@ -192,3 +192,14 @@
     (is (= 1 (get-in (flee {:warriors 2}) [:player :warriors]))))
   (testing "Fleeing cannot reduce warrior count below 1"
     (is (= 1 (get-in (flee {:warriors 1}) [:player :warriors])))))
+
+(deftest winning-chance-test
+  (is (= 50.0 (winning-chance 10 10)))
+  (is (= 62.5 (winning-chance 10 5)))
+  (is (= 70.0 (winning-chance 10 2)))
+  (is (= 72.5 (winning-chance 10 1)))
+  (is (= 47.5 (winning-chance 9 10)))
+  (is (= 37.5 (winning-chance 5 10))))
+
+(deftest fight-test
+  (testing ""))

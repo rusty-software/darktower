@@ -43,7 +43,7 @@
    :dragon-attack {:images ["img/dragon.jpg"]}
    :dragon-attack-sword {:images ["img/dragon.jpg" "img/sword.jpg"]}
    :safe-move {:images ["img/victory.jpg"]}
-   :battle {:images ["img/brigands.jpg"]}
+   :battle {:images ["img/warriors.jpg" "img/brigands.jpg"]}
    :fled {:images ["img/warriors.jpg"]}})
 
 (defn display-buttons [buttons]
@@ -95,7 +95,8 @@
               [:div
                (let [images (get-in encounter-result-specs [encounter-result :images])]
                  (for [image images]
-                   [:img {:src image}]))
+                   [:img {:src image
+                          :style {:margin "5px"}}]))
                (if (= :battle encounter-result)
                  (battle-display warriors brigands)
                  (display-buttons [end-turn-button]))])])]]
