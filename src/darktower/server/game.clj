@@ -133,4 +133,9 @@
   {:player (assoc player :encounter-result :fled :warriors (max 1 (- warriors 1)))})
 
 (defn fight [{:keys [warriors brigands] :as player}]
-  {:player (assoc player :encounter-result :fighting)})
+  (let [warriors-win? (>= (winning-chance warriors brigands) (roll-100))]
+    (if warriors-win?
+      {:player (assoc player :encounter-result :fighting
+                             :brigands (/ brigands 2))}
+      {:player (assoc player :encounter-result :fighting
+                             :warriors (dec warriors))})))
