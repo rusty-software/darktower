@@ -93,8 +93,8 @@
   (cond
     (>= 50 roll) :safe-move
     (>= 70 roll) :battle
-    (>= 80 roll) :lost
-    (>= 90 roll) :plague
+    (>= 82 roll) :lost
+    (>= 94 roll) :plague
     (>= 100 roll) :dragon-attack))
 
 (defn roll-100 []
@@ -131,3 +131,6 @@
 
 (defn flee [{:keys [warriors] :as player}]
   {:player (assoc player :encounter-result :fled :warriors (max 1 (- warriors 1)))})
+
+(defn fight [{:keys [warriors brigands] :as player}]
+  {:player (assoc player :encounter-result :fighting)})

@@ -202,4 +202,9 @@
   (is (= 37.5 (winning-chance 5 10))))
 
 (deftest fight-test
-  (testing ""))
+  (let [player (assoc player :warriors 10 :brigands 10)]
+    (testing "warriors win a round"
+      (with-redefs [roll-100 (constantly 70)]
+        (let [expected {:player (assoc player :encounter-result :fighting
+                                              :brigands 5)}]
+          (is (= expected (fight player))))))))
