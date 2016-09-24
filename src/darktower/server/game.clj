@@ -132,6 +132,14 @@
 (defn flee [{:keys [warriors] :as player}]
   {:player (assoc player :encounter-result :fled :warriors (max 1 (- warriors 1)))})
 
+(defn treasure-gold [current-gold]
+  (min 99 (+ current-gold 10 (int (* 11 (rand))))))
+
+(defn treasure [player]
+  (cond
+    (<= 30) (update player :gold treasure-gold)
+    :else player))
+
 (defn fight [{:keys [warriors brigands] :as player}]
   (let [warriors-win? (>= (winning-chance warriors brigands) (roll-100))]
     (cond

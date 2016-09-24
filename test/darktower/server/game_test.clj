@@ -219,4 +219,20 @@
                                             :warriors 1)}]
         (is (= expected (fight player)))))))
 
-(deftest treasure-test)
+(deftest treasure-test
+  (testing "Given a roll 30 or below, increases gold"
+    (with-redefs [roll-100 (constantly 30.0)]
+      (testing "increases gold"
+        (let [player (assoc player :gold 10)]
+          (is (< 10 (:gold (treasure player))))))
+      (testing "does not award more than max"
+        (let [player (assoc player :gold 90)]
+          (is (= 99 (:gold (treasure player))))))))
+  (testing "Given a roll between 31 and 50, gives a key")
+  (testing "Given a roll between 51 and 70, gives a pegasus")
+  (testing "Given a roll between 71 and 85, gives a sword")
+  (testing "Given a roll between 86 and 100, gives a wizard")
+  (testing "Given a player with everything, awards gold")
+  (testing "Given a player with everything, does not award more than 99")
+  (testing "Given a player with everything and max gold, awards nothing")
+  )
