@@ -8,6 +8,13 @@
       (first kingdoms)
       (get kingdoms (inc i)))))
 
+(defn kingdom-offset [home kingdom]
+  (let [home-i (.indexOf kingdoms home)
+        kingdom-i (.indexOf kingdoms kingdom)]
+    (if (< kingdom-i home-i)
+      (+ (count kingdoms) (- kingdom-i home-i))
+      (- kingdom-i home-i))))
+
 (defn potential-neighbors-for [{:keys [kingdom row idx]}]
   (let [prev-row (dec row)
         next-row (inc row)]

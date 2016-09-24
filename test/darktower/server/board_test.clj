@@ -98,3 +98,9 @@
     (is (= :sanctuary (type-for {:row 4 :idx 1})))
     (is (= :tomb (type-for {:row 4 :idx 4})))
     (is (= :citadel (type-for {:row 5 :idx 3})))))
+
+(deftest kingdom-offset-test
+  (is (zero? (kingdom-offset :zenon :zenon)))
+  (is (= 1 (kingdom-offset :zenon :arisilon)))
+  (is (= 2 (kingdom-offset :zenon :brynthia)))
+  (is (= 3 (kingdom-offset :zenon :durnin))))

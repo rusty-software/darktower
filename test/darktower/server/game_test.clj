@@ -42,41 +42,47 @@
     (testing "Current player is first in players list"
       (is (= "14" (:current-player game-state))))))
 
+(deftest has-key?-test
+  (is (has-key? player {:kingdom :arisilon}))
+  (is (not (has-key? player {:kingdom :brynthia})))
+  (is (has-key? (assoc player :brass-key true) {:kingdom :brynthia}))
+  (is (not (has-key? player {:kingdom :durnin})))
+  (is (has-key? (assoc player :silver-key true) {:kingdom :durnin}))
+  (is (not (has-key? player {:kingdom :zenon})))
+  (is (has-key? (assoc player :gold-key true) {:kingdom :zenon})))
+
+(defn top-row-edge [player kingdom]
+  (assoc player :current-territory {:kingdom kingdom :row 1 :idx 2}))
+
 (deftest valid-move-test
   (testing "Movement allowed to adjacent territories"
-    (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2})
-          expected {:valid? true}
-          actual (valid-move player {:kingdom :zenon :row 3 :idx 1})]
-      (is (= expected actual)))
-    (let [player (assoc player :current-territory {:kingdom :zenon :row 1 :idx 2})
-          expected {:valid? true}
-          actual (valid-move player {:kingdom :zenon :type :frontier})]
-      (is (= expected actual))))
+    (let [player (assoc player :current-territory {:kingdom :arisilon :row 3 :idx 2})]
+      (is (= {:valid? true} (valid-move player {:kingdom :arisilon :row 3 :idx 1})))
+      (is (= {:valid? true} (valid-move (top-row-edge player :arisilon) {:kingdom :arisilon :type :frontier})))))
   (testing "Movement to non-adjacent territories"
     (testing "When the player has no pegasus, movement is not allowed"
-      (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2})
-            expected {:valid? false
-                      :message "Destination must be adjacent to your current territory!"}
-            actual (valid-move player {:kingdom :zenon :row 3 :idx 0})]
-        (is (= expected actual))))
+      (is (= {:valid? false
+              :message "Destination must be adjacent to your current territory!"}
+            (valid-move (top-row-edge player :arisilon) {:kingdom :arisilon :row 3 :idx 0}))))
     (testing "When the player has a pegasus, movement is allowed and the pegasus is expended"
-      (let [player (assoc player :current-territory {:kingdom :zenon :row 3 :idx 2}
-                                 :pegasus true)
-            expected {:valid? true :pegasus-required? true}
-            actual (valid-move player {:kingdom :zenon :row 1 :idx 0})]
-        (is (= expected actual)))))
+      (is (= {:valid? true :pegasus-required? true}
+            (valid-move (assoc (top-row-edge player :arisilon) :pegasus true) {:kingdom :arisilon :row 1 :idx 0})))))
   (testing "Movement to another kingdom is only allowed from previous kingdom's frontier, even if the player has a pegasus"
     (let [player (assoc player :current-territory {:kingdom :zenon :type :frontier}
-                               :pegasus true)
-          expected {:valid? true}
-          actual (valid-move player {:kingdom :arisilon :row 3 :idx 0})]
-      (is (= expected actual)))
-    (let [player (assoc player :current-territory {:kingdom :zenon :row 1 :idx 2}
-                               :pegasus true)
-          expected {:valid? false
-                    :message "Destination must be adjacent to your current territory!"}
-          actual (valid-move player {:kingdom :arisilon :row 3 :idx 0})]
-      (is (= expected actual)))))
+                               :pegasus true)]
+      (is (= {:valid? true} (valid-move player {:kingdom :arisilon :row 3 :idx 0}))))
+    (let [player (assoc (top-row-edge player :zenon) :pegasus true)]
+      (is (= {:valid? false
+              :message "Destination must be adjacent to your current territory!"}
+            (valid-move player {:kingdom :arisilon :row 3 :idx 0})))))
+  (testing "Movement to a frontier requires the appropriate key"
+    (is (= {:valid? true} (valid-move (top-row-edge player :arisilon) {:kingdom :arisilon :type :frontier})))
+    (is (= {:valid? false :message "Key missing!"} (valid-move (top-row-edge player :brynthia) {:kingdom :brynthia :type :frontier})))
+    (is (= {:valid? true} (valid-move (assoc (top-row-edge player :brynthia) :brass-key true) {:kingdom :brynthia :type :frontier})))
+    (is (= {:valid? false :message "Key missing!"} (valid-move (top-row-edge player :durnin) {:kingdom :durnin :type :frontier})))
+    (is (= {:valid? true} (valid-move (assoc (top-row-edge player :durnin) :silver-key true) {:kingdom :durnin :type :frontier})))
+    (is (= {:valid? false :message "Key missing!"} (valid-move (top-row-edge player :zenon) {:kingdom :zenon :type :frontier})))
+    (is (= {:valid? true} (valid-move (assoc (top-row-edge player :zenon) :gold-key true) {:kingdom :zenon :type :frontier})))))
 
 (deftest safe-move-test
   (testing "Passes the player through"
@@ -228,7 +234,16 @@
       (testing "does not award more than max"
         (let [player (assoc player :gold 90)]
           (is (= 99 (:gold (treasure player))))))))
-  (testing "Given a roll between 31 and 50, gives a key")
+  (testing "Given a roll between 31 and 50, gives a key"
+    (with-redefs [roll-100 (constantly 50.0)]
+      (testing "Key type depends on relative country"
+        (is (not (:brass-key (treasure (assoc player :current-territory {:kingdom :arisilon})))))
+        (is (:brass-key (treasure (assoc player :current-territory {:kingdom :brynthia}))))
+        (is (:silver-key (treasure (assoc player :current-territory {:kingdom :durnin} :brass-key true))))
+        (is (:gold-key (treasure (assoc player :current-territory {:kingdom :zenon} :brass-key true :silver-key true)))))
+      (testing "If the player already possesses the key, no treasure"
+        (let [player (assoc player :current-territory {:kingdom :brynthia} :brass-key true)]
+          (is (= player (treasure player)))))))
   (testing "Given a roll between 51 and 70, gives a pegasus")
   (testing "Given a roll between 71 and 85, gives a sword")
   (testing "Given a roll between 86 and 100, gives a wizard")

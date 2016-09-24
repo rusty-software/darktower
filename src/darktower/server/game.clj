@@ -37,10 +37,26 @@
     (not (nil? type))
     (assoc :type type)))
 
+(def offset-key [true :brass-key :silver-key :gold-key])
+
+(defn has-key? [player destination]
+  (let [offset (board/kingdom-offset (:kingdom player) (:kingdom destination))
+        key (get offset-key offset)]
+    (if (zero? offset)
+      true
+      (get player key))))
+
+;; TODO: players cannot move onto foreign citadels
 (defn valid-move [player destination]
   (let [current-territory (:current-territory player)
-        neighbors (board/neighbors-for current-territory)]
+        neighbors (board/neighbors-for current-territory)
+        requires-key? (not= (:kingdom player) (:kingdom destination))]
     (cond
+      (and
+        requires-key?
+        (not (has-key? player destination)))
+      {:valid? false :message "Key missing!"}
+
       (some #{destination} neighbors)
       {:valid? true}
 
@@ -135,10 +151,23 @@
 (defn treasure-gold [current-gold]
   (min 99 (+ current-gold 10 (int (* 11 (rand))))))
 
+(defn award-key [player]
+  (let [offset (board/kingdom-offset (:kingdom player) (get-in player [:current-territory :kingdom]))
+        key (get offset-key offset)]
+    (if (zero? offset)
+      player
+      (assoc player key true))))
+
 (defn treasure [player]
-  (cond
-    (<= 30) (update player :gold treasure-gold)
-    :else player))
+  (let [roll (roll-100)]
+    (cond
+      (<= roll 30)
+      (update player :gold treasure-gold)
+
+      (and (<= 31 roll 50) (not (has-key? player (:current-territory player))))
+      (award-key player)
+
+      :else player)))
 
 (defn fight [{:keys [warriors brigands] :as player}]
   (let [warriors-win? (>= (winning-chance warriors brigands) (roll-100))]
