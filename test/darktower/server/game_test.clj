@@ -205,11 +205,18 @@
   (with-redefs [roll-100 (constantly 50.0)]
     (testing "Given an even number of brigands and warrior win, brigands reduced by half"
       (let [player (assoc player :warriors 10 :brigands 10)
-            expected {:player (assoc player :encounter-result :fighting
+            expected {:player (assoc player :encounter-result :fighting-won-round
                                             :brigands 5)}]
         (is (= expected (fight player)))))
     (testing "Given a brigand win, warriors reduced by one"
       (let [player (assoc player :warriors 9 :brigands 10)
-            expected {:player (assoc player :encounter-result :fighting
+            expected {:player (assoc player :encounter-result :fighting-lost-round
                                             :warriors 8)}]
+        (is (= expected (fight player)))))
+    (testing "When warriors are reduced to 1, battle ends"
+      (let [player (assoc player :warriors 2 :brigands 10)
+            expected {:player (assoc player :encounter-result :fighting-lost
+                                            :warriors 1)}]
         (is (= expected (fight player)))))))
+
+(deftest treasure-test)
