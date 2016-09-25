@@ -123,12 +123,13 @@
 
 (defn encounter-territory [player dragon-hoard]
   (let [roll-action (roll-result (roll-100))]
-    (cond
-      (= :safe-move roll-action) (safe-move player)
-      (= :battle roll-action) (battle player)
-      (= :lost roll-action) (lost player)
-      (= :plague roll-action) (plague player)
-      (= :dragon-attack roll-action) (dragon-attack player dragon-hoard))))
+    (case roll-action
+      :safe-move (safe-move player)
+      :battle (battle player)
+      :lost (lost player)
+      :plague (plague player)
+      :dragon-attack (dragon-attack player dragon-hoard)
+      (safe-move player))))
 
 (defn encounter-location [player location]
   (log/info "encountering location" location)
@@ -201,23 +202,22 @@
   ([treasure player]
     (can-award? treasure player nil))
   ([treasure player multiplayer?]
-    (cond
-      (= :gold treasure) (< (:gold player) 99)
-      (= :key treasure) (can-award-key? player)
-      (= :pegasus treasure) (not (:pegasus player))
-      (= :sword treasure) (not (:sword player))
-      (= :wizard treasure) (and (not (:wizard player)) multiplayer?)
-
-      :else false)))
+   (case treasure
+     :gold (< (:gold player) 99)
+     :key (can-award-key? player)
+     :pegasus (not (:pegasus player))
+     :sword (not (:sword player))
+     :wizard (and (not (:wizard player)) multiplayer?)
+     false)))
 
 (defn award-treasure [treasure player]
-  (cond
-    (= :gold treasure) (update player :gold treasure-gold)
-    (= :key treasure) (award-key player)
-    (= :pegasus treasure) (assoc player :pegasus true)
-    (= :sword treasure) (assoc player :sword true)
-    (= :wizard treasure) (assoc player :wizard true)
-    :else player))
+  (case treasure
+    :gold (update player :gold treasure-gold)
+    :key (award-key player)
+    :pegasus (assoc player :pegasus true)
+    :sword (assoc player :sword true)
+    :wizard (assoc player :wizard true)
+    player))
 
 (defn treasure
   ([player]
