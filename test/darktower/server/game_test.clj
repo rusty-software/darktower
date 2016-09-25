@@ -285,9 +285,25 @@
     (is (can-award? :key (assoc player :current-territory {:kingdom :durnin} :brass-key true)))
     (is (not (can-award? :key (assoc player :current-territory {:kingdom :durnin} :brass-key true :silver-key true))))
     (is (can-award? :key (assoc player :current-territory {:kingdom :zenon} :brass-key true :silver-key true)))
-    ))
+    (is (can-award? :pegasus player))
+    (is (not (can-award? :pegasus (assoc player :pegasus true))))
+    (is (can-award? :sword player))
+    (is (not (can-award? :sword (assoc player :sword true))))
+    (is (can-award? :wizard player true))
+    (is (not (can-award? :wizard (assoc player :wizard true) true)))
+    (is (not (can-award? :wizard player)))))
 
-#_(deftest treasure-test
+(deftest award-treasure-test
+  (let [player (assoc (top-row-edge player :arisilon) :gold 10)]
+    (is (< 10 (:gold (award-treasure :gold player))))
+    (is (:brass-key (award-treasure :key (assoc player :current-territory {:kingdom :brynthia}))))
+    (is (:silver-key (award-treasure :key (assoc player :current-territory {:kingdom :durnin}))))
+    (is (:gold-key (award-treasure :key (assoc player :current-territory {:kingdom :zenon}))))
+    (is (:pegasus (award-treasure :pegasus player)))
+    (is (:sword (award-treasure :sword player)))
+    (is (:wizard (award-treasure :wizard player)))))
+
+(deftest treasure-test
   (testing "Given a roll 30 or below, increases gold"
     (with-redefs [roll-100 (constantly 30)]
       (testing "increases gold"
@@ -300,16 +316,12 @@
     (let [player (assoc (top-row-edge player :arisilon) :gold 10)]
       (with-redefs [roll-100 (constantly 50)]
         (testing "Key type depends on relative country"
-          (is (not (:brass-key (treasure (assoc player :current-territory {:kingdom :arisilon})))))
           (is (not (:brass-key player)))
           (is (:brass-key (treasure (assoc player :current-territory {:kingdom :brynthia}))))
           (is (not (:silver-key player)))
           (is (:silver-key (treasure (assoc player :current-territory {:kingdom :durnin} :brass-key true))))
           (is (not (:gold-key player)))
-          (is (:gold-key (treasure (assoc player :current-territory {:kingdom :zenon} :brass-key true :silver-key true)))))
-        (testing "If the player already possesses the key, no treasure"
-          (let [player (assoc player :current-territory {:kingdom :brynthia} :brass-key true)]
-            (is (= player (treasure player))))))))
+          (is (:gold-key (treasure (assoc player :current-territory {:kingdom :zenon} :brass-key true :silver-key true))))))))
   (testing "Given a roll between 51 and 70, gives a pegasus"
     (let [player (assoc (top-row-edge player :arisilon) :gold 10)]
       (with-redefs [roll-100 (constantly 70)]
@@ -324,12 +336,11 @@
     (let [player (assoc (top-row-edge player :arisilon) :gold 10)]
       (with-redefs [roll-100 (constantly 100)]
         (is (not (:wizard player)))
-        (is (:wizard (treasure player true)))
-        (is (not (:wizard (treasure player)))))))
+        (is (:wizard (treasure player true))))))
+  ;; TODO; redef roll-100 to fn that returns treasure demarkations
   (testing "Given a player with everything, awards gold"
     (let [player (assoc (top-row-edge player :arisilon) :gold 10 :brass-key true :silver-key true :gold-key true :pegasus true :sword true)]
-      (with-redefs [roll-100 (constantly 50)]
-        (is (< 10 (:gold (treasure player)))))))
-  (testing "Given a player with everything, does not award more than 99")
-  (testing "Given a player with everything and max gold, awards nothing")
-  )
+      (is (< 10 (:gold (treasure player))))))
+  (testing "Given a player with everything and max gold, awards nothing"
+    (let [player (assoc (top-row-edge player :arisilon) :gold 99 :brass-key true :silver-key true :gold-key true :pegasus true :sword true)]
+      (is (= player (treasure player))))))

@@ -197,21 +197,33 @@
 (defn tried-everything? [tried multiplayer?]
   (not (seq (clojure.set/difference (treasure-types multiplayer?) tried))))
 
-(defn can-award? [treasure player]
-  (cond
-    (= :gold treasure) (< (:gold player) 99)
-    (= :key treasure) (can-award-key? player)
+(defn can-award?
+  ([treasure player]
+    (can-award? treasure player nil))
+  ([treasure player multiplayer?]
+    (cond
+      (= :gold treasure) (< (:gold player) 99)
+      (= :key treasure) (can-award-key? player)
+      (= :pegasus treasure) (not (:pegasus player))
+      (= :sword treasure) (not (:sword player))
+      (= :wizard treasure) (and (not (:wizard player)) multiplayer?)
 
-    :else false))
+      :else false)))
 
 (defn award-treasure [treasure player]
-  player)
+  (cond
+    (= :gold treasure) (update player :gold treasure-gold)
+    (= :key treasure) (award-key player)
+    (= :pegasus treasure) (assoc player :pegasus true)
+    (= :sword treasure) (assoc player :sword true)
+    (= :wizard treasure) (assoc player :wizard true)
+    :else player))
 
 (defn treasure
   ([player]
     (treasure player nil))
   ([player multiplayer?]
-   (if (can-receive-treasure? player)
+   (if (can-receive-treasure? player multiplayer?)
      (loop [treasure-to-try (treasure-type (roll-100) multiplayer?)
             tried #{}
             multiplayer? multiplayer?]
@@ -219,30 +231,11 @@
          (tried-everything? tried multiplayer?)
          player
 
-         (can-award? treasure-to-try player)
+         (can-award? treasure-to-try player multiplayer?)
          (award-treasure treasure-to-try player)
 
          :else
-         (recur (treasure-to-try (roll-100)) (conj tried treasure-to-try) multiplayer?)))
-
-     #_(let [roll (roll-100)]
-       (cond
-         (<= roll 30)
-         (update player :gold treasure-gold)
-
-         (and (<= 31 roll 50) (not (has-key? player (:current-territory player))))
-         (award-key player)
-
-         (<= 51 roll 70)
-         (assoc player :pegasus true)
-
-         (<= 71 roll 85)
-         (assoc player :sword true)
-
-         (and (<= 85 roll 100) multiplayer?)
-         (assoc player :wizard true)
-
-         :else player))
+         (recur (treasure-type (roll-100) multiplayer?) (conj tried treasure-to-try) multiplayer?)))
      player)))
 
 (defn fight [{:keys [warriors brigands] :as player}]
