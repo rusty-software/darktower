@@ -158,28 +158,54 @@
       player
       (assoc player key true))))
 
+;; TODO: wizard handler
+
+(defn can-receive-treasure?
+  ([player]
+    (can-receive-treasure? player nil))
+  ([player multiplayer?]
+    (or (< (:gold player) 99)
+      (not (has-key? player (:current-territory player)))
+      (not (:pegasus player))
+      (not (:sword player))
+      (and multiplayer? (not (:wizard player))))))
+
+(defn treasure-types
+  ([]
+    (treasure-types nil))
+  ([multiplayer?]
+   (if multiplayer?
+     #{:gold :key :pegasus :sword :wizard}
+     #{:gold :key :pegasus :sword})))
+
+(defn treasure-type [roll]
+  )
+
 (defn treasure
   ([player]
     (treasure player nil))
   ([player multiplayer?]
-    (let [roll (roll-100)]
-      (cond
-        (<= roll 30)
-        (update player :gold treasure-gold)
+   (if (can-receive-treasure? player)
 
-        (and (<= 31 roll 50) (not (has-key? player (:current-territory player))))
-        (award-key player)
+     (let [roll (roll-100)]
+       (cond
+         (<= roll 30)
+         (update player :gold treasure-gold)
 
-        (<= 51 roll 70)
-        (assoc player :pegasus true)
+         (and (<= 31 roll 50) (not (has-key? player (:current-territory player))))
+         (award-key player)
 
-        (<= 71 roll 85)
-        (assoc player :sword true)
+         (<= 51 roll 70)
+         (assoc player :pegasus true)
 
-        (and (<= 85 roll 100) multiplayer?)
-        (assoc player :wizard true)
+         (<= 71 roll 85)
+         (assoc player :sword true)
 
-        :else player))))
+         (and (<= 85 roll 100) multiplayer?)
+         (assoc player :wizard true)
+
+         :else player))
+     player)))
 
 (defn fight [{:keys [warriors brigands] :as player}]
   (let [warriors-win? (>= (winning-chance warriors brigands) (roll-100))]
