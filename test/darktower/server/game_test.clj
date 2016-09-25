@@ -243,7 +243,49 @@
 
 (deftest treasure-type-test
   (with-redefs [roll-100 (constantly 30)]
-    (is (= :gold (treasure-type (roll-100))))))
+    (is (= :gold (treasure-type (roll-100) true))))
+  (with-redefs [roll-100 (constantly 50)]
+    (is (= :key (treasure-type (roll-100) true))))
+  (with-redefs [roll-100 (constantly 70)]
+    (is (= :pegasus (treasure-type (roll-100) true))))
+  (with-redefs [roll-100 (constantly 85)]
+    (is (= :sword (treasure-type (roll-100) true))))
+  (with-redefs [roll-100 (constantly 100)]
+    (is (= :wizard (treasure-type (roll-100) true))))
+  (with-redefs [roll-100 (constantly 100)]
+    (is (= :gold (treasure-type (roll-100) nil)))))
+
+(deftest tried-everything?-test
+  (is (not (tried-everything? #{} true)))
+  (is (not (tried-everything? #{:gold} true)))
+  (is (not (tried-everything? #{:gold :key} true)))
+  (is (not (tried-everything? #{:gold :key :pegasus} true)))
+  (is (not (tried-everything? #{:gold :key :pegasus :sword} true)))
+  (is (tried-everything? #{:gold :key :pegasus :sword :wizard} true))
+  (is (tried-everything? #{:gold :key :pegasus :sword} nil)))
+
+(deftest can-award-key?-test
+  (is (can-award-key? (assoc player :current-territory {:kingdom :brynthia})))
+  (is (not (can-award-key? (assoc player :current-territory {:kingdom :brynthia} :brass-key true))))
+  (is (can-award-key? (assoc player :current-territory {:kingdom :durnin})))
+  (is (not (can-award-key? (assoc player :current-territory {:kingdom :durnin} :silver-key true))))
+  (is (can-award-key? (assoc player :current-territory {:kingdom :zenon})))
+  (is (not (can-award-key? (assoc player :current-territory {:kingdom :zenon} :gold-key true))))
+  (is (not (can-award-key? (assoc player :current-territory {:kingdom :arisilon}))))
+  (is (not (can-award-key? (assoc player :current-territory {:kingdom :arisilon} :brass-key true :silver-key true :gold-key true))))
+  )
+
+(deftest can-award?-test
+  (let [player (assoc (top-row-edge player :arisilon) :gold 10)]
+    (is (can-award? :gold player))
+    (is (not (can-award? :gold (assoc player :gold 99))))
+    (is (not (can-award? :key (assoc player :current-territory {:kingdom :arisilon}))))
+    (is (can-award? :key (assoc player :current-territory {:kingdom :brynthia})))
+    (is (not (can-award? :key (assoc player :current-territory {:kingdom :brynthia} :brass-key true))))
+    (is (can-award? :key (assoc player :current-territory {:kingdom :durnin} :brass-key true)))
+    (is (not (can-award? :key (assoc player :current-territory {:kingdom :durnin} :brass-key true :silver-key true))))
+    (is (can-award? :key (assoc player :current-territory {:kingdom :zenon} :brass-key true :silver-key true)))
+    ))
 
 #_(deftest treasure-test
   (testing "Given a roll 30 or below, increases gold"

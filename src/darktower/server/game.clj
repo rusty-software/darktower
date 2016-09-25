@@ -151,6 +151,13 @@
 (defn treasure-gold [current-gold]
   (min 99 (+ current-gold 10 (int (* 11 (rand))))))
 
+(defn can-award-key? [player]
+  (let [offset (board/kingdom-offset (:kingdom player) (get-in player [:current-territory :kingdom]))
+        key (get offset-key offset)]
+    (if (zero? offset)
+      false
+      (not (get player key)))))
+
 (defn award-key [player]
   (let [offset (board/kingdom-offset (:kingdom player) (get-in player [:current-territory :kingdom]))
         key (get offset-key offset)]
@@ -178,16 +185,47 @@
      #{:gold :key :pegasus :sword :wizard}
      #{:gold :key :pegasus :sword})))
 
-(defn treasure-type [roll]
-  )
+(defn treasure-type [roll multiplayer?]
+  (cond
+    (<= roll 30) :gold
+    (<= 31 roll 50) :key
+    (<= 51 roll 70) :pegasus
+    (<= 71 roll 85) :sword
+    (and (<= 86 roll 100) multiplayer?) :wizard
+    :else :gold))
+
+(defn tried-everything? [tried multiplayer?]
+  (not (seq (clojure.set/difference (treasure-types multiplayer?) tried))))
+
+(defn can-award? [treasure player]
+  (cond
+    (= :gold treasure) (< (:gold player) 99)
+    (= :key treasure) (can-award-key? player)
+
+    :else false))
+
+(defn award-treasure [treasure player]
+  player)
 
 (defn treasure
   ([player]
     (treasure player nil))
   ([player multiplayer?]
    (if (can-receive-treasure? player)
+     (loop [treasure-to-try (treasure-type (roll-100) multiplayer?)
+            tried #{}
+            multiplayer? multiplayer?]
+       (cond
+         (tried-everything? tried multiplayer?)
+         player
 
-     (let [roll (roll-100)]
+         (can-award? treasure-to-try player)
+         (award-treasure treasure-to-try player)
+
+         :else
+         (recur (treasure-to-try (roll-100)) (conj tried treasure-to-try) multiplayer?)))
+
+     #_(let [roll (roll-100)]
        (cond
          (<= roll 30)
          (update player :gold treasure-gold)
