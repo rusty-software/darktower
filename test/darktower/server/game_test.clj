@@ -227,7 +227,7 @@
 
 (deftest treasure-test
   (testing "Given a roll 30 or below, increases gold"
-    (with-redefs [roll-100 (constantly 30.0)]
+    (with-redefs [roll-100 (constantly 30)]
       (testing "increases gold"
         (let [player (assoc player :gold 10)]
           (is (< 10 (:gold (treasure player))))))
@@ -235,18 +235,31 @@
         (let [player (assoc player :gold 90)]
           (is (= 99 (:gold (treasure player))))))))
   (testing "Given a roll between 31 and 50, gives a key"
-    (with-redefs [roll-100 (constantly 50.0)]
+    (with-redefs [roll-100 (constantly 50)]
       (testing "Key type depends on relative country"
         (is (not (:brass-key (treasure (assoc player :current-territory {:kingdom :arisilon})))))
+        (is (not (:brass-key player)))
         (is (:brass-key (treasure (assoc player :current-territory {:kingdom :brynthia}))))
+        (is (not (:silver-key player)))
         (is (:silver-key (treasure (assoc player :current-territory {:kingdom :durnin} :brass-key true))))
+        (is (not (:gold-key player)))
         (is (:gold-key (treasure (assoc player :current-territory {:kingdom :zenon} :brass-key true :silver-key true)))))
       (testing "If the player already possesses the key, no treasure"
         (let [player (assoc player :current-territory {:kingdom :brynthia} :brass-key true)]
           (is (= player (treasure player)))))))
-  (testing "Given a roll between 51 and 70, gives a pegasus")
-  (testing "Given a roll between 71 and 85, gives a sword")
-  (testing "Given a roll between 86 and 100, gives a wizard")
+  (testing "Given a roll between 51 and 70, gives a pegasus"
+    (with-redefs [roll-100 (constantly 70)]
+      (is (not (:pegasus player)))
+      (is (:pegasus (treasure player)))))
+  (testing "Given a roll between 71 and 85, gives a sword"
+    (with-redefs [roll-100 (constantly 85)]
+      (is (not (:sword player)))
+      (is (:sword (treasure player)))))
+  (testing "Given a roll between 86 and 100 in a multi-player game, gives a wizard"
+    (with-redefs [roll-100 (constantly 100)]
+      (is (not (:wizard player)))
+      (is (:wizard (treasure player true)))
+      (is (not (:wizard (treasure player))))))
   (testing "Given a player with everything, awards gold")
   (testing "Given a player with everything, does not award more than 99")
   (testing "Given a player with everything and max gold, awards nothing")

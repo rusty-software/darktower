@@ -158,16 +158,28 @@
       player
       (assoc player key true))))
 
-(defn treasure [player]
-  (let [roll (roll-100)]
-    (cond
-      (<= roll 30)
-      (update player :gold treasure-gold)
+(defn treasure
+  ([player]
+    (treasure player nil))
+  ([player multiplayer?]
+    (let [roll (roll-100)]
+      (cond
+        (<= roll 30)
+        (update player :gold treasure-gold)
 
-      (and (<= 31 roll 50) (not (has-key? player (:current-territory player))))
-      (award-key player)
+        (and (<= 31 roll 50) (not (has-key? player (:current-territory player))))
+        (award-key player)
 
-      :else player)))
+        (<= 51 roll 70)
+        (assoc player :pegasus true)
+
+        (<= 71 roll 85)
+        (assoc player :sword true)
+
+        (and (<= 85 roll 100) multiplayer?)
+        (assoc player :wizard true)
+
+        :else player))))
 
 (defn fight [{:keys [warriors brigands] :as player}]
   (let [warriors-win? (>= (winning-chance warriors brigands) (roll-100))]
