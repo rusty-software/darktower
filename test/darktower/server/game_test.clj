@@ -337,10 +337,17 @@
       (with-redefs [roll-100 (constantly 100)]
         (is (not (:wizard player)))
         (is (:wizard (treasure player true))))))
-  ;; TODO; redef roll-100 to fn that returns treasure demarkations
   (testing "Given a player with everything, awards gold"
-    (let [player (assoc (top-row-edge player :arisilon) :gold 10 :brass-key true :silver-key true :gold-key true :pegasus true :sword true)]
-      (is (< 10 (:gold (treasure player))))))
+    (let [times-called (atom 0)]
+      (with-redefs [roll-100 (fn []
+                               (swap! times-called inc)
+                               (case @times-called
+                                 1 50
+                                 2 70
+                                 3 85
+                                 4 100))]
+        (let [player (assoc (top-row-edge player :arisilon) :gold 10 :brass-key true :silver-key true :gold-key true :pegasus true :sword true)]
+          (is (< 10 (:gold (treasure player))))))))
   (testing "Given a player with everything and max gold, awards nothing"
     (let [player (assoc (top-row-edge player :arisilon) :gold 99 :brass-key true :silver-key true :gold-key true :pegasus true :sword true)]
       (is (= player (treasure player))))))
