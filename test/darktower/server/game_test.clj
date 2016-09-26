@@ -219,11 +219,13 @@
             expected {:player (assoc player :encounter-result :fighting-lost-round
                                             :warriors 8)}]
         (is (= expected (fight player)))))
-    (testing "When warriors are reduced to 1, battle ends"
+    (testing "When warriors are reduced to 1, battle ends in loss"
       (let [player (assoc player :warriors 2 :brigands 10)
             expected {:player (assoc player :encounter-result :fighting-lost
                                             :warriors 1)}]
-        (is (= expected (fight player)))))))
+        (is (= expected (fight player)))))
+    ;; TODO
+    (testing "When the brigands are reduced to 1 and warriors win, battle ends in victory (with treasure)")))
 
 (deftest can-receive-treasure?-test
   (let [player (assoc (top-row-edge player :arisilon) :gold 10)]
