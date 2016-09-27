@@ -224,8 +224,15 @@
             expected {:player (assoc player :encounter-result :fighting-lost
                                             :warriors 1)}]
         (is (= expected (fight player)))))
-    ;; TODO
-    (testing "When the brigands are reduced to 1 and warriors win, battle ends in victory (with treasure)")))
+    (testing "When the brigands are reduced to 1 and warriors win, battle ends in victory (with treasure)"
+      (let [player (assoc (top-row-edge player :brynthia) :warriors 10 :brigands 1 :gold 10)
+            {:keys [encounter-result warriors gold brass-key pegasus sword]} (:player (fight player))]
+        (is (= 10 warriors))
+        (is (= :fighting-won encounter-result))
+        (is (or (< 10 gold)
+              brass-key
+              pegasus
+              sword))))))
 
 (deftest can-receive-treasure?-test
   (let [player (assoc (top-row-edge player :arisilon) :gold 10)]
