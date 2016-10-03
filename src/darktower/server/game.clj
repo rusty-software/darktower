@@ -28,14 +28,14 @@
 (defn normalized-territory [{:keys [kingdom row idx type]}]
   (cond-> {:kingdom kingdom}
 
-    (not (nil? row))
-    (assoc :row row)
+          (not (nil? row))
+          (assoc :row row)
 
-    (not (nil? idx))
-    (assoc :idx idx)
+          (not (nil? idx))
+          (assoc :idx idx)
 
-    (not (nil? type))
-    (assoc :type type)))
+          (not (nil? type))
+          (assoc :type type)))
 
 (def offset-key [true :brass-key :silver-key :gold-key])
 
@@ -170,17 +170,17 @@
 
 (defn can-receive-treasure?
   ([player]
-    (can-receive-treasure? player nil))
+   (can-receive-treasure? player nil))
   ([player multiplayer?]
-    (or (< (:gold player) 99)
-      (not (has-key? player (:current-territory player)))
-      (not (:pegasus player))
-      (not (:sword player))
-      (and multiplayer? (not (:wizard player))))))
+   (or (< (:gold player) 99)
+       (not (has-key? player (:current-territory player)))
+       (not (:pegasus player))
+       (not (:sword player))
+       (and multiplayer? (not (:wizard player))))))
 
 (defn treasure-types
   ([]
-    (treasure-types nil))
+   (treasure-types nil))
   ([multiplayer?]
    (if multiplayer?
      #{:gold :key :pegasus :sword :wizard}
@@ -200,7 +200,7 @@
 
 (defn can-award?
   ([treasure player]
-    (can-award? treasure player nil))
+   (can-award? treasure player nil))
   ([treasure player multiplayer?]
    (case treasure
      :gold (< (:gold player) 99)
@@ -221,7 +221,7 @@
 
 (defn treasure
   ([player]
-    (treasure player nil))
+   (treasure player nil))
   ([player multiplayer?]
    (if (can-receive-treasure? player multiplayer?)
      (loop [treasure-to-try (treasure-type (roll-100) multiplayer?)
