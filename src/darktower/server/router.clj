@@ -62,21 +62,19 @@
   (let [{:keys [player-name joining-game-token]} ?data
         game-state (get @model/app-state joining-game-token)]
     (when game-state
-      (do
-        (log/info "join-game:" uid player-name joining-game-token)
-        (model/join-game! uid player-name joining-game-token)
-        (let [players (get-in @model/app-state [joining-game-token :players])]
-          (broadcast-game-state players [:darktower/player-joined (get @model/app-state joining-game-token)]))))
+      (log/info "join-game:" uid player-name joining-game-token)
+      (model/join-game! uid player-name joining-game-token)
+      (let [players (get-in @model/app-state [joining-game-token :players])]
+          (broadcast-game-state players [:darktower/player-joined (get @model/app-state joining-game-token)])))
     (log/debug "current app-state:" @model/app-state)))
 
 (defmethod event :darktower/start-game [{:keys [?data]}]
   (let [game-state (get @model/app-state ?data)]
     (when game-state
-      (do
-        (log/info "start-game:" ?data)
-        (model/start-game! ?data)
-        (let [players (get-in @model/app-state [?data :players])]
-          (broadcast-game-state players [:darktower/game-started (get @model/app-state ?data)]))))))
+      (log/info "start-game:" ?data)
+      (model/start-game! ?data)
+      (let [players (get-in @model/app-state [?data :players])]
+          (broadcast-game-state players [:darktower/game-started (get @model/app-state ?data)])))))
 
 (defmethod event :darktower/territory-click [{:keys [uid ?data]}]
   (let [{:keys [token territory-info]} ?data]

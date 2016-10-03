@@ -26,7 +26,7 @@
      {:kingdom kingdom :row next-row :idx (inc idx)}]))
 
 (defn remove-beyond-front-edge [neighbors]
-  (remove #(< (:idx %) 0) neighbors))
+  (remove #(neg? (:idx %)) neighbors))
 
 (defn remove-beyond-back-edge-in-row [row neighbors]
   (remove #(and
