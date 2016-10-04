@@ -97,7 +97,7 @@
                  (for [image images]
                    [:img {:src image
                           :style {:margin "5px"}}]))
-               (if (= :battle encounter-result)
+               (if (#{:battle :fighting-won-round :fighting-lost-round} encounter-result)
                  (battle-display warriors brigands)
                  (display-buttons [end-turn-button]))])])]]
        [:div

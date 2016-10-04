@@ -89,9 +89,10 @@
     (let [players (get-in @model/app-state [token :players])]
       (broadcast-game-state players [:darktower/turn-ended (get @model/app-state token)]))))
 
-(defmethod event :darktower/fight [{:keys [?data]}]
+(defmethod event :darktower/fight [{:keys [uid ?data]}]
   (let [{:keys [token]} ?data]
-    (model/fight! token)
+    (model/fight! uid token)
+    (log/info "fight result data" (get-in @model/app-state [token :players]))
     (let [players (get-in @model/app-state [token :players])]
       (broadcast-game-state players [:darktower/fought (get @model/app-state token)]))))
 

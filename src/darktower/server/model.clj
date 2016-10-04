@@ -97,8 +97,18 @@
 (defn end-turn! [token]
   (swap! app-state rotate-current-player token))
 
-(defn fight! [token]
-  (log/info "fighting"))
+(defn fight [app-state uid token]
+  (let [game-state (get app-state token)]
+    (if (= uid (:current-player game-state))
+      (let [player (player-by-uid game-state uid)
+            updated-player (game/fight player)
+            _ (log/info "fight result" updated-player)
+            updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player updated-player)))]
+        (assoc app-state token updated-game-state))
+      app-state)))
+
+(defn fight! [uid token]
+  (swap! app-state fight uid token))
 
 (defn flee [app-state uid token]
   (let [game-state (get app-state token)]
