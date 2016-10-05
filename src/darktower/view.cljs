@@ -44,6 +44,10 @@
    :dragon-attack-sword {:images ["img/dragon.jpg" "img/sword.jpg"]}
    :safe-move {:images ["img/victory.jpg"]}
    :battle {:images ["img/warriors.jpg" "img/brigands.jpg"]}
+   :fighting-won-round {:images ["img/warriors.jpg" "img/brigands.jpg"]}
+   :fighting-lost-round {:images ["img/warriors.jpg" "img/brigands.jpg"]}
+   :fighting-won {:images ["img/gold.jpg"]}
+   :fighting-lost {:images ["img/warriors.jpg"]}
    :fled {:images ["img/warriors.jpg"]}})
 
 (defn display-buttons [buttons]
