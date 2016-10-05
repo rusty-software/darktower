@@ -246,7 +246,7 @@
                                   (dissoc :brigands)
                                   (merge (treasure player)))}
       warriors-win? {:player (assoc player :encounter-result :fighting-won-round
-                                           :brigands (/ brigands 2))}
+                                           :brigands (int (/ brigands 2)))}
       (= 2 warriors) {:player (assoc player :encounter-result :fighting-lost
                                             :warriors 1)}
       :else {:player (assoc player :encounter-result :fighting-lost-round

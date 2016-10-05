@@ -214,6 +214,11 @@
             expected {:player (assoc player :encounter-result :fighting-won-round
                                             :brigands 5)}]
         (is (= expected (fight player)))))
+    (testing "Given an odd number of brigands and warrior win, brigands reduced by half rounded down"
+      (let [player (assoc player :warriors 12 :brigands 11)
+            expected {:player (assoc player :encounter-result :fighting-won-round
+                                            :brigands 5)}]
+        (is (= expected (fight player)))))
     (testing "Given a brigand win, warriors reduced by one"
       (let [player (assoc player :warriors 9 :brigands 10)
             expected {:player (assoc player :encounter-result :fighting-lost-round
