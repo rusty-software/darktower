@@ -224,6 +224,7 @@
             expected {:player (assoc player :encounter-result :fighting-lost-round
                                             :warriors 8)}]
         (is (= expected (fight player)))))
+    ;; TODO: test that gold is reduced to max for warriors (plus beast)
     (testing "When warriors are reduced to 1, battle ends in loss"
       (let [player (assoc player :warriors 2 :brigands 10)
             expected {:player (assoc player :encounter-result :fighting-lost

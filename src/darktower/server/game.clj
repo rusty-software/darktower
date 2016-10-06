@@ -240,10 +240,10 @@
 (defn fight [{:keys [warriors brigands] :as player}]
   (let [warriors-win? (>= (winning-chance warriors brigands) (roll-100))]
     (cond
-      (and warriors-win? (= 1 brigands)) {:player (-> player
-                                                      (assoc :encounter-result :fighting-won)
-                                                      (merge (treasure player))
-                                                      (dissoc :brigands))}
+      (and warriors-win? (>= 1 brigands)) {:player (-> player
+                                                       (merge (treasure player))
+                                                       (assoc :encounter-result :fighting-won)
+                                                       (dissoc :brigands))}
       warriors-win? {:player (assoc player :encounter-result :fighting-won-round
                                            :brigands (int (/ brigands 2)))}
       (= 2 warriors) {:player (assoc player :encounter-result :fighting-lost
