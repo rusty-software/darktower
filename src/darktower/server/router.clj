@@ -78,7 +78,6 @@
 
 (defmethod event :darktower/territory-click [{:keys [uid ?data]}]
   (let [{:keys [token territory-info]} ?data]
-    (log/info "territory-click data" ?data)
     (model/move! uid token territory-info)
     (let [players (get-in @model/app-state [token :players])]
       (broadcast-game-state players [:darktower/territory-clicked (get @model/app-state token)]))))

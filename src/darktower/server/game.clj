@@ -132,7 +132,6 @@
       (safe-move player))))
 
 (defn encounter-location [player location]
-  (log/info "encountering location" location)
   {:player player :encounter-result location})
 
 (defn encounter [player dragon-hoard]
@@ -243,8 +242,8 @@
     (cond
       (and warriors-win? (= 1 brigands)) {:player (-> player
                                                       (assoc :encounter-result :fighting-won)
-                                                      (dissoc :brigands)
-                                                      (merge (treasure player)))}
+                                                      (merge (treasure player))
+                                                      (dissoc :brigands))}
       warriors-win? {:player (assoc player :encounter-result :fighting-won-round
                                            :brigands (int (/ brigands 2)))}
       (= 2 warriors) {:player (assoc player :encounter-result :fighting-lost

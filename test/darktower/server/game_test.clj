@@ -231,8 +231,9 @@
         (is (= expected (fight player)))))
     (testing "When the brigands are reduced to 1 and warriors win, battle ends in victory (with treasure)"
       (let [player (assoc (top-row-edge player :brynthia) :warriors 10 :brigands 1 :gold 10)
-            {:keys [encounter-result warriors gold brass-key pegasus sword]} (:player (fight player))]
+            {:keys [encounter-result warriors brigands gold brass-key pegasus sword]} (:player (fight player))]
         (is (= 10 warriors))
+        (is (nil? brigands))
         (is (= :fighting-won encounter-result))
         (is (or (< 10 gold)
               brass-key

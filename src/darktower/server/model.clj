@@ -78,7 +78,6 @@
                                :always (assoc :current-territory (game/normalized-territory destination)
                                               :last-territory (:current-territory player)))
                 encounter-result (game/encounter moved-player (:dragon-hoard game-state))
-                _ (log/info "encounter-result" encounter-result)
                 updated-game-state (cond-> game-state
                                      (:dragon-hoard encounter-result)
                                      (assoc :dragon-hoard (:dragon-hoard encounter-result))
