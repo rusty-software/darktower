@@ -109,25 +109,40 @@
           actual (lost player)]
       (is (= expected actual)))))
 
+(deftest adjust-gold-test
+  (testing "Gold amount is limited by the number of warriors"
+    (is (= 60 (adjust-gold 10 60 nil)))
+    (is (= 60 (adjust-gold 20 60 false)))
+    (is (= 48 (adjust-gold 8 60 nil))))
+  (testing "Gold amount is limited by the number of warriors and beast"
+    (is (= 62 (adjust-gold 2 62 true)))
+    (is (= 56 (adjust-gold 1 60 true)))
+    (is (= 99 (adjust-gold 10 110 true)))))
+
 (deftest plague-test
   (testing "Plague reduces the player's warrior count by 2"
-    (let [player (assoc player :warriors 10)
-          expected {:player (assoc player :encounter-result :plague :warriors 8)}
+    (let [player (assoc player :warriors 10 :gold 25)
+          expected {:player (assoc player :encounter-result :plague :warriors 8 :gold 25)}
+          actual (plague player)]
+      (is (= expected actual))))
+  (testing "Plague reduces the player's gold as necessary"
+    (let [player (assoc player :warriors 10 :gold 60)
+          expected {:player (assoc player :encounter-result :plague :warriors 8 :gold 48)}
           actual (plague player)]
       (is (= expected actual))))
   (testing "Warrior count cannot drop below 1"
-    (let [player (assoc player :warriors 2)
-          expected {:player (assoc player :encounter-result :plague :warriors 1)}
+    (let [player (assoc player :warriors 2 :gold 12)
+          expected {:player (assoc player :encounter-result :plague :warriors 1 :gold 6)}
           actual (plague player)]
       (is (= expected actual))))
   (testing "Plague with healer increases warrior count by 2"
-    (let [player (assoc player :warriors 10 :healer true)
-          expected {:player (assoc player :encounter-result :plague-healer :warriors 12 :healer true)}
+    (let [player (assoc player :warriors 10 :gold 25 :healer true)
+          expected {:player (assoc player :encounter-result :plague-healer :warriors 12 :gold 25 :healer true)}
           actual (plague player)]
       (is (= expected actual))))
   (testing "Warrior count cannot exceed 99"
-    (let [player (assoc player :warriors 98 :healer true)
-          expected {:player (assoc player :encounter-result :plague-healer :warriors 99 :healer true)}
+    (let [player (assoc player :warriors 98 :gold 25 :healer true)
+          expected {:player (assoc player :encounter-result :plague-healer :warriors 99 :gold 25 :healer true)}
           actual (plague player)]
       (is (= expected actual)))))
 
@@ -210,23 +225,23 @@
 (deftest fight-test
   (with-redefs [roll-100 (constantly 50.0)]
     (testing "Given an even number of brigands and warrior win, brigands reduced by half"
-      (let [player (assoc player :warriors 10 :brigands 10)
+      (let [player (assoc player :warriors 10 :brigands 10 :gold 10)
             expected {:player (assoc player :encounter-result :fighting-won-round
                                             :brigands 5)}]
         (is (= expected (fight player)))))
     (testing "Given an odd number of brigands and warrior win, brigands reduced by half rounded down"
-      (let [player (assoc player :warriors 12 :brigands 11)
+      (let [player (assoc player :warriors 12 :brigands 11 :gold 10)
             expected {:player (assoc player :encounter-result :fighting-won-round
                                             :brigands 5)}]
         (is (= expected (fight player)))))
-    (testing "Given a brigand win, warriors reduced by one"
-      (let [player (assoc player :warriors 9 :brigands 10)
+    (testing "Given a brigand win, warriors reduced by one with commensurate gold loss"
+      (let [player (assoc player :warriors 9 :brigands 10 :gold 54)
             expected {:player (assoc player :encounter-result :fighting-lost-round
-                                            :warriors 8)}]
+                                            :warriors 8
+                                            :gold 48)}]
         (is (= expected (fight player)))))
-    ;; TODO: test that gold is reduced to max for warriors (plus beast)
     (testing "When warriors are reduced to 1, battle ends in loss"
-      (let [player (assoc player :warriors 2 :brigands 10)
+      (let [player (assoc player :warriors 2 :brigands 10 :gold 6)
             expected {:player (assoc player :encounter-result :fighting-lost
                                             :warriors 1)}]
         (is (= expected (fight player)))))

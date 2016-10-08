@@ -85,10 +85,17 @@
     {:player (assoc player :encounter-result :lost-scout :extra-turn true)}
     {:player (assoc player :encounter-result :lost :current-territory last-territory)}))
 
-(defn plague [{:keys [healer warriors] :as player}]
-  (if healer
-    {:player (assoc player :encounter-result :plague-healer :warriors (min 99 (+ warriors 2)))}
-    {:player (assoc player :encounter-result :plague :warriors (max 1 (- warriors 2)))}))
+(defn adjust-gold [warriors gold beast]
+  (let [beast-increase (if beast 50 0)]
+    (min 99 (min (+ beast-increase (* 6 warriors)) gold))))
+
+(defn plague [{:keys [healer warriors gold beast] :as player}]
+  (let [result (if healer :plague-healer :plague)
+        warriors-after-plague (if healer
+                                (min 99 (+ warriors 2))
+                                (max 1 (- warriors 2)))
+        gold-after-plague (adjust-gold warriors-after-plague gold beast)]
+    {:player (assoc player :encounter-result result :warriors warriors-after-plague :gold gold-after-plague)}))
 
 (defn dragon-attack [{:keys [sword warriors gold] :as player} dragon-hoard]
   (let [{dragon-warriors :warriors dragon-gold :gold} dragon-hoard]
@@ -237,7 +244,7 @@
          (recur (treasure-type (roll-100) multiplayer?) (conj tried treasure-to-try) multiplayer?)))
      player)))
 
-(defn fight [{:keys [warriors brigands] :as player}]
+(defn fight [{:keys [warriors brigands gold beast] :as player}]
   (let [warriors-win? (>= (winning-chance warriors brigands) (roll-100))]
     (cond
       (and warriors-win? (>= 1 brigands)) {:player (-> player
@@ -247,6 +254,8 @@
       warriors-win? {:player (assoc player :encounter-result :fighting-won-round
                                            :brigands (int (/ brigands 2)))}
       (= 2 warriors) {:player (assoc player :encounter-result :fighting-lost
-                                            :warriors 1)}
+                                            :warriors 1
+                                            :gold (adjust-gold 1 gold beast))}
       :else {:player (assoc player :encounter-result :fighting-lost-round
-                                   :warriors (dec warriors))})))
+                                   :warriors (dec warriors)
+                                   :gold (adjust-gold (dec warriors) gold beast))})))
