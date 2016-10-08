@@ -155,8 +155,9 @@
 (defn flee [{:keys [warriors] :as player}]
   {:player (assoc player :encounter-result :fled :warriors (max 1 (- warriors 1)))})
 
-(defn treasure-gold [current-gold]
-  (min 99 (+ current-gold 10 (int (* 11 (rand))))))
+(defn treasure-gold [{:keys [gold warriors beast]}]
+  (let [total-gold (min 99 (+ gold 10 (int (* 11 (rand)))))]
+    (adjust-gold warriors total-gold beast)))
 
 (defn can-award-key? [player]
   (let [offset (board/kingdom-offset (:kingdom player) (get-in player [:current-territory :kingdom]))
@@ -218,7 +219,7 @@
 
 (defn award-treasure [treasure player]
   (case treasure
-    :gold (update player :gold treasure-gold)
+    :gold (assoc player :gold (treasure-gold player))
     :key (award-key player)
     :pegasus (assoc player :pegasus true)
     :sword (assoc player :sword true)

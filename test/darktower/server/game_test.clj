@@ -325,7 +325,7 @@
     (is (not (can-award? :wizard player)))))
 
 (deftest award-treasure-test
-  (let [player (assoc (top-row-edge player :arisilon) :gold 10)]
+  (let [player (assoc (top-row-edge player :arisilon) :warriors 10 :gold 10)]
     (is (< 10 (:gold (award-treasure :gold player))))
     (is (:brass-key (award-treasure :key (assoc player :current-territory {:kingdom :brynthia}))))
     (is (:silver-key (award-treasure :key (assoc player :current-territory {:kingdom :durnin}))))
@@ -338,11 +338,16 @@
   (testing "Given a roll 30 or below, increases gold"
     (with-redefs [roll-100 (constantly 30)]
       (testing "increases gold"
-        (let [player (assoc player :gold 10)]
+        (let [player (assoc player :warriors 10 :gold 10)]
           (is (< 10 (:gold (treasure player))))))
       (testing "does not award more than max"
-        (let [player (assoc player :gold 90)]
-          (is (= 99 (:gold (treasure player))))))))
+        (let [player (assoc player :warriors 10 :beast true :gold 90)]
+          (is (= 99 (:gold (treasure player))))))
+      (testing "does not award more than allowed"
+        (let [player (assoc player :warriors 1 :gold 5)
+              player-with-beast (assoc player :warriors 1 :beast true :gold 55)]
+          (is (= 6 (:gold (treasure player))))
+          (is (= 56 (:gold (treasure player-with-beast))))))))
   (testing "Given a roll between 31 and 50, gives a key"
     (let [player (assoc (top-row-edge player :arisilon) :gold 10)]
       (with-redefs [roll-100 (constantly 50)]
@@ -377,8 +382,8 @@
                                  2 70
                                  3 85
                                  4 100))]
-        (let [player (assoc (top-row-edge player :arisilon) :gold 10 :brass-key true :silver-key true :gold-key true :pegasus true :sword true)]
+        (let [player (assoc (top-row-edge player :arisilon) :warriors 10 :gold 10 :brass-key true :silver-key true :gold-key true :pegasus true :sword true)]
           (is (< 10 (:gold (treasure player))))))))
   (testing "Given a player with everything and max gold, awards nothing"
-    (let [player (assoc (top-row-edge player :arisilon) :gold 99 :brass-key true :silver-key true :gold-key true :pegasus true :sword true)]
+    (let [player (assoc (top-row-edge player :arisilon) :warriors 10 :gold 99 :brass-key true :silver-key true :gold-key true :pegasus true :sword true)]
       (is (= player (treasure player))))))
