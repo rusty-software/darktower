@@ -208,13 +208,13 @@
 (defn can-award?
   ([treasure player]
    (can-award? treasure player nil))
-  ([treasure player multiplayer?]
+  ([treasure {:keys [gold warriors pegasus sword beast wizard] :as player} multiplayer?]
    (case treasure
-     :gold (< (:gold player) 99)
+     :gold (< gold (adjust-gold warriors 99 beast))
      :key (can-award-key? player)
-     :pegasus (not (:pegasus player))
-     :sword (not (:sword player))
-     :wizard (and (not (:wizard player)) multiplayer?)
+     :pegasus (not pegasus)
+     :sword (not sword)
+     :wizard (and (not wizard) multiplayer?)
      false)))
 
 (defn award-treasure [treasure player]

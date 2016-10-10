@@ -307,9 +307,11 @@
   )
 
 (deftest can-award?-test
-  (let [player (assoc (top-row-edge player :arisilon) :gold 10)]
+  (let [player (assoc (top-row-edge player :arisilon) :gold 10 :warriors 10)]
     (is (can-award? :gold player))
-    (is (not (can-award? :gold (assoc player :gold 99))))
+    (is (not (can-award? :gold (assoc player :gold 61))))
+    (is (can-award? :gold (assoc player :gold 61 :warriors 50)))
+    (is (not (can-award? :gold (assoc player :gold 99 :warriors 50))))
     (is (not (can-award? :key (assoc player :current-territory {:kingdom :arisilon}))))
     (is (can-award? :key (assoc player :current-territory {:kingdom :brynthia})))
     (is (not (can-award? :key (assoc player :current-territory {:kingdom :brynthia} :brass-key true))))
