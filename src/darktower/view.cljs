@@ -27,9 +27,10 @@
   [:tr
    [:td (name data-key)]
    (doall
-     (for [player players]
+     (for [player players
+           :let [val (get player data-key)]]
        ^{:key (str "td-" player data-key)}
-       [:td (get player data-key)]))])
+       [:td (when val (str val))]))])
 
 (defn ordered-players []
   (for [player-id (get-in @model/game-state [:server-state :player-order])]
