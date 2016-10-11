@@ -73,12 +73,17 @@
 
 (defn brigands-for [{:keys [warriors]}]
   (let [delta (/ warriors 4)
-        min-brigands (min 99 (int (* 3 delta)))
+        min-brigands (max 1 (min 99 (int (* 3 delta))))
         max-brigands (max 3 (int (+ warriors delta)))]
     (rand-nth (range min-brigands (inc max-brigands)))))
 
 (defn battle [player]
   {:player (assoc player :encounter-result :battle :brigands (brigands-for player))})
+
+(defn battle-if-possible [player]
+  (if (> (:warriors player) 1)
+    (battle player)
+    (safe-move player)))
 
 (defn lost [{:keys [scout last-territory] :as player}]
   (if scout
@@ -132,7 +137,7 @@
   (let [roll-action (roll-result (roll-100))]
     (case roll-action
       :safe-move (safe-move player)
-      :battle (battle player)
+      :battle (battle-if-possible player)
       :lost (lost player)
       :plague (plague player)
       :dragon-attack (dragon-attack player dragon-hoard)
