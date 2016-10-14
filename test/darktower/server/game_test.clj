@@ -389,3 +389,35 @@
   (testing "Given a player with everything and max gold, awards nothing"
     (let [player (assoc (top-row-edge player :arisilon) :warriors 10 :gold 99 :brass-key true :silver-key true :gold-key true :pegasus true :sword true)]
       (is (= player (treasure player))))))
+
+(deftest encounter-location-test
+  (testing "ruin"
+    (let [params {:territory-type :ruin :player (assoc (initialize-player player) :current-territory {:kingdom :brynthia :row 5 :idx 3})}]
+      (with-redefs [roll-100 (constantly 20)]
+        (let [result (encounter-location params)]
+          (is (= :safe-move (get-in result [:player :encounter-result])))))
+      (with-redefs [roll-100 (constantly 30)]
+        (let [result (encounter-location params)]
+          (is (= :safe-move (get-in result [:player :encounter-result])))
+          (is (or (< 30 (get-in result [:player :gold]))
+                (get-in result [:player :brass-key])
+                (get-in result [:player :pegasus])
+                (get-in result [:player :sword])))))
+      (with-redefs [roll-100 (constantly 100)]
+        (let [result (encounter-location params)]
+          (is (= :battle (get-in result [:player :encounter-result])))))))
+  (testing "tomb"
+    (let [params {:territory-type :tomb :player (assoc (initialize-player player) :current-territory {:kingdom :brynthia :row 5 :idx 3})}]
+      (with-redefs [roll-100 (constantly 20)]
+        (let [result (encounter-location params)]
+          (is (= :safe-move (get-in result [:player :encounter-result])))))
+      (with-redefs [roll-100 (constantly 30)]
+        (let [result (encounter-location params)]
+          (is (= :safe-move (get-in result [:player :encounter-result])))
+          (is (or (< 30 (get-in result [:player :gold]))
+                (get-in result [:player :brass-key])
+                (get-in result [:player :pegasus])
+                (get-in result [:player :sword])))))
+      (with-redefs [roll-100 (constantly 100)]
+        (let [result (encounter-location params)]
+          (is (= :battle (get-in result [:player :encounter-result]))))))))

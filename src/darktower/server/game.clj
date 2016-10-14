@@ -117,7 +117,7 @@
                                :gold (- gold gold-taken))
          :dragon-hoard {:warriors (+ dragon-warriors warriors-taken) :gold (+ dragon-gold gold-taken)}}))))
 
-(defn roll-result [roll]
+(defn encounter-roll-result [roll]
   (cond
     (>= 50 roll) :safe-move
     (>= 70 roll) :battle
@@ -132,33 +132,6 @@
   (if (> warriors brigands)
     (* 100 (- 0.75 (/ brigands (* 4 warriors))))
     (* 100 (+ 0.25 (/ warriors (* 4 brigands))))))
-
-(defn encounter-territory [player dragon-hoard]
-  (let [roll-action (roll-result (roll-100))]
-    (case roll-action
-      :safe-move (safe-move player)
-      :battle (battle-if-possible player)
-      :lost (lost player)
-      :plague (plague player)
-      :dragon-attack (dragon-attack player dragon-hoard)
-      (safe-move player))))
-
-(defn encounter-location [player location]
-  {:player player :encounter-result location})
-
-(defn encounter [player dragon-hoard]
-  (let [territory-type (board/type-for (dissoc (:current-territory player) :kingdom))]
-    (if (= :territory territory-type)
-      (encounter-territory player dragon-hoard)
-      (encounter-location player territory-type))))
-
-(defn feed [{:keys [warriors food]}]
-  (if (= warriors 99)
-    {:food (max 0 (- food 7))}
-    {:food (max 0 (- food (inc (int (/ warriors 15.1)))))}))
-
-(defn flee [{:keys [warriors] :as player}]
-  {:player (assoc player :encounter-result :fled :warriors (max 1 (- warriors 1)))})
 
 (defn treasure-gold [{:keys [gold warriors beast]}]
   (let [total-gold (min 99 (+ gold 10 (int (* 11 (rand)))))]
@@ -265,3 +238,46 @@
       :else {:player (assoc player :encounter-result :fighting-lost-round
                                    :warriors (dec warriors)
                                    :gold (adjust-gold (dec warriors) gold beast))})))
+
+(defn encounter-territory [player dragon-hoard]
+  (let [roll-action (encounter-roll-result (roll-100))]
+    (case roll-action
+      :safe-move (safe-move player)
+      :battle (battle-if-possible player)
+      :lost (lost player)
+      :plague (plague player)
+      :dragon-attack (dragon-attack player dragon-hoard)
+      (safe-move player))))
+
+(defmulti encounter-location :territory-type)
+
+(defmethod encounter-location :default [{:keys [territory-type player]}]
+  (log/info "default location handler:" territory-type)
+  {:player player :encounter-result territory-type})
+
+(defmethod encounter-location :ruin [{:keys [player]}]
+  (let [roll (roll-100)]
+    (cond
+      (< 0 roll 21) (safe-move player)
+      (< 20 roll 31) (-> player (merge (treasure player)) (safe-move))
+      (< 30 roll 101) (battle player)
+      :else {:player player :encounter-result :unhandled})))
+
+(defmethod encounter-location :tomb [params]
+  (encounter-location (assoc params :territory-type :ruin)))
+
+(defn encounter [player dragon-hoard]
+  ;; TODO: implement/increment move count
+  (let [territory-type (board/type-for (dissoc (:current-territory player) :kingdom))]
+    (log/info "encounter territory type:" territory-type)
+    (if (= :territory territory-type)
+      (encounter-territory player dragon-hoard)
+      (encounter-location {:territory-type territory-type :player player}))))
+
+(defn feed [{:keys [warriors food]}]
+  (if (= warriors 99)
+    {:food (max 0 (- food 7))}
+    {:food (max 0 (- food (inc (int (/ warriors 15.1)))))}))
+
+(defn flee [{:keys [warriors] :as player}]
+  {:player (assoc player :encounter-result :fled :warriors (max 1 (- warriors 1)))})
