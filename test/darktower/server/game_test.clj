@@ -42,17 +42,27 @@
     (testing "Current player is first in players list"
       (is (= "14" (:current-player game-state))))))
 
-(deftest has-key?-test
-  (is (has-key? player {:kingdom :arisilon}))
-  (is (not (has-key? player {:kingdom :brynthia})))
-  (is (has-key? (assoc player :brass-key true) {:kingdom :brynthia}))
-  (is (not (has-key? player {:kingdom :durnin})))
-  (is (has-key? (assoc player :silver-key true) {:kingdom :durnin}))
-  (is (not (has-key? player {:kingdom :zenon})))
-  (is (has-key? (assoc player :gold-key true) {:kingdom :zenon})))
-
 (defn top-row-edge [player kingdom]
   (assoc player :current-territory {:kingdom kingdom :row 1 :idx 2}))
+
+(deftest requires-key?-test
+  (is (not (requires-key? player {:kingdom :arisilon :row 1 :idx 2})))
+  (is (not (requires-key? player {:kingdom :arisilon :type :frontier})))
+  (is (not (requires-key? player {:kingdom :brynthia :row 1 :idx 2})))
+  (is (requires-key? player {:kingdom :brynthia :type :frontier}))
+  (is (not (requires-key? player {:kingdom :durnin :row 1 :idx 2})))
+  (is (requires-key? player {:kingdom :durnin :type :frontier}))
+  (is (not (requires-key? player {:kingdom :zenon :row 1 :idx 2})))
+  (is (requires-key? player {:kingdom :zenon :type :frontier})))
+
+(deftest has-key?-test
+  (is (has-key? player {:kingdom :arisilon :territory-type :frontier}))
+  (is (not (has-key? player {:kingdom :brynthia :territory-type :frontier})))
+  (is (has-key? (assoc player :brass-key true) {:kingdom :brynthia :territory-type :frontier}))
+  (is (not (has-key? (assoc player :brass-key true) {:kingdom :durnin :territory-type :frontier})))
+  (is (has-key? (assoc player :brass-key true :silver-key true) {:kingdom :durnin :territory-type :frontier}))
+  (is (not (has-key? (assoc player :brass-key true :silver-key true) {:kingdom :zenon :territory-type :frontier})))
+  (is (has-key? (assoc player :brass-key true :silver-key true :gold-key true) {:kingdom :zenon :territory-type :frontier})))
 
 (deftest valid-move-test
   (testing "Movement allowed to adjacent territories"
@@ -77,6 +87,7 @@
             (valid-move player {:kingdom :arisilon :row 3 :idx 0})))))
   (testing "Movement to a frontier requires the appropriate key"
     (is (= {:valid? true} (valid-move (top-row-edge player :arisilon) {:kingdom :arisilon :type :frontier})))
+    (is (= {:valid? true} (valid-move (assoc player :current-territory {:kingdom :arisilon :type :frontier}) {:kingdom :brynthia :row 3 :idx 0})))
     (is (= {:valid? false :message "Key missing!"} (valid-move (top-row-edge player :brynthia) {:kingdom :brynthia :type :frontier})))
     (is (= {:valid? true} (valid-move (assoc (top-row-edge player :brynthia) :brass-key true) {:kingdom :brynthia :type :frontier})))
     (is (= {:valid? false :message "Key missing!"} (valid-move (top-row-edge player :durnin) {:kingdom :durnin :type :frontier})))

@@ -46,14 +46,18 @@
       true
       (get player key))))
 
+(defn requires-key? [player destination]
+  (and
+    (= :frontier (:type destination))
+    (not= (:kingdom player) (:kingdom destination))))
+
 ;; TODO: players cannot move onto foreign citadels
 (defn valid-move [player destination]
   (let [current-territory (:current-territory player)
-        neighbors (board/neighbors-for current-territory)
-        requires-key? (not= (:kingdom player) (:kingdom destination))]
+        neighbors (board/neighbors-for current-territory)]
     (cond
       (and
-        requires-key?
+        (requires-key? player destination)
         (not (has-key? player destination)))
       {:valid? false :message "Key missing!"}
 
