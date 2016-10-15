@@ -2,7 +2,9 @@
   (:require [taoensso.timbre :as log]
             [schema.core :as s]
             [darktower.server.board :as board]
-            [darktower.server.schema :as schema]))
+            [darktower.server.schema :as schema]
+            [darktower.server.game.main :as main]
+            [darktower.server.game.treasure :as treasure]))
 
 (s/defn initialize-player [player] :- schema/Player
   (assoc player :current-territory {:kingdom (:kingdom player) :row 5 :idx 3}
@@ -37,15 +39,6 @@
           (not (nil? type))
           (assoc :type type)))
 
-(def offset-key [true :brass-key :silver-key :gold-key])
-
-(defn has-key? [player destination]
-  (let [offset (board/kingdom-offset (:kingdom player) (:kingdom destination))
-        key (get offset-key offset)]
-    (if (zero? offset)
-      true
-      (get player key))))
-
 (defn requires-key? [player destination]
   (and
     (= :frontier (:type destination))
@@ -58,7 +51,7 @@
     (cond
       (and
         (requires-key? player destination)
-        (not (has-key? player destination)))
+        (not (treasure/has-key? player destination)))
       {:valid? false :message "Key missing!"}
 
       (some #{destination} neighbors)
@@ -94,16 +87,12 @@
     {:player (assoc player :encounter-result :lost-scout :extra-turn true)}
     {:player (assoc player :encounter-result :lost :current-territory last-territory)}))
 
-(defn adjust-gold [warriors gold beast]
-  (let [beast-increase (if beast 50 0)]
-    (min 99 (min (+ beast-increase (* 6 warriors)) gold))))
-
 (defn plague [{:keys [healer warriors gold beast] :as player}]
   (let [result (if healer :plague-healer :plague)
         warriors-after-plague (if healer
                                 (min 99 (+ warriors 2))
                                 (max 1 (- warriors 2)))
-        gold-after-plague (adjust-gold warriors-after-plague gold beast)]
+        gold-after-plague (treasure/adjust-gold warriors-after-plague gold beast)]
     {:player (assoc player :encounter-result result :warriors warriors-after-plague :gold gold-after-plague)}))
 
 (defn dragon-attack [{:keys [sword warriors gold] :as player} dragon-hoard]
@@ -129,122 +118,29 @@
     (>= 94 roll) :plague
     (>= 100 roll) :dragon-attack))
 
-(defn roll-100 []
-  (rand-nth (range 1 101)))
-
 (defn winning-chance [warriors brigands]
   (if (> warriors brigands)
     (* 100 (- 0.75 (/ brigands (* 4 warriors))))
     (* 100 (+ 0.25 (/ warriors (* 4 brigands))))))
 
-(defn treasure-gold [{:keys [gold warriors beast]}]
-  (let [total-gold (min 99 (+ gold 10 (int (* 11 (rand)))))]
-    (adjust-gold warriors total-gold beast)))
-
-(defn can-award-key? [player]
-  (let [offset (board/kingdom-offset (:kingdom player) (get-in player [:current-territory :kingdom]))
-        key (get offset-key offset)]
-    (if (zero? offset)
-      false
-      (not (get player key)))))
-
-(defn award-key [player]
-  (let [offset (board/kingdom-offset (:kingdom player) (get-in player [:current-territory :kingdom]))
-        key (get offset-key offset)]
-    (if (zero? offset)
-      player
-      (assoc player key true))))
-
-;; TODO: wizard handler
-
-(defn can-receive-treasure?
-  ([player]
-   (can-receive-treasure? player nil))
-  ([player multiplayer?]
-   (or (< (:gold player) 99)
-       (not (has-key? player (:current-territory player)))
-       (not (:pegasus player))
-       (not (:sword player))
-       (and multiplayer? (not (:wizard player))))))
-
-(defn treasure-types
-  ([]
-   (treasure-types nil))
-  ([multiplayer?]
-   (if multiplayer?
-     #{:gold :key :pegasus :sword :wizard}
-     #{:gold :key :pegasus :sword})))
-
-(defn treasure-type [roll multiplayer?]
-  (cond
-    (<= roll 30) :gold
-    (<= 31 roll 50) :key
-    (<= 51 roll 70) :pegasus
-    (<= 71 roll 85) :sword
-    (and (<= 86 roll 100) multiplayer?) :wizard
-    :else :gold))
-
-(defn tried-everything? [tried multiplayer?]
-  (not (seq (clojure.set/difference (treasure-types multiplayer?) tried))))
-
-(defn can-award?
-  ([treasure player]
-   (can-award? treasure player nil))
-  ([treasure {:keys [gold warriors pegasus sword beast wizard] :as player} multiplayer?]
-   (case treasure
-     :gold (< gold (adjust-gold warriors 99 beast))
-     :key (can-award-key? player)
-     :pegasus (not pegasus)
-     :sword (not sword)
-     :wizard (and (not wizard) multiplayer?)
-     false)))
-
-(defn award-treasure [treasure player]
-  (case treasure
-    :gold (assoc player :gold (treasure-gold player))
-    :key (award-key player)
-    :pegasus (assoc player :pegasus true)
-    :sword (assoc player :sword true)
-    :wizard (assoc player :wizard true)
-    player))
-
-(defn treasure
-  ([player]
-   (treasure player nil))
-  ([player multiplayer?]
-   (if (can-receive-treasure? player multiplayer?)
-     (loop [treasure-to-try (treasure-type (roll-100) multiplayer?)
-            tried #{}
-            multiplayer? multiplayer?]
-       (cond
-         (tried-everything? tried multiplayer?)
-         player
-
-         (can-award? treasure-to-try player multiplayer?)
-         (award-treasure treasure-to-try player)
-
-         :else
-         (recur (treasure-type (roll-100) multiplayer?) (conj tried treasure-to-try) multiplayer?)))
-     player)))
-
 (defn fight [{:keys [warriors brigands gold beast] :as player}]
-  (let [warriors-win? (>= (winning-chance warriors brigands) (roll-100))]
+  (let [warriors-win? (>= (winning-chance warriors brigands) (main/roll-100))]
     (cond
       (and warriors-win? (>= 1 brigands)) {:player (-> player
-                                                       (merge (treasure player))
+                                                       (merge (treasure/treasure player))
                                                        (assoc :encounter-result :fighting-won)
                                                        (dissoc :brigands))}
       warriors-win? {:player (assoc player :encounter-result :fighting-won-round
                                            :brigands (int (/ brigands 2)))}
       (= 2 warriors) {:player (assoc player :encounter-result :fighting-lost
                                             :warriors 1
-                                            :gold (adjust-gold 1 gold beast))}
+                                            :gold (treasure/adjust-gold 1 gold beast))}
       :else {:player (assoc player :encounter-result :fighting-lost-round
                                    :warriors (dec warriors)
-                                   :gold (adjust-gold (dec warriors) gold beast))})))
+                                   :gold (treasure/adjust-gold (dec warriors) gold beast))})))
 
 (defn encounter-territory [player dragon-hoard]
-  (let [roll-action (encounter-roll-result (roll-100))]
+  (let [roll-action (encounter-roll-result (main/roll-100))]
     (case roll-action
       :safe-move (safe-move player)
       :battle (battle-if-possible player)
@@ -260,10 +156,10 @@
   {:player player :encounter-result territory-type})
 
 (defmethod encounter-location :ruin [{:keys [player]}]
-  (let [roll (roll-100)]
+  (let [roll (main/roll-100)]
     (cond
       (< 0 roll 21) (safe-move player)
-      (< 20 roll 31) (-> player (merge (treasure player)) (safe-move))
+      (< 20 roll 31) (-> player (merge (treasure/treasure player)) (safe-move))
       (< 30 roll 101) (battle player)
       :else {:player player :encounter-result :unhandled})))
 
