@@ -323,5 +323,33 @@
         (is (= 20 dgold ngold))))))
 
 (deftest encounter-location-citadel-test
+  (testing "Given 4 or fewer warriors, award warriors"
+    (with-redefs [roll-dn (constantly 3)]
+      (let [gets-new-warriors (assoc player :warriors 4 :food 10 :gold 10)
+            no-new-warriors (assoc gets-new-warriors :warriors 5)]
+        (is (= 12 (:warriors (encounter-location {:type :citadel :player gets-new-warriors}))))
+        (is (= 5 (:warriors (encounter-location {:type :citadel :player no-new-warriors})))))))
+  (testing "Given 7 or less gold, award gold"
+    (with-redefs [roll-dn (constantly 6)]
+      (let [gets-new-gold (assoc player :warriors 10 :food 10 :gold 7)
+            no-new-gold (assoc gets-new-gold :gold 8)]
+        (is (= 23 (:gold (encounter-location {:type :citadel :player gets-new-gold}))))
+        (is (= 8 (:gold (encounter-location {:type :citadel :player no-new-gold})))))))
+  (testing "Given 5 or less food, award food"
+    (with-redefs [roll-dn (constantly 6)]
+      (let [gets-new-food (assoc player :warriors 10 :food 5 :gold 10)
+            no-new-food (assoc gets-new-food :food 6)]
+        (is (= 21 (:food (encounter-location {:type :citadel :player gets-new-food}))))
+        (is (= 6 (:food (encounter-location {:type :citadel :player no-new-food})))))))
+  (testing "Given warrior-doubling criteria met, doubles warriors"
+    (with-redefs [roll-dn (constantly 3)]
+      (let [doubled-warriors (assoc player :warriors 24 :food 5 :gold 7 :brass-key true :silver-key true :gold-key true)
+            normal-op (assoc doubled-warriors :warriors 25)
+            {dwarriors :warriors dgold :gold dfood :food} (encounter-location {:type :citadel :player doubled-warriors})
+            {nwarriors :warriors ngold :gold nfood :food} (encounter-location {:type :citadel :player normal-op})]
+        (is (= 48 dwarriors))
+        (is (= 25 nwarriors))
+        (is (= 18 dfood nfood))
+        (is (= 20 dgold ngold))))))
 
-  )
+

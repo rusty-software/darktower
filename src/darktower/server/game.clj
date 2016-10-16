@@ -149,6 +149,7 @@
       :dragon-attack (dragon-attack player dragon-hoard)
       (safe-move player))))
 
+;; TODO: set last-location type
 (defmulti encounter-location :type)
 
 (defmethod encounter-location :default [{:keys [type player]}]
@@ -183,8 +184,10 @@
     (update :gold + (main/roll-dn 6) 10)
 
     (< (:food player) 6)
-    (update :food + (main/roll-dn 6) 10)
-    ))
+    (update :food + (main/roll-dn 6) 10)))
+
+(defmethod encounter-location :citadel [params]
+  (encounter-location (assoc params :type :sanctuary)))
 
 (defn encounter [player dragon-hoard]
   ;; TODO: implement/increment move count
