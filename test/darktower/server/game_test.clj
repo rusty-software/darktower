@@ -280,6 +280,18 @@
         (let [result (encounter-location params)]
           (is (= :battle (get-in result [:player :encounter-result]))))))))
 
+(deftest can-be-doubled?-test
+  (let [player (assoc player :warriors 5 :brass-key true :silver-key true :gold-key true :last-location :bazaar)]
+    (is (should-double-warriors? player))
+    (is (should-double-warriors? (assoc player :warriors 24)))
+    (is (not (should-double-warriors? (assoc player :warriors 25))))
+    (is (not (should-double-warriors? (assoc player :warriors 4))))
+    (is (not (should-double-warriors? (assoc player :brass-key false))))
+    (is (not (should-double-warriors? (assoc player :silver-key false))))
+    (is (not (should-double-warriors? (assoc player :gold-key false))))
+    (is (not (should-double-warriors? (assoc player :last-location :sanctuary))))
+    (is (not (should-double-warriors? (assoc player :last-location :citadel))))))
+
 (deftest encounter-location-sanctuary-test
   (testing "Given 4 or fewer warriors, award warriors"
     (with-redefs [roll-dn (constantly 3)]
@@ -299,5 +311,17 @@
             no-new-food (assoc gets-new-food :food 6)]
         (is (= 21 (:food (encounter-location {:type :sanctuary :player gets-new-food}))))
         (is (= 6 (:food (encounter-location {:type :sanctuary :player no-new-food})))))))
-  (testing "Given all keys possessed, home kingdom, between 5 and 24 warriors, and not having visited a santuary or citadel last, doubles warriors")
+  (testing "Given warrior-doubling criteria met, doubles warriors"
+    (with-redefs [roll-dn (constantly 3)]
+      (let [doubled-warriors (assoc player :warriors 24 :food 5 :gold 7 :brass-key true :silver-key true :gold-key true)
+            normal-op (assoc doubled-warriors :warriors 25)
+            {dwarriors :warriors dgold :gold dfood :food} (encounter-location {:type :sanctuary :player doubled-warriors})
+            {nwarriors :warriors ngold :gold nfood :food} (encounter-location {:type :sanctuary :player normal-op})]
+        (is (= 48 dwarriors))
+        (is (= 25 nwarriors))
+        (is (= 18 dfood nfood))
+        (is (= 20 dgold ngold))))))
+
+(deftest encounter-location-citadel-test
+
   )

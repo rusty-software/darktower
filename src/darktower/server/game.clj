@@ -166,16 +166,24 @@
 (defmethod encounter-location :tomb [params]
   (encounter-location (assoc params :type :ruin)))
 
+(defn should-double-warriors? [{:keys [brass-key silver-key gold-key warriors last-location]}]
+  (and brass-key silver-key gold-key
+    (< 4 warriors 25)
+    (not (#{:sanctuary :citadel} last-location))))
+
 (defmethod encounter-location :sanctuary [{:keys [player]}]
   (cond-> player
+    (should-double-warriors? player)
+    (update :warriors * 2)
+
     (< (:warriors player) 5)
-    (assoc :warriors (+ (:warriors player) (main/roll-dn 3) 5))
+    (update :warriors + (main/roll-dn 3) 5)
 
     (< (:gold player) 8)
-    (assoc :gold (+ (:gold player) (main/roll-dn 6) 10))
+    (update :gold + (main/roll-dn 6) 10)
 
     (< (:food player) 6)
-    (assoc :food (+ (:food player) (main/roll-dn 6) 10))
+    (update :food + (main/roll-dn 6) 10)
     ))
 
 (defn encounter [player dragon-hoard]
