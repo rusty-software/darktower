@@ -54,7 +54,7 @@
       {:valid? false :message "Key missing!"}
 
       (and
-        (= :citadel (:type destination))
+        (= :citadel (board/type-for destination))
         (not= (:kingdom destination) (:kingdom player)))
       {:valid? false :message "Cannot enter foreign citadel!"}
 
@@ -177,18 +177,22 @@
     (not (#{:sanctuary :citadel} last-location))))
 
 (defmethod encounter-location :sanctuary [{:keys [player]}]
-  (cond-> player
-    (should-double-warriors? player)
-    (update :warriors * 2)
+  (let [updated-player (cond-> player
+                         (should-double-warriors? player)
+                         (update :warriors * 2)
 
-    (< (:warriors player) 5)
-    (update :warriors + (main/roll-dn 3) 5)
+                         (< (:warriors player) 5)
+                         (update :warriors + (main/roll-dn 3) 5)
 
-    (< (:gold player) 8)
-    (update :gold + (main/roll-dn 6) 10)
+                         (< (:gold player) 8)
+                         (update :gold + (main/roll-dn 6) 10)
 
-    (< (:food player) 6)
-    (update :food + (main/roll-dn 6) 10)))
+                         (< (:food player) 6)
+                         (update :food + (main/roll-dn 6) 10)
+
+                         :always
+                         (assoc :encounter-result :sactuary))]
+    {:player updated-player}))
 
 (defmethod encounter-location :citadel [params]
   (encounter-location (assoc params :type :sanctuary)))

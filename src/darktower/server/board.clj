@@ -82,10 +82,10 @@
    {:row 4 :idx 4} :tomb
    {:row 5 :idx 3} :citadel})
 
-(defn type-for [territory-info]
-  (if (:row territory-info)
-    (get territory-types territory-info :territory)
-    (:type territory-info)))
+(defn type-for [{:keys [row idx type]}]
+  (if row
+    (get territory-types {:row row :idx idx} :territory)
+    type))
 
 (defn territory-for [territory-info]
   (assoc {:neighbors (neighbors-for territory-info)} :type (type-for territory-info)))
