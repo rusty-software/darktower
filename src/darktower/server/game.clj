@@ -197,7 +197,18 @@
 (defmethod encounter-location :citadel [params]
   (encounter-location (assoc params :type :sanctuary)))
 
-(defn init-bazaar [player])
+(defn init-bazaar [player]
+  (cond-> {:warrior (+ (main/roll-dn 8) 3)
+           :food 1}
+
+    (not (:beast player))
+    (assoc :beast (+ (main/roll-dn 12) 14))
+
+    (not (:scout player))
+    (assoc :scout (+ (main/roll-dn 12) 14))
+
+    (not (:healer player))
+    (assoc :healer (+ (main/roll-dn 12) 14))))
 
 (defn encounter [player dragon-hoard]
   ;; TODO: implement/increment move count

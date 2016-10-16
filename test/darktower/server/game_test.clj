@@ -356,7 +356,7 @@
         (is (= 18 dfood nfood))
         (is (= 20 dgold ngold))))))
 
-#_(deftest init-bazaar-test
+(deftest init-bazaar-test
   (testing "initializes with basics and things the player is missing"
     (let [{:keys [warrior food beast scout healer]} (init-bazaar player)]
       (is (every? #(not (nil? %)) [warrior food beast scout healer])))))
