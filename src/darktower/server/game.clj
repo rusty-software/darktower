@@ -182,13 +182,13 @@
                          (update :warriors * 2)
 
                          (< (:warriors player) 5)
-                         (update :warriors + (main/roll-dn 3) 5)
+                         (update :warriors + (main/roll-dn 4) 4)
 
                          (< (:gold player) 8)
-                         (update :gold + (main/roll-dn 6) 10)
+                         (update :gold + (main/roll-dn 7) 9)
 
                          (< (:food player) 6)
-                         (update :food + (main/roll-dn 6) 10)
+                         (update :food + (main/roll-dn 7) 9)
 
                          :always
                          (assoc :encounter-result :sactuary))]
@@ -196,6 +196,8 @@
 
 (defmethod encounter-location :citadel [params]
   (encounter-location (assoc params :type :sanctuary)))
+
+(defn init-bazaar [player])
 
 (defn encounter [player dragon-hoard]
   ;; TODO: implement/increment move count

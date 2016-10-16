@@ -298,25 +298,25 @@
 
 (deftest encounter-location-sanctuary-test
   (testing "Given 4 or fewer warriors, award warriors"
-    (with-redefs [roll-dn (constantly 3)]
+    (with-redefs [roll-dn (constantly 4)]
       (let [gets-new-warriors (assoc player :warriors 4 :food 10 :gold 10)
             no-new-warriors (assoc gets-new-warriors :warriors 5)]
         (is (= 12 (get-in (encounter-location {:type :citadel :player gets-new-warriors}) [:player :warriors])))
         (is (= 5 (get-in (encounter-location {:type :citadel :player no-new-warriors}) [:player :warriors]))))))
   (testing "Given 7 or less gold, award gold"
-    (with-redefs [roll-dn (constantly 6)]
+    (with-redefs [roll-dn (constantly 7)]
       (let [gets-new-gold (assoc player :warriors 10 :food 10 :gold 7)
             no-new-gold (assoc gets-new-gold :gold 8)]
         (is (= 23 (get-in (encounter-location {:type :citadel :player gets-new-gold}) [:player :gold])))
         (is (= 8 (get-in (encounter-location {:type :citadel :player no-new-gold}) [:player :gold]))))))
   (testing "Given 5 or less food, award food"
-    (with-redefs [roll-dn (constantly 6)]
+    (with-redefs [roll-dn (constantly 7)]
       (let [gets-new-food (assoc player :warriors 10 :food 5 :gold 10)
             no-new-food (assoc gets-new-food :food 6)]
         (is (= 21 (get-in (encounter-location {:type :citadel :player gets-new-food}) [:player :food])))
         (is (= 6 (get-in (encounter-location {:type :citadel :player no-new-food}) [:player :food]))))))
   (testing "Given warrior-doubling criteria met, doubles warriors"
-    (with-redefs [roll-dn (constantly 3)]
+    (with-redefs [roll-dn (constantly 4)]
       (let [doubled-warriors (assoc player :warriors 24 :food 5 :gold 7 :brass-key true :silver-key true :gold-key true)
             normal-op (assoc doubled-warriors :warriors 25)
             {dwarriors :warriors dgold :gold dfood :food} (:player (encounter-location {:type :citadel :player doubled-warriors}))
@@ -328,25 +328,25 @@
 
 (deftest encounter-location-citadel-test
   (testing "Given 4 or fewer warriors, award warriors"
-    (with-redefs [roll-dn (constantly 3)]
+    (with-redefs [roll-dn (constantly 4)]
       (let [gets-new-warriors (assoc player :warriors 4 :food 10 :gold 10)
             no-new-warriors (assoc gets-new-warriors :warriors 5)]
         (is (= 12 (get-in (encounter-location {:type :citadel :player gets-new-warriors}) [:player :warriors])))
         (is (= 5 (get-in (encounter-location {:type :citadel :player no-new-warriors}) [:player :warriors]))))))
   (testing "Given 7 or less gold, award gold"
-    (with-redefs [roll-dn (constantly 6)]
+    (with-redefs [roll-dn (constantly 7)]
       (let [gets-new-gold (assoc player :warriors 10 :food 10 :gold 7)
             no-new-gold (assoc gets-new-gold :gold 8)]
         (is (= 23 (get-in (encounter-location {:type :citadel :player gets-new-gold}) [:player :gold])))
         (is (= 8 (get-in (encounter-location {:type :citadel :player no-new-gold}) [:player :gold]))))))
   (testing "Given 5 or less food, award food"
-    (with-redefs [roll-dn (constantly 6)]
+    (with-redefs [roll-dn (constantly 7)]
       (let [gets-new-food (assoc player :warriors 10 :food 5 :gold 10)
             no-new-food (assoc gets-new-food :food 6)]
         (is (= 21 (get-in (encounter-location {:type :citadel :player gets-new-food}) [:player :food])))
         (is (= 6 (get-in (encounter-location {:type :citadel :player no-new-food}) [:player :food]))))))
   (testing "Given warrior-doubling criteria met, doubles warriors"
-    (with-redefs [roll-dn (constantly 3)]
+    (with-redefs [roll-dn (constantly 4)]
       (let [doubled-warriors (assoc player :warriors 24 :food 5 :gold 7 :brass-key true :silver-key true :gold-key true)
             normal-op (assoc doubled-warriors :warriors 25)
             {dwarriors :warriors dgold :gold dfood :food} (:player (encounter-location {:type :citadel :player doubled-warriors}))
@@ -356,4 +356,7 @@
         (is (= 18 dfood nfood))
         (is (= 20 dgold ngold))))))
 
-
+#_(deftest init-bazaar-test
+  (testing "initializes with basics and things the player is missing"
+    (let [{:keys [warrior food beast scout healer]} (init-bazaar player)]
+      (is (every? #(not (nil? %)) [warrior food beast scout healer])))))
