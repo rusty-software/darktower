@@ -78,7 +78,11 @@
     (is (= {:valid? false :message "Key missing!"} (valid-move (top-row-edge player :durnin) {:kingdom :durnin :type :frontier})))
     (is (= {:valid? true} (valid-move (assoc (top-row-edge player :durnin) :silver-key true) {:kingdom :durnin :type :frontier})))
     (is (= {:valid? false :message "Key missing!"} (valid-move (top-row-edge player :zenon) {:kingdom :zenon :type :frontier})))
-    (is (= {:valid? true} (valid-move (assoc (top-row-edge player :zenon) :gold-key true) {:kingdom :zenon :type :frontier})))))
+    (is (= {:valid? true} (valid-move (assoc (top-row-edge player :zenon) :gold-key true) {:kingdom :zenon :type :frontier}))))
+  (testing "Movement to foreign citadel is not allowed"
+    (is (= {:valid? false
+            :message "Cannot enter foreign citadel!"}
+          (valid-move (assoc player :current-territory {:kingdom :brynthia :row 5 :idx 2}) {:kingdom :brynthia :type :citadel})))))
 
 (deftest safe-move-test
   (testing "Passes the player through"
