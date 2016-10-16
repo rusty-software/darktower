@@ -124,7 +124,7 @@
     (* 100 (+ 0.25 (/ warriors (* 4 brigands))))))
 
 (defn fight [{:keys [warriors brigands gold beast] :as player}]
-  (let [warriors-win? (>= (winning-chance warriors brigands) (main/roll-100))]
+  (let [warriors-win? (>= (winning-chance warriors brigands) (main/roll-d100))]
     (cond
       (and warriors-win? (>= 1 brigands)) {:player (-> player
                                                        (merge (treasure/treasure player))
@@ -140,7 +140,7 @@
                                    :gold (treasure/adjust-gold (dec warriors) gold beast))})))
 
 (defn encounter-territory [player dragon-hoard]
-  (let [roll-action (encounter-roll-result (main/roll-100))]
+  (let [roll-action (encounter-roll-result (main/roll-d100))]
     (case roll-action
       :safe-move (safe-move player)
       :battle (battle-if-possible player)
@@ -149,14 +149,14 @@
       :dragon-attack (dragon-attack player dragon-hoard)
       (safe-move player))))
 
-(defmulti encounter-location :territory-type)
+(defmulti encounter-location :type)
 
-(defmethod encounter-location :default [{:keys [territory-type player]}]
-  (log/info "default location handler:" territory-type)
-  {:player player :encounter-result territory-type})
+(defmethod encounter-location :default [{:keys [type player]}]
+  (log/info "default location handler:" type)
+  {:player player :encounter-result type})
 
 (defmethod encounter-location :ruin [{:keys [player]}]
-  (let [roll (main/roll-100)]
+  (let [roll (main/roll-d100)]
     (cond
       (< 0 roll 21) (safe-move player)
       (< 20 roll 31) (-> player (merge (treasure/treasure player)) (safe-move))
@@ -164,7 +164,19 @@
       :else {:player player :encounter-result :unhandled})))
 
 (defmethod encounter-location :tomb [params]
-  (encounter-location (assoc params :territory-type :ruin)))
+  (encounter-location (assoc params :type :ruin)))
+
+(defmethod encounter-location :sanctuary [{:keys [player]}]
+  (cond-> player
+    (< (:warriors player) 5)
+    (assoc :warriors (+ (:warriors player) (main/roll-dn 3) 5))
+
+    (< (:gold player) 8)
+    (assoc :gold (+ (:gold player) (main/roll-dn 6) 10))
+
+    (< (:food player) 6)
+    (assoc :food (+ (:food player) (main/roll-dn 6) 10))
+    ))
 
 (defn encounter [player dragon-hoard]
   ;; TODO: implement/increment move count
@@ -172,7 +184,7 @@
     (log/info "encounter territory type:" territory-type)
     (if (= :territory territory-type)
       (encounter-territory player dragon-hoard)
-      (encounter-location {:territory-type territory-type :player player}))))
+      (encounter-location {:type territory-type :player player}))))
 
 (defn feed [{:keys [warriors food]}]
   (if (= warriors 99)

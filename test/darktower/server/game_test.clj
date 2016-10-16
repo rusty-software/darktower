@@ -4,7 +4,7 @@
             [darktower.server.test-helpers :refer :all]
             [darktower.server.game :refer :all]
             [darktower.server.schema :as schema]
-            [darktower.server.game.main :refer [roll-100]]))
+            [darktower.server.game.main :refer [roll-d100 roll-dn]]))
 
 (deftest initialize-player-test
   (testing "Player is initialized with proper warriors, gold, food, and location"
@@ -209,7 +209,7 @@
   (is (= 37.5 (winning-chance 5 10))))
 
 (deftest fight-test
-  (with-redefs [roll-100 (constantly 50.0)]
+  (with-redefs [roll-d100 (constantly 50.0)]
     (testing "Given an even number of brigands and warrior win, brigands reduced by half"
       (let [player (assoc player :warriors 10 :brigands 10 :gold 10)
             expected {:player (assoc player :encounter-result :fighting-won-round
@@ -242,35 +242,62 @@
               pegasus
               sword))))))
 
-
-(deftest encounter-location-test
-  (testing "ruin"
-    (let [params {:territory-type :ruin :player (assoc (initialize-player player) :current-territory {:kingdom :brynthia :row 5 :idx 3})}]
-      (with-redefs [roll-100 (constantly 20)]
+(deftest encounter-location-ruin-test
+  (let [params {:type :tomb :player (assoc (initialize-player player) :current-territory {:kingdom :brynthia :row 5 :idx 3})}]
+    (testing "Given a roll <= 20, nothing happens"
+      (with-redefs [roll-d100 (constantly 20)]
         (let [result (encounter-location params)]
-          (is (= :safe-move (get-in result [:player :encounter-result])))))
-      (with-redefs [roll-100 (constantly 30)]
-        (let [result (encounter-location params)]
-          (is (= :safe-move (get-in result [:player :encounter-result])))
-          (is (or (< 30 (get-in result [:player :gold]))
-                (get-in result [:player :brass-key])
-                (get-in result [:player :pegasus])
-                (get-in result [:player :sword])))))
-      (with-redefs [roll-100 (constantly 100)]
-        (let [result (encounter-location params)]
-          (is (= :battle (get-in result [:player :encounter-result])))))))
-  (testing "tomb"
-    (let [params {:territory-type :tomb :player (assoc (initialize-player player) :current-territory {:kingdom :brynthia :row 5 :idx 3})}]
-      (with-redefs [roll-100 (constantly 20)]
-        (let [result (encounter-location params)]
-          (is (= :safe-move (get-in result [:player :encounter-result])))))
-      (with-redefs [roll-100 (constantly 30)]
+          (is (= :safe-move (get-in result [:player :encounter-result]))))))
+    (testing "Given a roll between 20 and 30, treasure is awarded"
+      (with-redefs [roll-d100 (constantly 30)]
         (let [result (encounter-location params)]
           (is (= :safe-move (get-in result [:player :encounter-result])))
           (is (or (< 30 (get-in result [:player :gold]))
                 (get-in result [:player :brass-key])
                 (get-in result [:player :pegasus])
-                (get-in result [:player :sword])))))
-      (with-redefs [roll-100 (constantly 100)]
+                (get-in result [:player :sword]))))))
+    (testing "Given a roll between 30 and 100, a battle ensues"
+      (with-redefs [roll-d100 (constantly 100)]
         (let [result (encounter-location params)]
           (is (= :battle (get-in result [:player :encounter-result]))))))))
+
+(deftest encounter-location-tomb-test
+  (let [params {:type :tomb :player (assoc (initialize-player player) :current-territory {:kingdom :brynthia :row 5 :idx 3})}]
+    (testing "Given a roll <= 20, nothing happens"
+      (with-redefs [roll-d100 (constantly 20)]
+        (let [result (encounter-location params)]
+          (is (= :safe-move (get-in result [:player :encounter-result]))))))
+    (testing "Given a roll between 20 and 30, treasure is awarded"
+      (with-redefs [roll-d100 (constantly 30)]
+        (let [result (encounter-location params)]
+          (is (= :safe-move (get-in result [:player :encounter-result])))
+          (is (or (< 30 (get-in result [:player :gold]))
+                (get-in result [:player :brass-key])
+                (get-in result [:player :pegasus])
+                (get-in result [:player :sword]))))))
+    (testing "Given a roll between 30 and 100, a battle ensues"
+      (with-redefs [roll-d100 (constantly 100)]
+        (let [result (encounter-location params)]
+          (is (= :battle (get-in result [:player :encounter-result]))))))))
+
+(deftest encounter-location-sanctuary-test
+  (testing "Given 4 or fewer warriors, award warriors"
+    (with-redefs [roll-dn (constantly 3)]
+      (let [gets-new-warriors (assoc player :warriors 4 :food 10 :gold 10)
+            no-new-warriors (assoc gets-new-warriors :warriors 5)]
+        (is (= 12 (:warriors (encounter-location {:type :sanctuary :player gets-new-warriors}))))
+        (is (= 5 (:warriors (encounter-location {:type :sanctuary :player no-new-warriors})))))))
+  (testing "Given 7 or less gold, award gold"
+    (with-redefs [roll-dn (constantly 6)]
+      (let [gets-new-gold (assoc player :warriors 10 :food 10 :gold 7)
+            no-new-gold (assoc gets-new-gold :gold 8)]
+        (is (= 23 (:gold (encounter-location {:type :sanctuary :player gets-new-gold}))))
+        (is (= 8 (:gold (encounter-location {:type :sanctuary :player no-new-gold})))))))
+  (testing "Given 5 or less food, award food"
+    (with-redefs [roll-dn (constantly 6)]
+      (let [gets-new-food (assoc player :warriors 10 :food 5 :gold 10)
+            no-new-food (assoc gets-new-food :food 6)]
+        (is (= 21 (:food (encounter-location {:type :sanctuary :player gets-new-food}))))
+        (is (= 6 (:food (encounter-location {:type :sanctuary :player no-new-food})))))))
+  (testing "Given all keys possessed, home kingdom, between 5 and 24 warriors, and not having visited a santuary or citadel last, doubles warriors")
+  )

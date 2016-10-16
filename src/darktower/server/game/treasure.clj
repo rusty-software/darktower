@@ -90,7 +90,7 @@
    (treasure player nil))
   ([player multiplayer?]
    (if (can-receive-treasure? player multiplayer?)
-     (loop [treasure-to-try (treasure-type (main/roll-100) multiplayer?)
+     (loop [treasure-to-try (treasure-type (main/roll-d100) multiplayer?)
             tried #{}
             multiplayer? multiplayer?]
        (cond
@@ -101,5 +101,5 @@
          (award-treasure treasure-to-try player)
 
          :else
-         (recur (treasure-type (main/roll-100) multiplayer?) (conj tried treasure-to-try) multiplayer?)))
+         (recur (treasure-type (main/roll-d100) multiplayer?) (conj tried treasure-to-try) multiplayer?)))
      player)))

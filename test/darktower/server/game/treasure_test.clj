@@ -1,6 +1,6 @@
 (ns darktower.server.game.treasure-test
   (:require [clojure.test :refer :all]
-            [darktower.server.game.main :refer [roll-100]]
+            [darktower.server.game.main :refer [roll-d100]]
             [darktower.server.test-helpers :refer :all]
             [darktower.server.game.treasure :refer :all]))
 
@@ -40,18 +40,18 @@
     (is (not (can-receive-treasure? (assoc player :gold 99 :brass-key true :silver-key true :gold-key true :pegasus true :sword true :wizard true) true)))))
 
 (deftest treasure-type-test
-  (with-redefs [roll-100 (constantly 30)]
-    (is (= :gold (treasure-type (roll-100) true))))
-  (with-redefs [roll-100 (constantly 50)]
-    (is (= :key (treasure-type (roll-100) true))))
-  (with-redefs [roll-100 (constantly 70)]
-    (is (= :pegasus (treasure-type (roll-100) true))))
-  (with-redefs [roll-100 (constantly 85)]
-    (is (= :sword (treasure-type (roll-100) true))))
-  (with-redefs [roll-100 (constantly 100)]
-    (is (= :wizard (treasure-type (roll-100) true))))
-  (with-redefs [roll-100 (constantly 100)]
-    (is (= :gold (treasure-type (roll-100) nil)))))
+  (with-redefs [roll-d100 (constantly 30)]
+    (is (= :gold (treasure-type (roll-d100) true))))
+  (with-redefs [roll-d100 (constantly 50)]
+    (is (= :key (treasure-type (roll-d100) true))))
+  (with-redefs [roll-d100 (constantly 70)]
+    (is (= :pegasus (treasure-type (roll-d100) true))))
+  (with-redefs [roll-d100 (constantly 85)]
+    (is (= :sword (treasure-type (roll-d100) true))))
+  (with-redefs [roll-d100 (constantly 100)]
+    (is (= :wizard (treasure-type (roll-d100) true))))
+  (with-redefs [roll-d100 (constantly 100)]
+    (is (= :gold (treasure-type (roll-d100) nil)))))
 
 (deftest tried-everything?-test
   (is (not (tried-everything? #{} true)))
@@ -105,7 +105,7 @@
 
 (deftest treasure-test
   (testing "Given a roll 30 or below, increases gold"
-    (with-redefs [roll-100 (constantly 30)]
+    (with-redefs [roll-d100 (constantly 30)]
       (testing "increases gold"
         (let [player (assoc player :warriors 10 :gold 10)]
           (is (< 10 (:gold (treasure player))))))
@@ -119,7 +119,7 @@
           (is (= 56 (:gold (treasure player-with-beast))))))))
   (testing "Given a roll between 31 and 50, gives a key"
     (let [player (assoc (top-row-edge player :arisilon) :gold 10)]
-      (with-redefs [roll-100 (constantly 50)]
+      (with-redefs [roll-d100 (constantly 50)]
         (testing "Key type depends on relative country"
           (is (not (:brass-key player)))
           (is (:brass-key (treasure (assoc player :current-territory {:kingdom :brynthia}))))
@@ -129,22 +129,22 @@
           (is (:gold-key (treasure (assoc player :current-territory {:kingdom :zenon} :brass-key true :silver-key true))))))))
   (testing "Given a roll between 51 and 70, gives a pegasus"
     (let [player (assoc (top-row-edge player :arisilon) :gold 10)]
-      (with-redefs [roll-100 (constantly 70)]
+      (with-redefs [roll-d100 (constantly 70)]
         (is (not (:pegasus player)))
         (is (:pegasus (treasure player))))))
   (testing "Given a roll between 71 and 85, gives a sword"
     (let [player (assoc (top-row-edge player :arisilon) :gold 10)]
-      (with-redefs [roll-100 (constantly 85)]
+      (with-redefs [roll-d100 (constantly 85)]
         (is (not (:sword player)))
         (is (:sword (treasure player))))))
   (testing "Given a roll between 86 and 100 in a multi-player game, gives a wizard"
     (let [player (assoc (top-row-edge player :arisilon) :gold 10)]
-      (with-redefs [roll-100 (constantly 100)]
+      (with-redefs [roll-d100 (constantly 100)]
         (is (not (:wizard player)))
         (is (:wizard (treasure player true))))))
   (testing "Given a player with everything, awards gold"
     (let [times-called (atom 0)]
-      (with-redefs [roll-100 (fn []
+      (with-redefs [roll-d100 (fn []
                                (swap! times-called inc)
                                (case @times-called
                                  1 50
