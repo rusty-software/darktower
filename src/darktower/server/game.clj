@@ -4,7 +4,8 @@
             [darktower.server.board :as board]
             [darktower.server.schema :as schema]
             [darktower.server.game.main :as main]
-            [darktower.server.game.treasure :as treasure]))
+            [darktower.server.game.treasure :as treasure]
+            [darktower.server.game.bazaar :as bazaar]))
 
 (s/defn initialize-player [player] :- schema/Player
   (assoc player :current-territory {:kingdom (:kingdom player) :row 5 :idx 3}
@@ -197,29 +198,8 @@
 (defmethod encounter-location :citadel [params]
   (encounter-location (assoc params :type :sanctuary)))
 
-(defn init-bazaar [player]
-  (cond-> {:current-item :warrior
-           :warrior (+ (main/roll-dn 8) 3)
-           :food 1}
-
-    (not (:beast player))
-    (assoc :beast (+ (main/roll-dn 12) 14))
-
-    (not (:scout player))
-    (assoc :scout (+ (main/roll-dn 12) 14))
-
-    (not (:healer player))
-    (assoc :healer (+ (main/roll-dn 12) 14))))
-
 (defmethod encounter-location :bazaar [{:keys [player]}]
-  {:player (assoc player :encounter-result :bazaar :inventory (init-bazaar player))})
-
-(defn next-item [bazaar]
-  (let [items (vec (rest (keys bazaar)))
-        current-item-idx (.indexOf items (:current-item bazaar))]
-    (if (= current-item-idx (dec (count items)))
-      (assoc bazaar :current-item (get items 0))
-      (assoc bazaar :current-item (get items (inc current-item-idx))))))
+  {:player (assoc player :encounter-result :bazaar :inventory (bazaar/init player))})
 
 (defn encounter [player dragon-hoard]
   ;; TODO: implement/increment move count
