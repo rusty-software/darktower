@@ -198,7 +198,8 @@
   (encounter-location (assoc params :type :sanctuary)))
 
 (defn init-bazaar [player]
-  (cond-> {:warrior (+ (main/roll-dn 8) 3)
+  (cond-> {:current-item :warrior
+           :warrior (+ (main/roll-dn 8) 3)
            :food 1}
 
     (not (:beast player))
@@ -209,6 +210,16 @@
 
     (not (:healer player))
     (assoc :healer (+ (main/roll-dn 12) 14))))
+
+(defmethod encounter-location :bazaar [{:keys [player]}]
+  {:player (assoc player :encounter-result :bazaar :inventory (init-bazaar player))})
+
+(defn next-item [bazaar]
+  (let [items (vec (rest (keys bazaar)))
+        current-item-idx (.indexOf items (:current-item bazaar))]
+    (if (= current-item-idx (dec (count items)))
+      (assoc bazaar :current-item (get items 0))
+      (assoc bazaar :current-item (get items (inc current-item-idx))))))
 
 (defn encounter [player dragon-hoard]
   ;; TODO: implement/increment move count
