@@ -43,13 +43,24 @@
    :plague-healer {:images ["img/plague.jpg" "img/healer.jpg"]}
    :dragon-attack {:images ["img/dragon.jpg"]}
    :dragon-attack-sword {:images ["img/dragon.jpg" "img/sword.jpg"]}
-   :safe-move {:images ["img/victory.jpg"]}
+   #_#_:safe-move {:images ["img/victory.jpg"]}
    :battle {:images ["img/warriors.jpg" "img/brigands.jpg"]}
    :fighting-won-round {:images ["img/warriors.jpg" "img/brigands.jpg"]}
    :fighting-lost-round {:images ["img/warriors.jpg" "img/brigands.jpg"]}
-   :fighting-won {:images ["img/gold.jpg"]}
+   #_#_:fighting-won {:images ["img/gold.jpg"]}
    :fighting-lost {:images ["img/warriors.jpg"]}
    :fled {:images ["img/warriors.jpg"]}})
+
+(defn encounter-result-images-for [encounter-result]
+  (let [default-image (get-in encounter-result-specs [encounter-result :images])]
+    (if default-image
+      default-image
+      (cond
+        (= :fighting-won encounter-result)
+        ["img/gold.jpg"]
+
+        :default
+        ["img/victory.jpg"]))))
 
 (defn display-buttons [buttons]
   [:div (for [button buttons] [button])])
@@ -98,7 +109,7 @@
             {:class "dt-image"}
             (when encounter-result
               [:div
-               (let [images (get-in encounter-result-specs [encounter-result :images])]
+               (let [images (encounter-result-images-for encounter-result) ]
                  (for [image images]
                    [:img {:src image
                           :style {:margin "5px"}}]))

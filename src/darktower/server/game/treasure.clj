@@ -73,15 +73,15 @@
         key (get offset-key offset)]
     (if (zero? offset)
       player
-      (assoc player key true))))
+      (assoc player key true :awarded key))))
 
 (defn award-treasure [treasure player]
   (case treasure
-    :gold (assoc player :gold (treasure-gold player))
+    :gold (assoc player :gold (treasure-gold player) :awarded :gold)
     :key (award-key player)
-    :pegasus (assoc player :pegasus true)
-    :sword (assoc player :sword true)
-    :wizard (assoc player :wizard true)
+    :pegasus (assoc player :pegasus true :awarded :pegasus)
+    :sword (assoc player :sword true :awarded :sword)
+    :wizard (assoc player :wizard true :awarded :wizard)
     player))
 
 ;; TODO: wizard handler
@@ -89,17 +89,18 @@
   ([player]
    (treasure player nil))
   ([player multiplayer?]
-   (if (can-receive-treasure? player multiplayer?)
-     (loop [treasure-to-try (treasure-type (main/roll-d100) multiplayer?)
-            tried #{}
-            multiplayer? multiplayer?]
-       (cond
-         (tried-everything? tried multiplayer?)
-         player
+   (let [player (dissoc player :awarded)]
+     (if (can-receive-treasure? player multiplayer?)
+       (loop [treasure-to-try (treasure-type (main/roll-d100) multiplayer?)
+              tried #{}
+              multiplayer? multiplayer?]
+         (cond
+           (tried-everything? tried multiplayer?)
+           player
 
-         (can-award? treasure-to-try player multiplayer?)
-         (award-treasure treasure-to-try player)
+           (can-award? treasure-to-try player multiplayer?)
+           (award-treasure treasure-to-try player)
 
-         :else
-         (recur (treasure-type (main/roll-d100) multiplayer?) (conj tried treasure-to-try) multiplayer?)))
-     player)))
+           :else
+           (recur (treasure-type (main/roll-d100) multiplayer?) (conj tried treasure-to-try) multiplayer?)))
+       player))))

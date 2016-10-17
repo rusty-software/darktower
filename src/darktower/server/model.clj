@@ -101,7 +101,6 @@
     (if (= uid (:current-player game-state))
       (let [player (player-by-uid game-state uid)
             updated-player (game/fight player)
-            _ (log/info "fight result" updated-player)
             updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player updated-player)))]
         (assoc app-state token updated-game-state))
       app-state)))

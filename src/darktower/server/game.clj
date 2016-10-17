@@ -199,12 +199,11 @@
   (encounter-location (assoc params :type :sanctuary)))
 
 (defmethod encounter-location :bazaar [{:keys [player]}]
-  {:player (assoc player :encounter-result :bazaar :inventory (bazaar/init player))})
+  {:player (assoc player :encounter-result :bazaar :bazaar-inventory (bazaar/init player))})
 
 (defn encounter [player dragon-hoard]
   ;; TODO: implement/increment move count
   (let [territory-type (board/type-for (dissoc (:current-territory player) :kingdom))]
-    (log/info "encounter territory type:" territory-type)
     (if (= :territory territory-type)
       (encounter-territory player dragon-hoard)
       (encounter-location {:type territory-type :player player}))))
