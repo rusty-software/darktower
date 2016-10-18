@@ -43,24 +43,18 @@
    :plague-healer {:images ["img/plague.jpg" "img/healer.jpg"]}
    :dragon-attack {:images ["img/dragon.jpg"]}
    :dragon-attack-sword {:images ["img/dragon.jpg" "img/sword.jpg"]}
-   #_#_:safe-move {:images ["img/victory.jpg"]}
+   :safe-move {:images ["img/victory.jpg"]}
    :battle {:images ["img/warriors.jpg" "img/brigands.jpg"]}
    :fighting-won-round {:images ["img/warriors.jpg" "img/brigands.jpg"]}
    :fighting-lost-round {:images ["img/warriors.jpg" "img/brigands.jpg"]}
-   #_#_:fighting-won {:images ["img/gold.jpg"]}
+   #{:fighting-won :gold} {:images ["img/gold.jpg"]}
+   #{:fighting-won :pegasus} {:images ["img/pegasus.jpg"]}
+   #{:fighting-won :sword} {:images ["img/sword.jpg"]}
+   #{:fighting-won :brass-key} {:images ["img/brasskey.jpg"]}
+   #{:fighting-won :silver-key} {:images ["img/silverkey.jpg"]}
+   #{:fighting-won :gold-key} {:images ["img/goldkey.jpg"]}
    :fighting-lost {:images ["img/warriors.jpg"]}
    :fled {:images ["img/warriors.jpg"]}})
-
-(defn encounter-result-images-for [encounter-result]
-  (let [default-image (get-in encounter-result-specs [encounter-result :images])]
-    (if default-image
-      default-image
-      (cond
-        (= :fighting-won encounter-result)
-        ["img/gold.jpg"]
-
-        :default
-        ["img/victory.jpg"]))))
 
 (defn display-buttons [buttons]
   [:div (for [button buttons] [button])])
@@ -104,12 +98,13 @@
         [:br]
         [:div
          {:class "dt-display"}
-         (let [{:keys [encounter-result warriors brigands]} (current-player)]
+         (let [{:keys [encounter-result awarded warriors brigands]} (current-player)]
            [:div
             {:class "dt-image"}
             (when encounter-result
               [:div
-               (let [images (encounter-result-images-for encounter-result) ]
+               (let [images-key (if awarded #{encounter-result awarded} encounter-result)
+                     images (get-in encounter-result-specs [images-key :images])]
                  (for [image images]
                    [:img {:src image
                           :style {:margin "5px"}}]))

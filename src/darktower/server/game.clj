@@ -203,7 +203,8 @@
 
 (defn encounter [player dragon-hoard]
   ;; TODO: implement/increment move count
-  (let [territory-type (board/type-for (dissoc (:current-territory player) :kingdom))]
+  (let [territory-type (board/type-for (dissoc (:current-territory player) :kingdom))
+        player (dissoc player :awarded)]
     (if (= :territory territory-type)
       (encounter-territory player dragon-hoard)
       (encounter-location {:type territory-type :player player}))))
