@@ -54,7 +54,14 @@
    #{:fighting-won :silver-key} {:images ["img/silverkey.jpg"]}
    #{:fighting-won :gold-key} {:images ["img/goldkey.jpg"]}
    :fighting-lost {:images ["img/warriors.jpg"]}
-   :fled {:images ["img/warriors.jpg"]}})
+   :fled {:images ["img/warriors.jpg"]}
+   #{:sanctuary #{:warriors}} {:images ["img/warriors.jpg"]}
+   #{:sanctuary #{:food}} {:images ["img/food.jpg"]}
+   #{:sanctuary #{:gold}} {:images ["img/gold.jpg"]}
+   #{:sanctuary #{:warriors :food}} {:images ["img/warriors.jpg" "img/food.jpg"]}
+   #{:sanctuary #{:warriors :gold}} {:images ["img/warriors.jpg" "img/gold.jpg"]}
+   #{:sanctuary #{:warriors :food :gold}} {:images ["img/warriors.jpg" "img/food.jpg" "img/gold.jpg"]}
+   #{:sanctuary #{:food :gold}} {:images ["img/food.jpg" "img/gold.jpg"]}})
 
 (defn display-buttons [buttons]
   [:div (for [button buttons] [button])])

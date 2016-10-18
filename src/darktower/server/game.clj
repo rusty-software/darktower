@@ -5,7 +5,8 @@
             [darktower.server.schema :as schema]
             [darktower.server.game.main :as main]
             [darktower.server.game.treasure :as treasure]
-            [darktower.server.game.bazaar :as bazaar]))
+            [darktower.server.game.bazaar :as bazaar]
+            [clojure.set :as set]))
 
 (s/defn initialize-player [player] :- schema/Player
   (assoc player :current-territory {:kingdom (:kingdom player) :row 5 :idx 3}
@@ -178,21 +179,29 @@
     (not (#{:sanctuary :citadel} last-location))))
 
 (defmethod encounter-location :sanctuary [{:keys [player]}]
-  (let [updated-player (cond-> player
-                         (should-double-warriors? player)
-                         (update :warriors * 2)
+  (let [updated-player (cond-> (assoc player :awarded #{})
+                               (should-double-warriors? player)
+                               (->
+                                 (update :warriors * 2)
+                                 (update :awarded set/union #{:warriors}))
 
-                         (< (:warriors player) 5)
-                         (update :warriors + (main/roll-dn 4) 4)
+                               (< (:warriors player) 5)
+                               (->
+                                 (update :warriors + (main/roll-dn 4) 4)
+                                 (update :awarded set/union #{:warriors}))
 
-                         (< (:gold player) 8)
-                         (update :gold + (main/roll-dn 7) 9)
+                               (< (:gold player) 8)
+                               (->
+                                 (update :gold + (main/roll-dn 7) 9)
+                                 (update :awarded set/union #{:gold}))
 
-                         (< (:food player) 6)
-                         (update :food + (main/roll-dn 7) 9)
+                               (< (:food player) 6)
+                               (->
+                                 (update :food + (main/roll-dn 7) 9)
+                                 (update :awarded set/union #{:food}))
 
-                         :always
-                         (assoc :encounter-result :sactuary))]
+                               :always
+                               (assoc :encounter-result :sactuary))]
     {:player updated-player}))
 
 (defmethod encounter-location :citadel [params]
@@ -209,6 +218,7 @@
       (encounter-territory player dragon-hoard)
       (encounter-location {:type territory-type :player player}))))
 
+;; TODO: starving
 (defn feed [{:keys [warriors food]}]
   (if (= warriors 99)
     {:food (max 0 (- food 7))}
