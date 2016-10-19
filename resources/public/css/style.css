@@ -141,6 +141,43 @@ td.bold {
     font-size: 12px;
     cursor: pointer;
 }
+.button.next {
+    background-color: #d3d3d3;
+    border-color: #c0c0c0;
+    border: 1px solid;
+    border-radius: 4px;
+    color: white;
+    padding: 10px 10px;
+    text-align: center;
+    display: inline-block;
+    font-size: 12px;
+    cursor: pointer;
+}
+.button.buy {
+    background-color: #5cb85c;
+    border-color: #4cae4c;
+    border: 1px solid;
+    border-radius: 4px;
+    color: white;
+    padding: 10px 10px;
+    text-align: center;
+    display: inline-block;
+    font-size: 12px;
+    cursor: pointer;
+}
+.button.haggle {
+    background-color: #f0ad4e;
+    border-color: #eea236;
+    border: 1px solid;
+    border-radius: 4px;
+    color: white;
+    padding: 10px 10px;
+    text-align: center;
+    display: inline-block;
+    font-size: 12px;
+    cursor: pointer;
+}
+
 
 /**
  * Miscellany

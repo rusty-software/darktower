@@ -45,6 +45,15 @@
 (defn flee []
   (chsk-send! [:darktower/flee {:token (get-in @model/game-state [:server-state :token])}]))
 
+(defn next-item []
+  (chsk-send! [:darktower/next-item {:token (get-in @model/game-state [:server-state :token])}]))
+
+(defn buy-item []
+  (chsk-send! [:darktower/buy-item {:token (get-in @model/game-state [:server-state :token])}]))
+
+(defn haggle []
+  (chsk-send! [:darktower/haggle {:token (get-in @model/game-state [:server-state :token])}]))
+
 (defmulti event-msg-handler :id)
 
 (defmethod event-msg-handler :default [{:keys [event]}]

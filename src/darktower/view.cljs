@@ -61,7 +61,8 @@
    #{:sanctuary #{:warriors :food}} {:images ["img/warriors.jpg" "img/food.jpg"]}
    #{:sanctuary #{:warriors :gold}} {:images ["img/warriors.jpg" "img/gold.jpg"]}
    #{:sanctuary #{:warriors :food :gold}} {:images ["img/warriors.jpg" "img/food.jpg" "img/gold.jpg"]}
-   #{:sanctuary #{:food :gold}} {:images ["img/food.jpg" "img/gold.jpg"]}})
+   #{:sanctuary #{:food :gold}} {:images ["img/food.jpg" "img/gold.jpg"]}
+   :warrior {:images ["img/warrior.jpg"]}})
 
 (defn display-buttons [buttons]
   [:div (for [button buttons] [button])])
@@ -87,10 +88,36 @@
     :on-click #(communication/flee)}
    "Flee"])
 
+(defn next-button []
+  [:button
+   {:id "btn-next"
+    :class "button next"
+    :on-click #(communication/next-item)}
+   "Next"])
+
+(defn buy-button []
+  [:button
+   {:id "btn-buy"
+    :class "button buy"
+    :on-click #(communication/buy-item)}
+   "Buy"])
+
+(defn haggle-button []
+  [:button
+   {:id "btn-haggle"
+    :class "button haggle"
+    :on-click #(communication/haggle)}
+   "Haggle"])
+
 (defn battle-display [warriors brigands]
   [:div
    [:span (str warriors " warriors; " brigands " brigands")]
    (display-buttons [fight-button flee-button])])
+
+(defn bazaar-display [bazaar-inventory]
+  [:div
+   [:span (str "Cost: " (get bazaar-inventory (:current-item bazaar-inventory)))]
+   (display-buttons [next-button buy-button haggle-button end-turn-button])])
 
 (defn player-area []
   [:div
@@ -105,19 +132,29 @@
         [:br]
         [:div
          {:class "dt-display"}
-         (let [{:keys [encounter-result awarded warriors brigands]} (current-player)]
+         (let [{:keys [encounter-result awarded bazaar-inventory warriors brigands]} (current-player)]
            [:div
             {:class "dt-image"}
             (when encounter-result
               [:div
-               (let [images-key (if awarded #{encounter-result awarded} encounter-result)
+               (let [images-key (cond
+                                  awarded #{encounter-result awarded}
+                                  (= :bazaar encounter-result) (:current-item bazaar-inventory)
+                                  :else encounter-result)
                      images (get-in encounter-result-specs [images-key :images])]
                  (for [image images]
                    [:img {:src image
                           :style {:margin "5px"}}]))
-               (if (#{:battle :fighting-won-round :fighting-lost-round} encounter-result)
+               (cond
+                 (#{:battle :fighting-won-round :fighting-lost-round} encounter-result)
                  (battle-display warriors brigands)
-                 (display-buttons [end-turn-button]))])])]]
+
+                 (= :bazaar encounter-result)
+                 (bazaar-display bazaar-inventory)
+
+                 :else
+                 (display-buttons [end-turn-button]))
+               ])])]]
        [:div
         [:text (str (:name (current-player)) "'s turn.")]])]]
    [:div {:id "player-data"}
