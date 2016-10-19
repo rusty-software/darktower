@@ -46,6 +46,7 @@
     (= :frontier (:type destination))
     (not= (:kingdom player) (:kingdom destination))))
 
+;; TODO: include current location in adjacent list
 (defn valid-move [player destination]
   (let [current-territory (:current-territory player)
         neighbors (board/neighbors-for current-territory)]
@@ -173,8 +174,9 @@
 (defmethod encounter-location :tomb [params]
   (encounter-location (assoc params :type :ruin)))
 
-(defn should-double-warriors? [{:keys [brass-key silver-key gold-key warriors last-location]}]
+(defn should-double-warriors? [{:keys [brass-key silver-key gold-key warriors last-location current-territory kingdom]}]
   (and brass-key silver-key gold-key
+    (= kingdom (:kingdom current-territory))
     (< 4 warriors 25)
     (not (#{:sanctuary :citadel} last-location))))
 
@@ -201,7 +203,7 @@
                                  (update :awarded set/union #{:food}))
 
                                :always
-                               (assoc :encounter-result :sactuary))]
+                               (assoc :encounter-result :sanctuary))]
     {:player updated-player}))
 
 (defmethod encounter-location :citadel [params]

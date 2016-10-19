@@ -284,10 +284,11 @@
         (let [result (encounter-location params)]
           (is (= :battle (get-in result [:player :encounter-result]))))))))
 
-(deftest can-be-doubled?-test
-  (let [player (assoc player :warriors 5 :brass-key true :silver-key true :gold-key true :last-location :bazaar)]
+(deftest should-double-warriors?-test
+  (let [player (assoc player :warriors 5 :brass-key true :silver-key true :gold-key true :last-location :bazaar :current-territory {:kingdom :arisilon})]
     (is (should-double-warriors? player))
     (is (should-double-warriors? (assoc player :warriors 24)))
+    (is (not (should-double-warriors? (assoc player :current-territory {:kingdom :brynthia}))))
     (is (not (should-double-warriors? (assoc player :warriors 25))))
     (is (not (should-double-warriors? (assoc player :warriors 4))))
     (is (not (should-double-warriors? (assoc player :brass-key false))))
@@ -320,7 +321,7 @@
         (is (= 6 (get-in (encounter-location {:type :citadel :player no-new-food}) [:player :food]))))))
   (testing "Given warrior-doubling criteria met, doubles warriors"
     (with-redefs [roll-dn (constantly 4)]
-      (let [doubled-warriors (assoc player :warriors 24 :food 5 :gold 7 :brass-key true :silver-key true :gold-key true)
+      (let [doubled-warriors (assoc player :warriors 24 :food 5 :gold 7 :brass-key true :silver-key true :gold-key true :current-territory {:kingdom :arisilon})
             normal-op (assoc doubled-warriors :warriors 25)
             {dwarriors :warriors dgold :gold dfood :food dawarded :awarded} (:player (encounter-location {:type :citadel :player doubled-warriors}))
             {nwarriors :warriors ngold :gold nfood :food nawarded :awarded} (:player (encounter-location {:type :citadel :player normal-op}))]
@@ -352,7 +353,7 @@
         (is (= 6 (get-in (encounter-location {:type :citadel :player no-new-food}) [:player :food]))))))
   (testing "Given warrior-doubling criteria met, doubles warriors"
     (with-redefs [roll-dn (constantly 4)]
-      (let [doubled-warriors (assoc player :warriors 24 :food 5 :gold 7 :brass-key true :silver-key true :gold-key true)
+      (let [doubled-warriors (assoc player :warriors 24 :food 5 :gold 7 :brass-key true :silver-key true :gold-key true :current-territory {:kingdom :arisilon})
             normal-op (assoc doubled-warriors :warriors 25)
             {dwarriors :warriors dgold :gold dfood :food} (:player (encounter-location {:type :citadel :player doubled-warriors}))
             {nwarriors :warriors ngold :gold nfood :food} (:player (encounter-location {:type :citadel :player normal-op}))]
