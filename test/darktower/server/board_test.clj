@@ -11,10 +11,11 @@
     (is (= :arisilon (next-kingdom :zenon)))))
 
 (deftest potential-neighbors-test
-  (testing "All territories have 6 potential neighbors"
+  (testing "All territories have 6 potential neighbors not counting themselves"
     (let [expected [{:kingdom :arisilon :row 2 :idx 1}
                     {:kingdom :arisilon :row 2 :idx 2}
                     {:kingdom :arisilon :row 3 :idx 1}
+                    {:kingdom :arisilon :row 3 :idx 2}
                     {:kingdom :arisilon :row 3 :idx 3}
                     {:kingdom :arisilon :row 4 :idx 2}
                     {:kingdom :arisilon :row 4 :idx 3}]
@@ -22,10 +23,11 @@
       (is (= expected (potential-neighbors-for territory-location))))))
 
 (deftest neighbors-test
-  (testing "Interior territories have six neighbors"
+  (testing "Interior territories have six neighbors not counting themselves"
     (let [expected [{:kingdom :arisilon :row 3 :idx 3}
                     {:kingdom :arisilon :row 3 :idx 4}
                     {:kingdom :arisilon :row 4 :idx 3}
+                    {:kingdom :arisilon :row 4 :idx 4}
                     {:kingdom :arisilon :row 4 :idx 5}
                     {:kingdom :arisilon :row 5 :idx 4}
                     {:kingdom :arisilon :row 5 :idx 5}]
@@ -35,12 +37,14 @@
     (let [expected [{:kingdom :arisilon :type :frontier}
                     {:kingdom :arisilon :row 1 :idx 2}
                     {:kingdom :arisilon :row 2 :idx 2}
+                    {:kingdom :arisilon :row 2 :idx 3}
                     {:kingdom :arisilon :row 3 :idx 3}
                     {:kingdom :arisilon :row 3 :idx 4}]
           territory-location {:kingdom :arisilon :row 2 :idx 3}]
       (is (= expected (neighbors-for territory-location)))))
   (testing "Territories (excluding rows 1 and 5) at 0 border 4 others"
     (let [expected [{:kingdom :arisilon :row 1 :idx 0}
+                    {:kingdom :arisilon :row 2 :idx 0}
                     {:kingdom :arisilon :row 2 :idx 1}
                     {:kingdom :arisilon :row 3 :idx 0}
                     {:kingdom :arisilon :row 3 :idx 1}]
@@ -50,25 +54,29 @@
     (let [expected [{:kingdom :arisilon :row 4 :idx 2}
                     {:kingdom :arisilon :row 4 :idx 3}
                     {:kingdom :arisilon :row 5 :idx 2}
+                    {:kingdom :arisilon :row 5 :idx 3}
                     {:kingdom :arisilon :row 5 :idx 4}]
           territory-location {:kingdom :arisilon :row 5 :idx 3}]
       (is (= expected (neighbors-for territory-location)))))
   (testing "Territories in row 1 have nothing above them and have a dark tower"
     (let [expected [{:kingdom :arisilon :type :dark-tower}
                     {:kingdom :arisilon :row 1 :idx 0}
+                    {:kingdom :arisilon :row 1 :idx 1}
                     {:kingdom :arisilon :row 1 :idx 2}
                     {:kingdom :arisilon :row 2 :idx 1}
                     {:kingdom :arisilon :row 2 :idx 2}]
           territory-location {:kingdom :arisilon :row 1 :idx 1}]
       (is (= expected (neighbors-for territory-location)))))
   (testing "Dark Tower is only bordered by row 1"
-    (let [expected [{:kingdom :arisilon :row 1 :idx 0}
+    (let [expected [{:kingdom :arisilon :type :dark-tower}
+                    {:kingdom :arisilon :row 1 :idx 0}
                     {:kingdom :arisilon :row 1 :idx 1}
                     {:kingdom :arisilon :row 1 :idx 2}]
           territory-location {:kingdom :arisilon :type :dark-tower}]
       (is (= expected (neighbors-for territory-location)))))
   (testing "Frontier is only bordered by index 0 of *next* kingdom"
-    (let [expected [{:kingdom :brynthia :row 1 :idx 0}
+    (let [expected [{:kingdom :arisilon :type :frontier}
+                    {:kingdom :brynthia :row 1 :idx 0}
                     {:kingdom :brynthia :row 2 :idx 0}
                     {:kingdom :brynthia :row 3 :idx 0}
                     {:kingdom :brynthia :row 4 :idx 0}

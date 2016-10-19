@@ -21,6 +21,7 @@
     [{:kingdom kingdom :row prev-row :idx (dec idx)}
      {:kingdom kingdom :row prev-row :idx idx}
      {:kingdom kingdom :row row :idx (dec idx)}
+     {:kingdom kingdom :row row :idx idx}
      {:kingdom kingdom :row row :idx (inc idx)}
      {:kingdom kingdom :row next-row :idx idx}
      {:kingdom kingdom :row next-row :idx (inc idx)}]))
@@ -57,12 +58,14 @@
 (defn neighbors-for [territory-info]
   (cond
     (= :dark-tower (:type territory-info))
-    (for [i (range 0 3)]
-      {:kingdom (:kingdom territory-info) :row 1 :idx i})
+    (concat [{:kingdom (:kingdom territory-info) :type :dark-tower}]
+      (for [i (range 0 3)]
+        {:kingdom (:kingdom territory-info) :row 1 :idx i}))
 
     (= :frontier (:type territory-info))
-    (for [i (range 1 6)]
-      {:kingdom (next-kingdom (:kingdom territory-info)) :row i :idx 0})
+    (concat [{:kingdom (:kingdom territory-info) :type :frontier}]
+      (for [i (range 1 6)]
+        {:kingdom (next-kingdom (:kingdom territory-info)) :row i :idx 0}))
 
     (:row territory-info)
     (let [{:keys [row idx]} territory-info
