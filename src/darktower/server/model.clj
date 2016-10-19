@@ -64,6 +64,7 @@
         updated-game-state (assoc game-state :current-player next)]
     (assoc app-state token updated-game-state)))
 
+;; TODO: should not be allowed to move while in a fight
 (defn move [app-state uid token destination]
   (let [game-state (get app-state token)]
     (if (= uid (:current-player game-state))
@@ -85,7 +86,7 @@
                                      :always
                                      (assoc :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player encounter-result))))]
             (assoc app-state token updated-game-state))
-          (let [updated-player (merge player validation)
+          (let [updated-player (merge (assoc player :encounter-result :invalid-move) validation)
                 updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) updated-player))]
             (assoc app-state token updated-game-state))))
       app-state)))

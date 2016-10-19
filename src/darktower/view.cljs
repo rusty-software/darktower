@@ -62,7 +62,13 @@
    #{:sanctuary #{:warriors :gold}} {:images ["img/warriors.jpg" "img/gold.jpg"]}
    #{:sanctuary #{:warriors :food :gold}} {:images ["img/warriors.jpg" "img/food.jpg" "img/gold.jpg"]}
    #{:sanctuary #{:food :gold}} {:images ["img/food.jpg" "img/gold.jpg"]}
-   :warrior {:images ["img/warrior.jpg"]}})
+   :bazaar-closed {:images ["img/bazaar.jpg"]}
+   :warrior {:images ["img/warrior.jpg"]}
+   :food {:images ["img/food.jpg"]}
+   :beast {:images ["img/beast.jpg"]}
+   :scout {:images ["img/scout.jpg"]}
+   :healer {:images ["img/healer.jpg"]}
+   :key-missing {:images ["img/keymissing.jpg"]}})
 
 (defn display-buttons [buttons]
   [:div (for [button buttons] [button])])
@@ -119,6 +125,11 @@
    [:span (str "Cost: " (get bazaar-inventory (:current-item bazaar-inventory)))]
    (display-buttons [next-button buy-button haggle-button end-turn-button])])
 
+(defn message-display [message]
+  [:div
+   [:span message]
+   (display-buttons [end-turn-button])])
+
 (defn player-area []
   [:div
    {:style
@@ -132,7 +143,7 @@
         [:br]
         [:div
          {:class "dt-display"}
-         (let [{:keys [encounter-result awarded bazaar-inventory warriors brigands]} (current-player)]
+         (let [{:keys [encounter-result awarded bazaar-inventory warriors brigands message]} (current-player)]
            [:div
             {:class "dt-image"}
             (when encounter-result
@@ -140,6 +151,7 @@
                (let [images-key (cond
                                   awarded #{encounter-result awarded}
                                   (= :bazaar encounter-result) (:current-item bazaar-inventory)
+                                  (= "Key missing!" message) :key-missing
                                   :else encounter-result)
                      images (get-in encounter-result-specs [images-key :images])]
                  (for [image images]
@@ -151,6 +163,9 @@
 
                  (= :bazaar encounter-result)
                  (bazaar-display bazaar-inventory)
+
+                 message
+                 (message-display message)
 
                  :else
                  (display-buttons [end-turn-button]))
