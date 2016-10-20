@@ -230,3 +230,6 @@
 
 (defn flee [{:keys [warriors] :as player}]
   {:player (assoc player :encounter-result :fled :warriors (max 1 (- warriors 1)))})
+
+(defn next-item [player]
+  {:player (assoc player :encounter-result :bazaar :bazaar-inventory (bazaar/next-item (:bazaar-inventory player)))})

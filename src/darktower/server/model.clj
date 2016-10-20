@@ -2,7 +2,8 @@
   (:require
     [darktower.server.game :as game]
     [darktower.server.board :as board]
-    [taoensso.timbre :as log]))
+    [taoensso.timbre :as log]
+    [darktower.server.game.bazaar :as bazaar]))
 
 (defonce app-state
   (atom {}))
@@ -120,3 +121,15 @@
 
 (defn flee! [uid token]
   (swap! app-state flee uid token))
+
+(defn next-item [app-state uid token]
+  (let [game-state (get app-state token)]
+    (if (= uid (:current-player game-state))
+      (let [player (player-by-uid game-state uid)
+            updated-player (game/next-item player)
+            updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player updated-player)))]
+        (assoc app-state token updated-game-state))
+      app-state)))
+
+(defn next-item! [uid token]
+  (swap! app-state next-item uid token))
