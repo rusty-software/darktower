@@ -46,20 +46,22 @@
     (= :frontier (:type destination))
     (not= (:kingdom player) (:kingdom destination))))
 
-;; TODO: include current location in adjacent list
 (defn valid-move [player destination]
   (let [current-territory (:current-territory player)
         neighbors (board/neighbors-for current-territory)]
     (cond
+      (#{:battle :fighting-won-round :fighting-lost-round} (:encounter-result player))
+      {:valid? false :message "Cannot move while in battle!" :encounter-result (:encounter-result player)}
+
       (and
         (requires-key? player destination)
         (not (treasure/has-key? player destination)))
-      {:valid? false :message "Key missing!"}
+      {:valid? false :message "Key missing!" :encounter-result :invalid-move}
 
       (and
         (= :citadel (board/type-for destination))
         (not= (:kingdom destination) (:kingdom player)))
-      {:valid? false :message "Cannot enter foreign citadel!"}
+      {:valid? false :message "Cannot enter foreign citadel!" :encounter-result :invalid-move}
 
       (some #{destination} neighbors)
       {:valid? true}
@@ -70,7 +72,7 @@
       {:valid? true :pegasus-required? true}
 
       :else
-      {:valid? false :message "Destination must be adjacent to your current territory!"})))
+      {:valid? false :message "Destination must be adjacent to your current territory!" :encounter-result :invalid-move})))
 
 (defn safe-move [player]
   {:player (assoc player :encounter-result :safe-move)})

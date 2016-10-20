@@ -100,7 +100,7 @@
 (defn fight [app-state uid token]
   (let [game-state (get app-state token)]
     (if (= uid (:current-player game-state))
-      (let [player (player-by-uid game-state uid)
+      (let [player (dissoc (player-by-uid game-state uid) :message)
             updated-player (game/fight player)
             updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player updated-player)))]
         (assoc app-state token updated-game-state))

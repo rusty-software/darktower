@@ -52,12 +52,14 @@
 (deftest valid-move-test
   (testing "Movement allowed to adjacent territories"
     (let [player (assoc player :current-territory {:kingdom :arisilon :row 3 :idx 2})]
+      (is (= {:valid? true} (valid-move player {:kingdom :arisilon :row 3 :idx 2})))
       (is (= {:valid? true} (valid-move player {:kingdom :arisilon :row 3 :idx 1})))
       (is (= {:valid? true} (valid-move (top-row-edge player :arisilon) {:kingdom :arisilon :type :frontier})))))
   (testing "Movement to non-adjacent territories"
     (testing "When the player has no pegasus, movement is not allowed"
       (is (= {:valid? false
-              :message "Destination must be adjacent to your current territory!"}
+              :message "Destination must be adjacent to your current territory!"
+              :encounter-result :invalid-move}
             (valid-move (top-row-edge player :arisilon) {:kingdom :arisilon :row 3 :idx 0}))))
     (testing "When the player has a pegasus, movement is allowed and the pegasus is expended"
       (is (= {:valid? true :pegasus-required? true}
@@ -68,21 +70,36 @@
       (is (= {:valid? true} (valid-move player {:kingdom :arisilon :row 3 :idx 0}))))
     (let [player (assoc (top-row-edge player :zenon) :pegasus true)]
       (is (= {:valid? false
-              :message "Destination must be adjacent to your current territory!"}
+              :message "Destination must be adjacent to your current territory!"
+              :encounter-result :invalid-move}
             (valid-move player {:kingdom :arisilon :row 3 :idx 0})))))
   (testing "Movement to a frontier requires the appropriate key"
     (is (= {:valid? true} (valid-move (top-row-edge player :arisilon) {:kingdom :arisilon :type :frontier})))
     (is (= {:valid? true} (valid-move (assoc player :current-territory {:kingdom :arisilon :type :frontier}) {:kingdom :brynthia :row 3 :idx 0})))
-    (is (= {:valid? false :message "Key missing!"} (valid-move (top-row-edge player :brynthia) {:kingdom :brynthia :type :frontier})))
+    (is (= {:valid? false :message "Key missing!" :encounter-result :invalid-move} (valid-move (top-row-edge player :brynthia) {:kingdom :brynthia :type :frontier})))
     (is (= {:valid? true} (valid-move (assoc (top-row-edge player :brynthia) :brass-key true) {:kingdom :brynthia :type :frontier})))
-    (is (= {:valid? false :message "Key missing!"} (valid-move (top-row-edge player :durnin) {:kingdom :durnin :type :frontier})))
+    (is (= {:valid? false :message "Key missing!" :encounter-result :invalid-move} (valid-move (top-row-edge player :durnin) {:kingdom :durnin :type :frontier})))
     (is (= {:valid? true} (valid-move (assoc (top-row-edge player :durnin) :silver-key true) {:kingdom :durnin :type :frontier})))
-    (is (= {:valid? false :message "Key missing!"} (valid-move (top-row-edge player :zenon) {:kingdom :zenon :type :frontier})))
+    (is (= {:valid? false :message "Key missing!" :encounter-result :invalid-move} (valid-move (top-row-edge player :zenon) {:kingdom :zenon :type :frontier})))
     (is (= {:valid? true} (valid-move (assoc (top-row-edge player :zenon) :gold-key true) {:kingdom :zenon :type :frontier}))))
   (testing "Movement to foreign citadel is not allowed"
     (is (= {:valid? false
-            :message "Cannot enter foreign citadel!"}
-          (valid-move (assoc player :current-territory {:kingdom :brynthia :row 5 :idx 2}) {:kingdom :brynthia :type :citadel})))))
+            :message "Cannot enter foreign citadel!"
+            :encounter-result :invalid-move}
+          (valid-move (assoc player :current-territory {:kingdom :brynthia :row 5 :idx 2}) {:kingdom :brynthia :type :citadel}))))
+  (testing "Movement not allowed during battle"
+    (is (= {:valid? false
+            :message "Cannot move while in battle!"
+            :encounter-result :battle}
+          (valid-move (assoc player :encounter-result :battle :current-territory {:kingdom :brynthia :row 5 :idx 2}) {:kingdom :brynthia :row 5 :idx 2})))
+    (is (= {:valid? false
+            :message "Cannot move while in battle!"
+            :encounter-result :fighting-won-round}
+          (valid-move (assoc player :encounter-result :fighting-won-round :current-territory {:kingdom :brynthia :row 5 :idx 2}) {:kingdom :brynthia :row 5 :idx 2})))
+    (is (= {:valid? false
+            :message "Cannot move while in battle!"
+            :encounter-result :fighting-lost-round}
+          (valid-move (assoc player :encounter-result :fighting-lost-round :current-territory {:kingdom :brynthia :row 5 :idx 2}) {:kingdom :brynthia :row 5 :idx 2})))))
 
 (deftest safe-move-test
   (testing "Passes the player through"
