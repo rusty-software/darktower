@@ -1,7 +1,8 @@
 (ns darktower.server.game.bazaar-test
   (:require [clojure.test :refer :all]
             [darktower.server.test-helpers :refer :all]
-            [darktower.server.game.bazaar :refer :all]))
+            [darktower.server.game.bazaar :refer :all]
+            [darktower.server.game.main :as main]))
 
 (deftest init-bazaar-test
   (testing "initializes with basics and things the player is missing"
@@ -29,3 +30,23 @@
       (is (= :scout (:current-item (next-item (assoc bazaar :current-item :beast)))))
       (is (= :healer (:current-item (next-item (assoc bazaar :current-item :scout)))))
       (is (= :warrior (:current-item (next-item (assoc bazaar :current-item :healer))))))))
+
+(deftest haggle-test
+  (let [bazaar {:current-item :warrior
+                :warrior 8
+                :food 1
+                :beast 20
+                :scout 19
+                :healer 18}]
+    (testing "given successful haggle, reduces price by 1"
+      (with-redefs [main/roll-dn (constantly 2)]
+        (is (= 7 (:warrior (haggle bazaar))))
+        (is (= 19 (:beast (haggle (assoc bazaar :current-item :beast)))))
+        (is (= 18 (:scout (haggle (assoc bazaar :current-item :scout)))))
+        (is (= 17 (:healer (haggle (assoc bazaar :current-item :healer)))))))
+    (testing "given failed haggle, closes bazaar"
+      (with-redefs [main/roll-dn (constantly 1)]
+        (is (:closed? (haggle bazaar)))))
+    (testing "bazaar closes when trying to haggle below min cost"
+      (with-redefs [main/roll-dn (constantly 2)]
+        (is (:closed? (haggle (assoc bazaar :warrior 4))))))))
