@@ -233,3 +233,6 @@
 
 (defn next-item [player]
   {:player (assoc player :encounter-result :bazaar :bazaar-inventory (bazaar/next-item (:bazaar-inventory player)))})
+
+(defn haggle [player]
+  {:player (assoc player :encounter-result :bazaar :bazaar-inventory (bazaar/haggle (:bazaar-inventory player)))})

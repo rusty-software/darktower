@@ -106,6 +106,12 @@
     (let [players (get-in @model/app-state [token :players])]
       (broadcast-game-state players [:darktower/bazaar (get @model/app-state token)]))))
 
+(defmethod event :darktower/haggle [{:keys [uid ?data]}]
+  (let [{:keys [token]} ?data]
+    (model/haggle! uid token)
+    (let [players (get-in @model/app-state [token :players])]
+      (broadcast-game-state players [:darktower/bazaar (get @model/app-state token)]))))
+
 (defn start-router []
   (log/info "Starting router...")
   (defonce router

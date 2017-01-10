@@ -121,9 +121,12 @@
    (display-buttons [fight-button flee-button])])
 
 (defn bazaar-display [bazaar-inventory]
-  [:div
-   [:span (str "Cost: " (get bazaar-inventory (:current-item bazaar-inventory)))]
-   (display-buttons [next-button buy-button haggle-button end-turn-button])])
+  (if (not (:closed? bazaar-inventory))
+    [:div
+     [:span (str "Cost: " (get bazaar-inventory (:current-item bazaar-inventory)))]
+     (display-buttons [next-button buy-button haggle-button end-turn-button])]
+    [:div
+     (display-buttons [end-turn-button])]))
 
 (defn message-display [message]
   [:div
