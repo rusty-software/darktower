@@ -236,3 +236,6 @@
 
 (defn haggle [player]
   {:player (assoc player :encounter-result :bazaar :bazaar-inventory (bazaar/haggle (:bazaar-inventory player)))})
+
+(defn buy-item [player]
+  )

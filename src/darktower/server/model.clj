@@ -145,3 +145,5 @@
 
 (defn haggle! [uid token]
   (swap! app-state haggle uid token))
+
+(defn buy-item! [uid token])

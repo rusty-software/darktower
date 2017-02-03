@@ -378,3 +378,7 @@
         (is (= 25 nwarriors))
         (is (= 18 dfood nfood))
         (is (= 20 dgold ngold))))))
+
+(deftest buy-item-test
+  (testing "Given enough gold, item is added to player inventory, gold is reduced by item cost")
+  (testing "Given not enough gold, item is not added to inventory, gold is not reduced"))
