@@ -5,3 +5,6 @@
 
 (defn roll-dn [n]
   (rand-nth (range 1 (inc n))))
+
+(defn won-the-toss? []
+  (= 2 (roll-dn 2)))

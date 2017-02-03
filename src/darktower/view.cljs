@@ -153,6 +153,7 @@
               [:div
                (let [images-key (cond
                                   awarded #{encounter-result awarded}
+                                  (:closed? bazaar-inventory) :bazaar-closed
                                   (= :bazaar encounter-result) (:current-item bazaar-inventory)
                                   (= "Key missing!" message) :key-missing
                                   :else encounter-result)

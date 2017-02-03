@@ -29,10 +29,12 @@
       (assoc bazaar :current-item (get items 0))
       (assoc bazaar :current-item (get items (inc current-item-idx))))))
 
+(defn- haggled-too-far? [item new-price]
+  (< new-price (get min-price item)))
+
 (defn haggle [bazaar]
-  (let [roll (main/roll-dn 2)
-        new-price (dec (get bazaar (:current-item bazaar)))]
-    (if (or (= 1 roll)
-            (< new-price (get min-price (:current-item bazaar))))
+  (let [new-price (dec (get bazaar (:current-item bazaar)))]
+    (if (or (not (main/won-the-toss?))
+            (haggled-too-far? (:current-item bazaar) new-price))
       (assoc bazaar :closed? true)
       (assoc bazaar (:current-item bazaar) new-price))))

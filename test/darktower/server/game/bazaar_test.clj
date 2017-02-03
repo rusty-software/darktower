@@ -31,6 +31,12 @@
       (is (= :healer (:current-item (next-item (assoc bazaar :current-item :scout)))))
       (is (= :warrior (:current-item (next-item (assoc bazaar :current-item :healer))))))))
 
+(deftest haggled-too-far?-test
+  (testing "given a new price below the minimum, haggled too far"
+    (is (#'darktower.server.game.bazaar/haggled-too-far? :warrior 3)))
+  (testing "given a new price at the minimum, haggle is ok"
+    (is (not (#'darktower.server.game.bazaar/haggled-too-far? :warrior 4)))))
+
 (deftest haggle-test
   (let [bazaar {:current-item :warrior
                 :warrior 8
