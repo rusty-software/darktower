@@ -379,6 +379,23 @@
         (is (= 18 dfood nfood))
         (is (= 20 dgold ngold))))))
 
+(deftest funds-check!-test
+  (testing "given player with gold less then current bazaar item cost, insufficient funds indicator is added"
+    (let [player (assoc player :gold 7
+                               :bazaar-inventory {:current-item :warrior :warrior 8})]
+      (is (:insufficient-funds? (#'darktower.server.game/funds-check! player)))))
+  (testing "given player with gold at least current bazaar item cost, no insufficient funds indicator exists"
+    (let [player (assoc player :gold 8
+                               :bazaar-inventory {:current-item :warrior :warrior 8})]
+      (is (not (:insufficient-funds? (#'darktower.server.game/funds-check! player)))))))
+
 (deftest buy-item-test
-  (testing "Given enough gold, item is added to player inventory, gold is reduced by item cost")
-  (testing "Given not enough gold, item is not added to inventory, gold is not reduced"))
+  (let [bazaar {:current-item :warrior
+                :warrior 8
+                :food 1
+                :beast 20
+                :scout 19
+                :healer 18}
+        player (assoc player :gold 9)]
+    (testing "Given enough gold, item is added to player inventory, gold is reduced by item cost")
+    (testing "Given not enough gold, item is not added to inventory, gold is not reduced")))

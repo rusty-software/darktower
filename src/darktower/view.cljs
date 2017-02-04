@@ -120,11 +120,13 @@
    [:span (str warriors " warriors; " brigands " brigands")]
    (display-buttons [fight-button flee-button])])
 
-(defn bazaar-display [bazaar-inventory]
+(defn bazaar-display [bazaar-inventory insufficient-funds?]
   (if (not (:closed? bazaar-inventory))
     [:div
      [:span (str "Cost: " (get bazaar-inventory (:current-item bazaar-inventory)))]
-     (display-buttons [next-button buy-button haggle-button end-turn-button])]
+     (if insufficient-funds?
+       (display-buttons [next-button haggle-button end-turn-button])
+       (display-buttons [next-button buy-button haggle-button end-turn-button]))]
     [:div
      (display-buttons [end-turn-button])]))
 
@@ -146,7 +148,7 @@
         [:br]
         [:div
          {:class "dt-display"}
-         (let [{:keys [encounter-result awarded bazaar-inventory warriors brigands message]} (current-player)]
+         (let [{:keys [encounter-result awarded bazaar-inventory insufficient-funds? warriors brigands message]} (current-player)]
            [:div
             {:class "dt-image"}
             (when encounter-result
@@ -166,7 +168,7 @@
                  (battle-display warriors brigands)
 
                  (= :bazaar encounter-result)
-                 (bazaar-display bazaar-inventory)
+                 (bazaar-display bazaar-inventory insufficient-funds?)
 
                  message
                  (message-display message)

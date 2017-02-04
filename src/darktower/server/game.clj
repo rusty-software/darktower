@@ -231,11 +231,28 @@
 (defn flee [{:keys [warriors] :as player}]
   {:player (assoc player :encounter-result :fled :warriors (max 1 (- warriors 1)))})
 
+(defn- bazaar-interaction [player interaction]
+  (assoc player :encounter-result :bazaar :bazaar-inventory (interaction (:bazaar-inventory player))))
+
+(defn- funds-check! [player]
+  (let [bazaar (:bazaar-inventory player)
+        current-item (:current-item bazaar)
+        player (dissoc player :insufficient-funds?)]
+    (if (< (:gold player) (get bazaar current-item))
+      (assoc player :insufficient-funds? true)
+      player)))
+
 (defn next-item [player]
-  {:player (assoc player :encounter-result :bazaar :bazaar-inventory (bazaar/next-item (:bazaar-inventory player)))})
+  (let [player (-> player
+                   (bazaar-interaction bazaar/next-item)
+                   (funds-check!))]
+    {:player player}))
 
 (defn haggle [player]
-  {:player (assoc player :encounter-result :bazaar :bazaar-inventory (bazaar/haggle (:bazaar-inventory player)))})
+  (let [player (-> player
+                   (bazaar-interaction bazaar/haggle)
+                   (funds-check!))]
+    {:player player}))
 
 (defn buy-item [player]
   )
