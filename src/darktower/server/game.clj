@@ -234,7 +234,7 @@
 (defn- bazaar-interaction [player interaction]
   (assoc player :encounter-result :bazaar :bazaar-inventory (interaction (:bazaar-inventory player))))
 
-(defn- funds-check! [player]
+(defn- funds-check [player]
   (let [bazaar (:bazaar-inventory player)
         current-item (:current-item bazaar)
         player (dissoc player :insufficient-funds?)]
@@ -245,14 +245,23 @@
 (defn next-item [player]
   (let [player (-> player
                    (bazaar-interaction bazaar/next-item)
-                   (funds-check!))]
+                   (funds-check))]
     {:player player}))
 
 (defn haggle [player]
   (let [player (-> player
                    (bazaar-interaction bazaar/haggle)
-                   (funds-check!))]
+                   (funds-check))]
     {:player player}))
 
 (defn buy-item [player]
-  )
+  (let [bazaar (:bazaar-inventory player)
+        current-item (:current-item bazaar)
+        item-cost (get bazaar current-item)
+        player-checked (funds-check player)]
+    (if (not (:insufficient-funds? player-checked))
+      (let [player (-> player
+                       (update :gold - item-cost)
+                       (update current-item inc))]
+        {:player player})
+      {:player player})))

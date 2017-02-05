@@ -2,15 +2,15 @@
   (:require [darktower.server.game.main :as main]))
 
 (def min-price
-  {:warrior 4
+  {:warriors 4
    :food 1
    :beast 15
    :scout 15
    :healer 15})
 
 (defn init [player]
-  (cond-> {:current-item :warrior
-           :warrior (+ (main/roll-dn 8) 3)
+  (cond-> {:current-item :warriors
+           :warriors (+ (main/roll-dn 8) 3)
            :food 1}
 
     (not (:beast player))
