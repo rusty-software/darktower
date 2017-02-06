@@ -407,7 +407,12 @@
         (is (= player (:player result)))))))
 
 (deftest add-item-test
-  (let [player (assoc player :warriors 98 :food 98)]
-    (testing "given an item that should be incremented, increments without going over 99"
-      (is (= 99 (:warriors (#'darktower.server.game/add-item player :warriors))))
-      #_(is (= 99 (:food (#'darktower.server.game/add-item player :food)))))))
+  (testing "given an item that should be incremented, increments without going over 99"
+    (is (= 99 (#'darktower.server.game/add-item 98 :warriors)))
+    (is (= 99 (#'darktower.server.game/add-item 99 :warriors)))
+    (is (= 99 (#'darktower.server.game/add-item 98 :food)))
+    (is (= 99 (#'darktower.server.game/add-item 99 :food))))
+  (testing "given a boolean item, returns true"
+    (is (#'darktower.server.game/add-item false :scout))
+    (is (#'darktower.server.game/add-item nil :healer))
+    (is (#'darktower.server.game/add-item true :beast))))

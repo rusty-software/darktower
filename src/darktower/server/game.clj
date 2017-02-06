@@ -254,12 +254,10 @@
                    (funds-check))]
     {:player player}))
 
-(defn- add-item [player item]
-  (println "player" player)
-  (println "item" item)
+(defn- add-item [val item]
   (cond
-    (#{:food :warriors} item) (update player item inc)
-    (#{:beast :scout :healeer} item) (assoc player item true)))
+    (#{:food :warriors} item) (min 99 (inc val))
+    (#{:beast :scout :healer} item) true))
 
 (defn buy-item [player]
   (let [bazaar (:bazaar-inventory player)
