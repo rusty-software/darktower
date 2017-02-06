@@ -146,4 +146,14 @@
 (defn haggle! [uid token]
   (swap! app-state haggle uid token))
 
-(defn buy-item! [uid token])
+(defn buy-item [app-state uid token]
+  (let [game-state (get app-state token)]
+    (if (= uid (:current-player game-state))
+      (let [player (player-by-uid game-state uid)
+            updated-player (game/buy-item player)
+            updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player updated-player)))]
+        (assoc app-state token updated-game-state))
+      app-state)))
+
+(defn buy-item! [uid token]
+  (swap! app-state buy-item uid token))

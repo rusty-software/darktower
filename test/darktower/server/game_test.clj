@@ -405,3 +405,9 @@
       (let [player (assoc player :gold 7 :warriors 24 :bazaar-inventory bazaar)
             result (buy-item player)]
         (is (= player (:player result)))))))
+
+(deftest add-item-test
+  (let [player (assoc player :warriors 98 :food 98)]
+    (testing "given an item that should be incremented, increments without going over 99"
+      (is (= 99 (:warriors (#'darktower.server.game/add-item player :warriors))))
+      #_(is (= 99 (:food (#'darktower.server.game/add-item player :food)))))))

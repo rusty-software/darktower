@@ -63,7 +63,7 @@
    #{:sanctuary #{:warriors :food :gold}} {:images ["img/warriors.jpg" "img/food.jpg" "img/gold.jpg"]}
    #{:sanctuary #{:food :gold}} {:images ["img/food.jpg" "img/gold.jpg"]}
    :bazaar-closed {:images ["img/bazaar.jpg"]}
-   :warrior {:images ["img/warrior.jpg"]}
+   :warriors {:images ["img/warrior.jpg"]}
    :food {:images ["img/food.jpg"]}
    :beast {:images ["img/beast.jpg"]}
    :scout {:images ["img/scout.jpg"]}

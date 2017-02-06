@@ -254,6 +254,13 @@
                    (funds-check))]
     {:player player}))
 
+(defn- add-item [player item]
+  (println "player" player)
+  (println "item" item)
+  (cond
+    (#{:food :warriors} item) (update player item inc)
+    (#{:beast :scout :healeer} item) (assoc player item true)))
+
 (defn buy-item [player]
   (let [bazaar (:bazaar-inventory player)
         current-item (:current-item bazaar)
@@ -262,6 +269,6 @@
     (if (not (:insufficient-funds? player-checked))
       (let [player (-> player
                        (update :gold - item-cost)
-                       (update current-item inc))]
+                       (update current-item add-item current-item))]
         {:player player})
       {:player player})))
