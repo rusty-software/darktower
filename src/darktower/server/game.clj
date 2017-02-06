@@ -267,6 +267,7 @@
     (if (not (:insufficient-funds? player-checked))
       (let [player (-> player
                        (update :gold - item-cost)
-                       (update current-item add-item current-item))]
+                       (update current-item add-item current-item)
+                       (funds-check))]
         {:player player})
-      {:player player})))
+      {:player player-checked})))

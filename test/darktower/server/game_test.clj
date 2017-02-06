@@ -396,15 +396,21 @@
                 :beast 20
                 :scout 19
                 :healer 18}]
-    (testing "Given enough gold, item is added to player inventory, gold is reduced by item cost"
+    (testing "Given plenty of gold, item is added to inventory, gold reduced by cost"
+      (let [player (assoc player :gold 99 :warriors 24 :bazaar-inventory bazaar)
+            result (buy-item player)]
+        (is (= 25 (get-in result [:player :warriors])))
+        (is (= 91 (get-in result [:player :gold])))))
+    (testing "Given barely enough gold, item is added to inventory, gold reduced by cost, insufficient funds is marked"
       (let [player (assoc player :gold 9 :warriors 24 :bazaar-inventory bazaar)
             result (buy-item player)]
         (is (= 25 (get-in result [:player :warriors])))
-        (is (= 1 (get-in result [:player :gold])))))
+        (is (= 1 (get-in result [:player :gold])))
+        (is (get-in result [:player :insufficient-funds?]))))
     (testing "Given not enough gold, item is not added to inventory, gold is not reduced"
       (let [player (assoc player :gold 7 :warriors 24 :bazaar-inventory bazaar)
             result (buy-item player)]
-        (is (= player (:player result)))))))
+        (is (= (assoc player :insufficient-funds? true) (:player result)))))))
 
 (deftest add-item-test
   (testing "given an item that should be incremented, increments without going over 99"
