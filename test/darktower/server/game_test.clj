@@ -47,7 +47,8 @@
   (is (not (requires-key? player {:kingdom :durnin :row 1 :idx 2})))
   (is (requires-key? player {:kingdom :durnin :type :frontier}))
   (is (not (requires-key? player {:kingdom :zenon :row 1 :idx 2})))
-  (is (requires-key? player {:kingdom :zenon :type :frontier})))
+  (is (requires-key? player {:kingdom :zenon :type :frontier}))
+  (is (requires-key? player {:kingdom :arisilon :type :dark-tower})))
 
 (deftest valid-move-test
   (testing "Movement allowed to adjacent territories"
