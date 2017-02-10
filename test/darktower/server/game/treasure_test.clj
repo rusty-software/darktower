@@ -11,7 +11,9 @@
   (is (not (has-key? (assoc player :brass-key true) {:kingdom :durnin :territory-type :frontier})))
   (is (has-key? (assoc player :brass-key true :silver-key true) {:kingdom :durnin :territory-type :frontier}))
   (is (not (has-key? (assoc player :brass-key true :silver-key true) {:kingdom :zenon :territory-type :frontier})))
-  (is (has-key? (assoc player :brass-key true :silver-key true :gold-key true) {:kingdom :zenon :territory-type :frontier})))
+  (is (has-key? (assoc player :brass-key true :silver-key true :gold-key true) {:kingdom :zenon :territory-type :frontier}))
+  (is (not (has-key? (assoc player :brass-key true :silver-key true) {:kingdom :arisilon :territory-type :dark-tower})))
+  (is (has-key? (assoc player :brass-key true :silver-key true :gold-key true) {:kingdom :arisilon :territory-type :dark-tower})))
 
 (deftest adjust-gold-test
   (testing "Gold amount is limited by the number of warriors"

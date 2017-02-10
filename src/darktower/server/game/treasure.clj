@@ -5,11 +5,13 @@
 (def offset-key [true :brass-key :silver-key :gold-key])
 
 (defn has-key? [player destination]
-  (let [offset (board/kingdom-offset (:kingdom player) (:kingdom destination))
-        key (get offset-key offset)]
-    (if (zero? offset)
-      true
-      (get player key))))
+  (if (= :dark-tower (:territory-type destination))
+    (and (:brass-key player) (:silver-key player) (:gold-key player))
+    (let [offset (board/kingdom-offset (:kingdom player) (:kingdom destination))
+          key (get offset-key offset)]
+      (if (zero? offset)
+        true
+        (get player key)))))
 
 (defn can-receive-treasure?
   ([player]
