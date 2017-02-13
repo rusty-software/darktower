@@ -7,6 +7,9 @@
 (defn update-player-name! [name]
   (swap! game-state assoc :player-name name))
 
+(defn update-difficulty! [difficulty]
+  (swap! game-state assoc :difficulty difficulty))
+
 (defn update-joining-game-token! [token]
   (swap! game-state assoc :joining-game-token token))
 

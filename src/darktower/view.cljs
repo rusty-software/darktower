@@ -202,6 +202,14 @@
       :value (:player-name @model/game-state)
       :on-change #(model/update-player-name! (-> % .-target .-value))}]]])
 
+(defn difficulty-input []
+  [:div
+   "Difficulty:"
+   [:select {:on-change #(model/update-difficulty! (.. % -target -value))}
+    [:option {:value 1} "17 - 32 Brigands"]
+    [:option {:value 2} "33 - 64 Brigands"]
+    [:option {:value 3} "17 - 64 Brigands"]]])
+
 (defn new-game-button []
   [:button
    {:id "btn-new-game"
@@ -271,10 +279,12 @@
     [:tbody
      (let [server-state (:server-state @model/game-state)]
        (if (not server-state)
-         [:tr
-          [:td
-           {:style {:text-align "center"}}
-           [new-game-button]]]
+         (doall
+           [:tr
+            [:td
+             {:style {:text-align "center"}}
+             [difficulty-input]
+             [new-game-button]]])
          (for [row (initializing-table-rows)]
            ^{:key row}
            row)))]]])
