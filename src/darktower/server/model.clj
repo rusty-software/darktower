@@ -41,8 +41,8 @@
   (swap! app-state join-game uid name token))
 
 (defn start-game [app-state token]
-  (let [game-state (get app-state token)
-        initialized-game (game/initialize-game (:players game-state))]
+  (let [{:keys [players difficulty] :as game-state} (get app-state token)
+        initialized-game (game/initialize-game players difficulty)]
     (assoc app-state token (merge game-state initialized-game {:game-on? true}))))
 
 (defn start-game! [token]

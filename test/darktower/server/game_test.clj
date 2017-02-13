@@ -28,7 +28,7 @@
   (let [players [{:uid "14" :name "brian" :kingdom :zenon}
                  {:uid "12" :name "michael" :kingdom :brynthia}
                  {:uid "15" :name "rusty" :kingdom :arisilon}]
-        game-state (initialize-game players)]
+        game-state (initialize-game players 1)]
     (testing "Player are listed appropriately"
       (let [init-players (:players game-state)
             player-order (:player-order game-state)]
@@ -37,7 +37,18 @@
         (is (= "12" (second player-order)))
         (is (= "15" (last player-order)))))
     (testing "Current player is first in players list"
-      (is (= "14" (:current-player game-state))))))
+      (is (= "14" (:current-player game-state))))
+    (testing "Riddle of the Keys is set"
+      (is (some #{:brass-key} (:riddle-of-the-keys game-state)))
+      (is (some #{:silver-key} (:riddle-of-the-keys game-state)))
+      (is (some #{:gold-key} (:riddle-of-the-keys game-state))))
+    (testing "Difficulty level specifies the number of brigands"
+      (let [game-state (initialize-game players 1)]
+        (is (< 16 (:dark-tower-brigands game-state) 33)))
+      (let [game-state (initialize-game players 2)]
+        (is (< 32 (:dark-tower-brigands game-state) 65)))
+      (let [game-state (initialize-game players 3)]
+        (is (< 16 (:dark-tower-brigands game-state) 65))))))
 
 (deftest requires-key?-test
   (is (not (requires-key? player {:kingdom :arisilon :row 1 :idx 2})))

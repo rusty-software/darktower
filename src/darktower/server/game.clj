@@ -22,12 +22,17 @@
                 :pegasus false
                 :sword false))
 
-(defn initialize-game [players]
+(defn initialize-game [players difficulty]
   (let [init-players (map initialize-player players)]
     {:players init-players
      :player-order (vec (map :uid init-players))
      :current-player (:uid (first init-players))
-     :dragon-hoard {:warriors 0 :gold 0}}))
+     :dragon-hoard {:warriors 0 :gold 0}
+     :riddle-of-the-keys (shuffle [:brass-key :silver-key :gold-key])
+     :dark-tower-brigands (case difficulty
+                            1 (rand-nth (range 17 33))
+                            2 (rand-nth (range 32 65))
+                            (rand-nth (range 17 65)))}))
 
 (defn normalized-territory [{:keys [kingdom row idx type]}]
   (cond-> {:kingdom kingdom}
