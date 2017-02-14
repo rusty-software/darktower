@@ -13,6 +13,12 @@
       (is (= :gold-key (next-key keys :brass-key)))
       (is (= :brass-key (next-key keys :gold-key))))))
 
-(deftest guess-key-test
-  (testing "given a correct guess on first key, advances to second")
-  (testing "given a correct guess on second key, advances to dark tower battle"))
+(deftest try-key-test
+  (testing "given a correct guess on first key, advances to second"
+    (let [result (try-key [:gold-key :brass-key :silver-key] :gold-key)]
+      (is (= [:brass-key :silver-key] (:remaining-keys result)))
+      (is (= :successful-try (:result result)))))
+  (testing "given a correct guess on second key, advances to dark tower battle"
+    (let [result (try-key [:brass-key :silver-key] :brass-key)]
+      (is (= :dark-tower-battle (:result result)))))
+  (testing "given an incorrect guess, "))

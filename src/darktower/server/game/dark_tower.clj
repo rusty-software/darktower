@@ -5,3 +5,6 @@
     (if (= current-item-idx (dec (count keys)))
       (get keys 0)
       (get keys (inc current-item-idx)))))
+
+(defn try-key [remaining-keys key]
+  )
