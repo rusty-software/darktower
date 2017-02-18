@@ -21,4 +21,6 @@
   (testing "given a correct guess on second key, advances to dark tower battle"
     (let [result (try-key [:brass-key :silver-key] :brass-key)]
       (is (= :dark-tower-battle (:result result)))))
-  (testing "given an incorrect guess, "))
+  (testing "given an incorrect guess, bad guess is returned"
+    (let [result (try-key [:gold-key :brass-key :silver-key] :silver-key)]
+      (is (= :wrong-key (:result result))))))
