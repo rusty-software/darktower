@@ -164,8 +164,7 @@
             updated-player (game/next-key player)
             updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player updated-player)))]
         (assoc app-state token updated-game-state))
-      app-state))
-  app-state)
+      app-state)))
 
 (defn next-key! [uid token]
   (swap! app-state next-key uid token))

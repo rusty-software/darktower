@@ -14,14 +14,14 @@
                 :warriors 10
                 :gold 30
                 :food 25
-                :scout false
-                :healer false
-                :beast false
+                :scout true
+                :healer true
+                :beast true
                 :brass-key true
                 :silver-key true
                 :gold-key true
                 :pegasus true
-                :sword false))
+                :sword true))
 
 (defn initialize-game [players difficulty]
   (let [init-players (map initialize-player players)]
@@ -282,7 +282,8 @@
 (defn next-key [player]
   (let [dark-tower-status (:dark-tower-status player)
         current-key (:current-key dark-tower-status)
-        remaining-keys (:remaining-keys dark-tower-status)]
-    (doto
-      (update-in player [:dark-tower-status :current-key] (dark-tower/next-key remaining-keys current-key))
-      (log/info "<--- next keyed player"))))
+        remaining-keys (:remaining-keys dark-tower-status)
+        current-key (dark-tower/next-key remaining-keys current-key)
+        dark-tower-status (assoc dark-tower-status :current-key current-key)
+        player (assoc player :dark-tower-status dark-tower-status)]
+    {:player player}))
