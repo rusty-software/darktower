@@ -177,7 +177,30 @@ td.bold {
     font-size: 12px;
     cursor: pointer;
 }
-
+.button.no {
+    background-color: #87CEEB;
+    border-color: #c0c0c0;
+    border: 1px solid;
+    border-radius: 4px;
+    color: white;
+    padding: 10px 10px;
+    text-align: center;
+    display: inline-block;
+    font-size: 12px;
+    cursor: pointer;
+}
+.button.yes {
+    background-color: #5cb85c;
+    border-color: #4cae4c;
+    border: 1px solid;
+    border-radius: 4px;
+    color: white;
+    padding: 10px 10px;
+    text-align: center;
+    display: inline-block;
+    font-size: 12px;
+    cursor: pointer;
+}
 
 /**
  * Miscellany

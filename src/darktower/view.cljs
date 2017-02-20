@@ -68,7 +68,10 @@
    :beast {:images ["img/beast.jpg"]}
    :scout {:images ["img/scout.jpg"]}
    :healer {:images ["img/healer.jpg"]}
-   :key-missing {:images ["img/keymissing.jpg"]}})
+   :key-missing {:images ["img/keymissing.jpg"]}
+   :brass-key {:images ["img/brasskey.jpg"]}
+   :silver-key {:images ["img/silverkey.jpg"]}
+   :gold-key {:images ["img/goldkey.jpg"]}})
 
 (defn display-buttons [buttons]
   [:div (for [button buttons] [button])])
@@ -115,6 +118,20 @@
     :on-click #(communication/haggle)}
    "Haggle"])
 
+(defn no-button []
+  [:button
+   {:id "btn-no"
+    :class "button no"
+    :on-click #(communication/next-key)}
+   "No"])
+
+(defn yes-button []
+  [:button
+   {:id "btn-yes"
+    :class "button yes"
+    :on-click #(communication/try-key)}
+   "Yes"])
+
 (defn battle-display [warriors brigands]
   [:div
    [:span (str warriors " warriors; " brigands " brigands")]
@@ -129,6 +146,11 @@
        (display-buttons [next-button buy-button haggle-button end-turn-button]))]
     [:div
      (display-buttons [end-turn-button])]))
+
+(defn dark-tower-display [dark-tower-status]
+  [:div
+   [:span "Does this key fit the lock?"]
+   (display-buttons [no-button yes-button end-turn-button])])
 
 (defn message-display [message]
   [:div
@@ -148,7 +170,7 @@
         [:br]
         [:div
          {:class "dt-display"}
-         (let [{:keys [encounter-result awarded bazaar-inventory insufficient-funds? warriors brigands message]} (current-player)]
+         (let [{:keys [encounter-result awarded bazaar-inventory dark-tower-status insufficient-funds? warriors brigands message]} (current-player)]
            [:div
             {:class "dt-image"}
             (when encounter-result
@@ -157,6 +179,7 @@
                                   awarded #{encounter-result awarded}
                                   (:closed? bazaar-inventory) :bazaar-closed
                                   (= :bazaar encounter-result) (:current-item bazaar-inventory)
+                                  (= :dark-tower encounter-result) (:current-key dark-tower-status)
                                   (= "Key missing!" message) :key-missing
                                   :else encounter-result)
                      images (get-in encounter-result-specs [images-key :images])]
@@ -169,6 +192,9 @@
 
                  (= :bazaar encounter-result)
                  (bazaar-display bazaar-inventory insufficient-funds?)
+
+                 (= :dark-tower encounter-result)
+                 (dark-tower-display dark-tower-status)
 
                  message
                  (message-display message)

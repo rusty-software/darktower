@@ -156,3 +156,17 @@
 
 (defn buy-item! [uid token]
   (swap! app-state buy-item uid token))
+
+(defn next-key [app-state uid token]
+  (log/info "next-key fired!")
+  app-state)
+
+(defn next-key! [uid token]
+  (swap! app-state next-key uid token))
+
+(defn try-key [app-state uid token]
+  (log/info "try-key fired!")
+  app-state)
+
+(defn try-key! [uid token]
+  (swap! app-state try-key uid token))

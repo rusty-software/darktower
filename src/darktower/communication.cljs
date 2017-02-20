@@ -54,6 +54,12 @@
 (defn haggle []
   (chsk-send! [:darktower/haggle {:token (get-in @model/game-state [:server-state :token])}]))
 
+(defn next-key []
+  (chsk-send! [:darktower/next-key {:token (get-in @model/game-state [:server-state :token])}]))
+
+(defn try-key []
+  (chsk-send! [:darktower/try-key {:token (get-in @model/game-state [:server-state :token])}]))
+
 (defmulti event-msg-handler :id)
 
 (defmethod event-msg-handler :default [{:keys [event]}]

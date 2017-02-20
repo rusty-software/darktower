@@ -118,6 +118,18 @@
     (let [players (get-in @model/app-state [token :players])]
       (broadcast-game-state players [:darktower/bazaar (get @model/app-state token)]))))
 
+(defmethod event :darktower/next-key [{:keys [uid ?data]}]
+  (let [{:keys [token]} ?data]
+    (model/next-key! uid token)
+    (let [players (get-in @model/app-state [token :players])]
+      (broadcast-game-state players [:darktower/dark-tower (get @model/app-state token)]))))
+
+(defmethod event :darktower/try-key [{:keys [uid ?data]}]
+  (let [{:keys [token]} ?data]
+    (model/try-key! uid token)
+    (let [players (get-in @model/app-state [token :players])]
+      (broadcast-game-state players [:darktower/dark-tower (get @model/app-state token)]))))
+
 (defn start-router []
   (log/info "Starting router...")
   (defonce router

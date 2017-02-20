@@ -1,5 +1,18 @@
 (ns darktower.server.game.dark-tower)
 
+(defn init []
+  {:current-key :brass-key
+   :remaining-keys [:brass-key :silver-key :gold-key]})
+
+(defn riddle-of-the-keys []
+  (shuffle [:brass-key :silver-key :gold-key]))
+
+(defn brigands [difficulty]
+  (case difficulty
+    1 (rand-nth (range 17 33))
+    2 (rand-nth (range 32 65))
+    (rand-nth (range 17 65))))
+
 (defn next-key [keys current-key]
   (let [current-item-idx (.indexOf keys current-key)]
     (if (= current-item-idx (dec (count keys)))

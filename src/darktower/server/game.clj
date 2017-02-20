@@ -6,6 +6,7 @@
             [darktower.server.game.main :as main]
             [darktower.server.game.treasure :as treasure]
             [darktower.server.game.bazaar :as bazaar]
+            [darktower.server.game.dark-tower :as dark-tower]
             [clojure.set :as set]))
 
 (s/defn initialize-player [player] :- schema/Player
@@ -28,11 +29,8 @@
      :player-order (vec (map :uid init-players))
      :current-player (:uid (first init-players))
      :dragon-hoard {:warriors 0 :gold 0}
-     :riddle-of-the-keys (shuffle [:brass-key :silver-key :gold-key])
-     :dark-tower-brigands (case difficulty
-                            1 (rand-nth (range 17 33))
-                            2 (rand-nth (range 32 65))
-                            (rand-nth (range 17 65)))}))
+     :riddle-of-the-keys (dark-tower/riddle-of-the-keys)
+     :dark-tower-brigands (dark-tower/brigands difficulty)}))
 
 (defn normalized-territory [{:keys [kingdom row idx type]}]
   (cond-> {:kingdom kingdom}
@@ -221,7 +219,7 @@
   {:player (assoc player :encounter-result :bazaar :bazaar-inventory (bazaar/init player))})
 
 (defmethod encounter-location :dark-tower [{:keys [player]}]
-  {:player (assoc player :encounter-result :dark-tower :remaining-keys [:brass-key :silver-key :gold-key])})
+  {:player (assoc player :encounter-result :dark-tower :dark-tower-status (dark-tower/init))})
 
 (defn encounter [player dragon-hoard]
   ;; TODO: implement/increment move count
