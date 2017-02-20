@@ -65,7 +65,6 @@
         updated-game-state (assoc game-state :current-player next)]
     (assoc app-state token updated-game-state)))
 
-;; TODO: should not be allowed to move while in a fight
 (defn move [app-state uid token destination]
   (let [game-state (get app-state token)]
     (if (= uid (:current-player game-state))

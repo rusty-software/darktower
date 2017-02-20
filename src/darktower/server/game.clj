@@ -16,10 +16,10 @@
                 :scout false
                 :healer false
                 :beast false
-                :brass-key false
-                :silver-key false
-                :gold-key false
-                :pegasus false
+                :brass-key true
+                :silver-key true
+                :gold-key true
+                :pegasus true
                 :sword false))
 
 (defn initialize-game [players difficulty]
@@ -47,10 +47,11 @@
           (assoc :type type)))
 
 (defn requires-key? [player destination]
-  (or (= :dark-tower (:type destination))
-      (and
-        (= :frontier (:type destination))
-        (not= (:kingdom player) (:kingdom destination)))))
+  (doto (or (= :dark-tower (:type destination))
+            (and
+              (= :frontier (:type destination))
+              (not= (:kingdom player) (:kingdom destination))))
+    (log/info "<-- requires-key?")))
 
 (defn valid-move [player destination]
   (let [current-territory (:current-territory player)
@@ -219,6 +220,9 @@
 
 (defmethod encounter-location :bazaar [{:keys [player]}]
   {:player (assoc player :encounter-result :bazaar :bazaar-inventory (bazaar/init player))})
+
+(defmethod encounter-location :dark-tower [{:keys [player]}]
+  {:player (assoc player :encounter-result :dark-tower :remaining-keys [:brass-key :silver-key :gold-key])})
 
 (defn encounter [player dragon-hoard]
   ;; TODO: implement/increment move count

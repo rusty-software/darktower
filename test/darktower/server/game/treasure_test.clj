@@ -5,15 +5,15 @@
             [darktower.server.game.treasure :refer :all]))
 
 (deftest has-key?-test
-  (is (has-key? player {:kingdom :arisilon :territory-type :frontier}))
-  (is (not (has-key? player {:kingdom :brynthia :territory-type :frontier})))
-  (is (has-key? (assoc player :brass-key true) {:kingdom :brynthia :territory-type :frontier}))
-  (is (not (has-key? (assoc player :brass-key true) {:kingdom :durnin :territory-type :frontier})))
-  (is (has-key? (assoc player :brass-key true :silver-key true) {:kingdom :durnin :territory-type :frontier}))
-  (is (not (has-key? (assoc player :brass-key true :silver-key true) {:kingdom :zenon :territory-type :frontier})))
-  (is (has-key? (assoc player :brass-key true :silver-key true :gold-key true) {:kingdom :zenon :territory-type :frontier}))
-  (is (not (has-key? (assoc player :brass-key true :silver-key true) {:kingdom :arisilon :territory-type :dark-tower})))
-  (is (has-key? (assoc player :brass-key true :silver-key true :gold-key true) {:kingdom :arisilon :territory-type :dark-tower})))
+  (is (has-key? player {:kingdom :arisilon :type :frontier}))
+  (is (not (has-key? player {:kingdom :brynthia :type :frontier})))
+  (is (has-key? (assoc player :brass-key true) {:kingdom :brynthia :type :frontier}))
+  (is (not (has-key? (assoc player :brass-key true) {:kingdom :durnin :type :frontier})))
+  (is (has-key? (assoc player :brass-key true :silver-key true) {:kingdom :durnin :type :frontier}))
+  (is (not (has-key? (assoc player :brass-key true :silver-key true) {:kingdom :zenon :type :frontier})))
+  (is (has-key? (assoc player :brass-key true :silver-key true :gold-key true) {:kingdom :zenon :type :frontier}))
+  (is (not (has-key? (assoc player :brass-key true :silver-key true) {:kingdom :arisilon :type :dark-tower})))
+  (is (has-key? (assoc player :brass-key true :silver-key true :gold-key true) {:kingdom :arisilon :type :dark-tower})))
 
 (deftest adjust-gold-test
   (testing "Gold amount is limited by the number of warriors"
