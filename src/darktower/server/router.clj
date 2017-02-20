@@ -49,12 +49,15 @@
   (log/info "Unhandled event: " event))
 
 (defmethod event :darktower/new-game [{:keys [uid ?data] :as ev-msg}]
-  (let [new-game-token (model/game-token)]
+  (log/info "ev-msg keys" (keys ev-msg))
+  (let [new-game-token (model/game-token)
+        {:keys [player-name difficulty]} ?data]
     (log/info
       "new-game:" new-game-token
-      "initialized by:" ?data
+      "difficulty:" difficulty
+      "initialized by:" player-name
       "with uid:" uid)
-    (model/initialize-game! uid new-game-token ?data)
+    (model/initialize-game! uid new-game-token player-name difficulty)
     ((:send-fn channel-socket) uid [:darktower/new-game-initialized (get @model/app-state new-game-token)])
     (log/debug "current app-state:" @model/app-state)))
 

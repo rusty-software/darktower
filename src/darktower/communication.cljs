@@ -22,7 +22,8 @@
 (defonce chsk-state (:state channel-socket))
 
 (defn new-game []
-  (chsk-send! [:darktower/new-game (:player-name @model/game-state)]))
+  (let [{:keys [player-name difficulty]} @model/game-state]
+    (chsk-send! [:darktower/new-game {:player-name player-name :difficulty difficulty}])))
 
 (defn join-game []
   (let [{:keys [player-name joining-game-token]} @model/game-state]

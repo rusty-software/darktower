@@ -2,8 +2,7 @@
   (:require
     [darktower.server.game :as game]
     [darktower.server.board :as board]
-    [taoensso.timbre :as log]
-    [darktower.server.game.bazaar :as bazaar]))
+    [taoensso.timbre :as log]))
 
 (defonce app-state
   (atom {}))
@@ -11,18 +10,19 @@
 (defn game-token []
   (Integer/toString (rand-int (Math/pow 36 4)) 36))
 
-(defn initialize-game [app-state uid token name]
+(defn initialize-game [app-state uid token name difficulty]
   (let [kingdom (first board/kingdoms)
         remaining-kingdoms (rest board/kingdoms)]
     (assoc app-state token {:token token
                             :initialized-by uid
                             :remaining-kingdoms remaining-kingdoms
+                            :difficulty difficulty
                             :players [{:uid uid
                                        :name name
                                        :kingdom kingdom}]})))
 
-(defn initialize-game! [uid token name]
-  (swap! app-state initialize-game uid token name))
+(defn initialize-game! [uid token name difficulty]
+  (swap! app-state initialize-game uid token name difficulty))
 
 (defn join-game [app-state uid name token]
   (let [game-state (get app-state token)
@@ -158,7 +158,13 @@
   (swap! app-state buy-item uid token))
 
 (defn next-key [app-state uid token]
-  (log/info "next-key fired!")
+  (let [game-state (get app-state token)]
+    (if (= uid (:current-player game-state))
+      (let [player (player-by-uid game-state uid)
+            updated-player (game/next-key player)
+            updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player updated-player)))]
+        (assoc app-state token updated-game-state))
+      app-state))
   app-state)
 
 (defn next-key! [uid token]

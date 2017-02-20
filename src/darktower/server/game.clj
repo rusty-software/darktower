@@ -278,3 +278,11 @@
                        (funds-check))]
         {:player player})
       {:player player-checked})))
+
+(defn next-key [player]
+  (let [dark-tower-status (:dark-tower-status player)
+        current-key (:current-key dark-tower-status)
+        remaining-keys (:remaining-keys dark-tower-status)]
+    (doto
+      (update-in player [:dark-tower-status :current-key] (dark-tower/next-key remaining-keys current-key))
+      (log/info "<--- next keyed player"))))

@@ -1,4 +1,5 @@
-(ns darktower.server.game.dark-tower)
+(ns darktower.server.game.dark-tower
+  (:require [taoensso.timbre :as log]))
 
 (defn init []
   {:current-key :brass-key
@@ -8,6 +9,7 @@
   (shuffle [:brass-key :silver-key :gold-key]))
 
 (defn brigands [difficulty]
+  (log/info "difficulty" difficulty)
   (case difficulty
     1 (rand-nth (range 17 33))
     2 (rand-nth (range 32 65))
@@ -15,6 +17,7 @@
 
 (defn next-key [keys current-key]
   (let [current-item-idx (.indexOf keys current-key)]
+    (log/info "current-item-idx" current-item-idx)
     (if (= current-item-idx (dec (count keys)))
       (get keys 0)
       (get keys (inc current-item-idx)))))

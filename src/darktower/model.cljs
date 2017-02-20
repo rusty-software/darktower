@@ -2,7 +2,7 @@
   (:require
     [reagent.core :as reagent]))
 
-(defonce game-state (reagent/atom {}))
+(defonce game-state (reagent/atom {:difficulty 1}))
 
 (defn update-player-name! [name]
   (swap! game-state assoc :player-name name))
