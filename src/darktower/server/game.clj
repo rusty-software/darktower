@@ -47,11 +47,10 @@
           (assoc :type type)))
 
 (defn requires-key? [player destination]
-  (doto (or (= :dark-tower (:type destination))
-            (and
-              (= :frontier (:type destination))
-              (not= (:kingdom player) (:kingdom destination))))
-    (log/info "<-- requires-key?")))
+  (or (= :dark-tower (:type destination))
+      (and
+        (= :frontier (:type destination))
+        (not= (:kingdom player) (:kingdom destination)))))
 
 (defn valid-move [player destination]
   (let [current-territory (:current-territory player)
