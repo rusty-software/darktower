@@ -287,3 +287,13 @@
         dark-tower-status (assoc dark-tower-status :current-key current-key)
         player (assoc player :dark-tower-status dark-tower-status)]
     {:player player}))
+
+(defn try-key [riddle-of-the-keys player]
+  (let [dark-tower-status (:dark-tower-status player)
+        current-key (:current-key dark-tower-status)
+        remaining-keys (:remaining-keys dark-tower-status)
+        result (dark-tower/try-key riddle-of-the-keys remaining-keys current-key)
+        #_#_dark-tower-status (assoc dark-tower-status :current-key current-key)
+        #_#_player (assoc player :dark-tower-status dark-tower-status)]
+    (log/info "try key NOT IMPLEMENTED")
+    {:player player}))

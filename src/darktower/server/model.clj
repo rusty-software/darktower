@@ -170,8 +170,14 @@
   (swap! app-state next-key uid token))
 
 (defn try-key [app-state uid token]
-  (log/info "try-key fired!")
-  app-state)
+  (let [game-state (get app-state token)]
+    (if (= uid (:current-player game-state))
+      (let [player (player-by-uid game-state uid)
+            riddle-of-the-keys (:riddle-of-the-keys game-state)
+            updated-player (game/try-key riddle-of-the-keys player)
+            updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player updated-player)))]
+        (assoc app-state token updated-game-state))
+      app-state)))
 
 (defn try-key! [uid token]
   (swap! app-state try-key uid token))
