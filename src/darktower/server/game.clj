@@ -87,8 +87,11 @@
         max-brigands (max 3 (int (+ warriors delta)))]
     (rand-nth (range min-brigands (inc max-brigands)))))
 
-(defn battle [player]
-  {:player (assoc player :encounter-result :battle :brigands (brigands-for player))})
+(defn battle
+  ([player brigands]
+   {:player (assoc player :encounter-result :battle :brigands brigands)})
+  ([player]
+   (battle player (brigands-for player))))
 
 (defn battle-if-possible [player]
   (if (> (:warriors player) 1)
@@ -151,6 +154,9 @@
       :else {:player (assoc player :encounter-result :fighting-lost-round
                                    :warriors (dec warriors)
                                    :gold (treasure/adjust-gold (dec warriors) gold beast))})))
+
+(defn dark-tower-battle [player brigands]
+  player)
 
 (defn encounter-territory [player dragon-hoard]
   (let [roll-action (encounter-roll-result (main/roll-d100))]
@@ -291,7 +297,7 @@
         {:keys [result remaining-keys]} (dark-tower/try-key riddle-of-the-keys remaining-keys current-key)]
     (if (= :dark-tower-battle result)
       (do
-        (log/info "dark-tower-battle needs to be wired up!!")
+        (dark-tower-battle player 2)
         {:player player})
       (let [dark-tower-status (assoc dark-tower-status :remaining-keys remaining-keys :current-key (first remaining-keys))
             player (assoc player :dark-tower-status dark-tower-status)]
