@@ -280,20 +280,19 @@
       {:player player-checked})))
 
 (defn next-key [player]
-  (let [dark-tower-status (:dark-tower-status player)
-        current-key (:current-key dark-tower-status)
-        remaining-keys (:remaining-keys dark-tower-status)
+  (let [{:keys [current-key remaining-keys] :as dark-tower-status} (:dark-tower-status player)
         current-key (dark-tower/next-key remaining-keys current-key)
         dark-tower-status (assoc dark-tower-status :current-key current-key)
         player (assoc player :dark-tower-status dark-tower-status)]
     {:player player}))
 
 (defn try-key [riddle-of-the-keys player]
-  (let [dark-tower-status (:dark-tower-status player)
-        current-key (:current-key dark-tower-status)
-        remaining-keys (:remaining-keys dark-tower-status)
-        result (dark-tower/try-key riddle-of-the-keys remaining-keys current-key)
-        #_#_dark-tower-status (assoc dark-tower-status :current-key current-key)
-        #_#_player (assoc player :dark-tower-status dark-tower-status)]
-    (log/info "try key NOT IMPLEMENTED")
-    {:player player}))
+  (let [{:keys [current-key remaining-keys] :as dark-tower-status} (:dark-tower-status player)
+        {:keys [result remaining-keys]} (dark-tower/try-key riddle-of-the-keys remaining-keys current-key)]
+    (if (= :dark-tower-battle result)
+      (do
+        (log/info "dark-tower-battle needs to be wired up!!")
+        {:player player})
+      (let [dark-tower-status (assoc dark-tower-status :remaining-keys remaining-keys :current-key (first remaining-keys))
+            player (assoc player :dark-tower-status dark-tower-status)]
+        {:player player}))))

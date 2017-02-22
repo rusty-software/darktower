@@ -32,8 +32,8 @@
   (let [current-lock (current-lock riddle-of-the-keys remaining-keys)
         key-fits? (key-fits? key current-lock)
         remaining-keys (if key-fits?
-                      (remove #(= current-lock %) remaining-keys)
-                      remaining-keys)]
+                         (vec (remove #(= current-lock %) remaining-keys))
+                         remaining-keys)]
     (cond
       (and key-fits?
            (> (count remaining-keys) 1))
