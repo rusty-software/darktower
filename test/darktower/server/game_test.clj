@@ -273,7 +273,13 @@
         (is (or (< 10 gold)
               brass-key
               pegasus
-              sword))))))
+              sword))))
+    (testing "Given a victory at the dark tower, status is set"
+      (let [player (assoc (top-row-edge player :brynthia) :warriors 10 :brigands 1 :gold 10 :at-dark-tower? true)
+            {:keys [encounter-result warriors brigands]} (:player (fight player))]
+        (is (= 10 warriors))
+        (is (nil? brigands))
+        (is (= :dark-tower-won encounter-result))))))
 
 (deftest encounter-location-ruin-test
   (let [params {:type :tomb :player (assoc (initialize-player player) :current-territory {:kingdom :brynthia :row 5 :idx 3})}]
