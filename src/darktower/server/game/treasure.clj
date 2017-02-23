@@ -5,7 +5,7 @@
 (def offset-key [true :brass-key :silver-key :gold-key])
 
 (defn has-key? [player destination]
-  (if (= :dark-tower (:territory-type destination))
+  (if (= :dark-tower (:type destination))
     (and (:brass-key player) (:silver-key player) (:gold-key player))
     (let [offset (board/kingdom-offset (:kingdom player) (:kingdom destination))
           key (get offset-key offset)]
