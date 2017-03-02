@@ -11,7 +11,7 @@
 (defn brigands [difficulty]
   (case difficulty
     1 (rand-nth (range 17 33))
-    2 (rand-nth (range 32 65))
+    2 (rand-nth (range 33 65))
     (rand-nth (range 17 65))))
 
 (defn next-key [keys current-key]

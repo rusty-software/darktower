@@ -139,21 +139,31 @@
     (* 100 (- 0.75 (/ brigands (* 4 warriors))))
     (* 100 (+ 0.25 (/ warriors (* 4 brigands))))))
 
-(defn fight [{:keys [warriors brigands gold beast] :as player}]
+(defn fight [{:keys [warriors brigands gold beast at-dark-tower?] :as player}]
   (let [warriors-win? (>= (winning-chance warriors brigands) (main/roll-d100))]
     (cond
-      (and warriors-win? (>= 1 brigands)) {:player (-> player
-                                                       (merge (treasure/treasure player))
-                                                       (assoc :encounter-result :fighting-won)
-                                                       (dissoc :brigands))}
-      warriors-win? {:player (assoc player :encounter-result :fighting-won-round
-                                           :brigands (int (/ brigands 2)))}
+      (and warriors-win? (>= 1 brigands) at-dark-tower?)
+      {:player (-> player
+                   (assoc :encounter-result :dark-tower-won)
+                   (dissoc :brigands))}
+
+      (and warriors-win? (>= 1 brigands))
+      {:player (-> player
+                   (merge (treasure/treasure player))
+                   (assoc :encounter-result :fighting-won)
+                   (dissoc :brigands))}
+
+      warriors-win?
+      {:player (assoc player :encounter-result :fighting-won-round
+                             :brigands (int (/ brigands 2)))}
       (= 2 warriors) {:player (assoc player :encounter-result :fighting-lost
                                             :warriors 1
                                             :gold (treasure/adjust-gold 1 gold beast))}
-      :else {:player (assoc player :encounter-result :fighting-lost-round
-                                   :warriors (dec warriors)
-                                   :gold (treasure/adjust-gold (dec warriors) gold beast))})))
+
+      :else
+      {:player (assoc player :encounter-result :fighting-lost-round
+                             :warriors (dec warriors)
+                             :gold (treasure/adjust-gold (dec warriors) gold beast))})))
 
 (defn dark-tower-battle [player brigands]
   player)
