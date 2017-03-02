@@ -153,12 +153,28 @@
                    (assoc :encounter-result :fighting-won)
                    (dissoc :brigands))}
 
+      (and warriors-win? at-dark-tower?)
+      {:player (assoc player :encounter-result :dark-tower-won-round
+                             :brigands (int (/ brigands 2)))}
+
       warriors-win?
       {:player (assoc player :encounter-result :fighting-won-round
                              :brigands (int (/ brigands 2)))}
-      (= 2 warriors) {:player (assoc player :encounter-result :fighting-lost
+
+      (and (= 2 warriors) at-dark-tower?)
+      {:player (assoc player :encounter-result :dark-tower-lost
+                             :warriors 1
+                             :gold (treasure/adjust-gold 1 gold beast))}
+
+      (= 2 warriors)
+      {:player (assoc player :encounter-result :fighting-lost
                                             :warriors 1
                                             :gold (treasure/adjust-gold 1 gold beast))}
+
+      at-dark-tower?
+      {:player (assoc player :encounter-result :dark-tower-lost-round
+                             :warriors (dec warriors)
+                             :gold (treasure/adjust-gold (dec warriors) gold beast))}
 
       :else
       {:player (assoc player :encounter-result :fighting-lost-round
@@ -251,8 +267,10 @@
     {:food (max 0 (- food 7))}
     {:food (max 0 (- food (inc (int (/ warriors 15.1)))))}))
 
-(defn flee [{:keys [warriors] :as player}]
-  {:player (assoc player :encounter-result :fled :warriors (max 1 (- warriors 1)))})
+(defn flee [{:keys [warriors at-dark-tower?] :as player}]
+  {:player (assoc player
+             :encounter-result (if at-dark-tower? :dark-tower-fled :fled)
+             :warriors (max 1 (- warriors 1)))})
 
 (defn- bazaar-interaction [player interaction]
   (assoc player :encounter-result :bazaar :bazaar-inventory (interaction (:bazaar-inventory player))))

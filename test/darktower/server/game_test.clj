@@ -232,7 +232,12 @@
   (testing "Fleeing reduces the warrior count by 1"
     (is (= 1 (get-in (flee {:warriors 2}) [:player :warriors]))))
   (testing "Fleeing cannot reduce warrior count below 1"
-    (is (= 1 (get-in (flee {:warriors 1}) [:player :warriors])))))
+    (is (= 1 (get-in (flee {:warriors 1}) [:player :warriors]))))
+  (testing "Fleeing from dark tower sets appropriate status"
+    (let [{:keys [player]} (flee {:warriors 2 :at-dark-tower? true})
+          {:keys [warriors encounter-result]} player]
+      (is (= 1 warriors))
+      (is (= :dark-tower-fled encounter-result)))))
 
 (deftest winning-chance-test
   (is (= 50.0 (winning-chance 10 10)))
@@ -281,8 +286,22 @@
         (is (= 10 warriors))
         (is (nil? brigands))
         (is (= :dark-tower-won encounter-result))))
-    (testing "Fleeing the dark tower sets appropriate status")
-    (testing "Losing at dark tower sets appropriate status")))
+    (testing "Given a warrior win at the dark tower, status is set appropriately"
+      (let [player (assoc player :warriors 12 :brigands 11 :gold 10 :at-dark-tower? true)
+            expected {:player (assoc player :encounter-result :dark-tower-won-round
+                                            :brigands 5)}]
+        (is (= expected (fight player)))))
+    (testing "Losing a round at dark tower sets appropriate status"
+      (let [player (assoc player :warriors 9 :brigands 10 :gold 54 :at-dark-tower? true)
+            expected {:player (assoc player :encounter-result :dark-tower-lost-round
+                                            :warriors 8
+                                            :gold 48)}]
+        (is (= expected (fight player)))))
+    (testing "Losing at the dark tower sets the appropriate status"
+      (let [player (assoc player :warriors 2 :brigands 10 :gold 6 :at-dark-tower? true)
+            expected {:player (assoc player :encounter-result :dark-tower-lost
+                                            :warriors 1)}]
+        (is (= expected (fight player)))))))
 
 (deftest encounter-location-ruin-test
   (let [params {:type :tomb :player (assoc (initialize-player player) :current-territory {:kingdom :brynthia :row 5 :idx 3})}]
