@@ -324,7 +324,7 @@
   (let [{:keys [current-key remaining-keys] :as dark-tower-status} (:dark-tower-status player)
         {:keys [result remaining-keys]} (dark-tower/try-key riddle-of-the-keys remaining-keys current-key)]
     (if (= :dark-tower-battle result)
-      (battle (assoc player :at-dark-tower? true) 1)
+      (battle (assoc player :at-dark-tower? true) 6)
       (let [dark-tower-status (assoc dark-tower-status :remaining-keys remaining-keys :current-key (first remaining-keys))
             player (assoc player :dark-tower-status dark-tower-status)]
         {:player player}))))

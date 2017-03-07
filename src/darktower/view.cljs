@@ -71,7 +71,11 @@
    :key-missing {:images ["img/keymissing.jpg"]}
    :brass-key {:images ["img/brasskey.jpg"]}
    :silver-key {:images ["img/silverkey.jpg"]}
-   :gold-key {:images ["img/goldkey.jpg"]}})
+   :gold-key {:images ["img/goldkey.jpg"]}
+   :dark-tower-won-round {:images ["img/warriors.jpg" "img/brigands.jpg"]}
+   :dark-tower-lost-round {:images ["img/warriors.jpg" "img/brigands.jpg"]}
+   :dark-tower-fled {:images ["img/warriors.jpg"]}
+   :dark-tower-won {:images ["img/victory.jpg"]}})
 
 (defn display-buttons [buttons]
   [:div (for [button buttons] [button])])
@@ -187,7 +191,7 @@
                    [:img {:src image
                           :style {:margin "5px"}}]))
                (cond
-                 (#{:battle :fighting-won-round :fighting-lost-round} encounter-result)
+                 (#{:battle :fighting-won-round :fighting-lost-round :dark-tower-won-round :dark-tower-lost-round} encounter-result)
                  (battle-display warriors brigands)
 
                  (= :bazaar encounter-result)
