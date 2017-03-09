@@ -50,6 +50,7 @@
         (= :frontier (:type destination))
         (not= (:kingdom player) (:kingdom destination)))))
 
+;; TODO: (maybe) cannot re-enter dark tower after fleeing until visiting the bazaar or home citadel
 (defn valid-move [player destination]
   (let [current-territory (:current-territory player)
         neighbors (board/neighbors-for current-territory)]
