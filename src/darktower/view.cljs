@@ -43,7 +43,6 @@
    :plague-healer {:images ["img/plague.jpg" "img/healer.jpg"]}
    :dragon-attack {:images ["img/dragon.jpg"]}
    :dragon-attack-sword {:images ["img/dragon.jpg" "img/sword.jpg"]}
-   :safe-move {:images ["img/victory.jpg"]}
    :battle {:images ["img/warriors.jpg" "img/brigands.jpg"]}
    :fighting-won-round {:images ["img/warriors.jpg" "img/brigands.jpg"]}
    :fighting-lost-round {:images ["img/warriors.jpg" "img/brigands.jpg"]}
