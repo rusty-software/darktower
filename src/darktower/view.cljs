@@ -17,8 +17,11 @@
 (defn current-player []
   (player (get-in @model/game-state [:server-state :current-player])))
 
-(defn my-turn []
+(defn my-turn? []
   (= (:uid @model/game-state) (:uid (current-player))))
+
+(defn game-over? [encounter-result]
+  (= :dark-tower-won encounter-result))
 
 (def ordered-keys [:warriors :gold :food :scout :healer :beast :brass-key :silver-key :gold-key :pegasus :sword])
 
@@ -167,7 +170,21 @@
      :width "490px"}}
    [:div {:id "darktower"}
     [:div {:id "darktower-display"}
-     (if (my-turn)
+     (let [encounter-result (:encounter-result (current-player))]
+       (cond
+         (and (my-turn?) (game-over? encounter-result))
+         (println "game over on my turn")
+
+         (game-over? encounter-result)
+         (println "game over on someone else's turn")
+
+         (my-turn?)
+         (println "my turn")
+
+         :default
+         (println "someone else's turn")))
+
+     (if (my-turn?)
        [:div
         [:text "Your turn."]
         [:br]
