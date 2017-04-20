@@ -80,7 +80,9 @@
    :dark-tower-won {:images ["img/victory.jpg"]}})
 
 (defn display-buttons [buttons]
-  [:div (for [button buttons] [button])])
+  [:div (for [button buttons]
+          ^{:key (str "btn-" button)}
+          [button])])
 
 (defn end-turn-button []
   [:button
@@ -163,6 +165,50 @@
    [:span message]
    (display-buttons [end-turn-button])])
 
+(defn current-player-display []
+  [:div
+   [:text "Your turn."]
+   [:br]
+   [:div
+    {:class "dt-display"}
+    (let [{:keys [encounter-result awarded bazaar-inventory dark-tower-status insufficient-funds? warriors brigands message]} (current-player)]
+      [:div
+       {:class "dt-image"}
+       (when encounter-result
+         [:div
+          (let [images-key (cond
+                             awarded #{encounter-result awarded}
+                             (:closed? bazaar-inventory) :bazaar-closed
+                             (= :bazaar encounter-result) (:current-item bazaar-inventory)
+                             (= :dark-tower encounter-result) (:current-key dark-tower-status)
+                             (= "Key missing!" message) :key-missing
+                             :else encounter-result)
+                images (get-in encounter-result-specs [images-key :images])]
+            (for [image images]
+              (do
+                ^{:key (str "img-" image)}
+                [:img {:src image
+                       :style {:margin "5px"}}])))
+          (cond
+            (#{:battle :fighting-won-round :fighting-lost-round :dark-tower-won-round :dark-tower-lost-round} encounter-result)
+            (battle-display warriors brigands)
+
+            (= :bazaar encounter-result)
+            (bazaar-display bazaar-inventory insufficient-funds?)
+
+            (= :dark-tower encounter-result)
+            (dark-tower-display dark-tower-status)
+
+            message
+            (message-display message)
+
+            :else
+            (display-buttons [end-turn-button]))])])]])
+
+(defn other-player-display []
+  [:div
+   [:text (str (:name (current-player)) "'s turn.")]])
+
 (defn player-area []
   [:div
    {:style
@@ -179,51 +225,10 @@
          (println "game over on someone else's turn")
 
          (my-turn?)
-         (println "my turn")
+         [current-player-display]
 
          :default
-         (println "someone else's turn")))
-
-     (if (my-turn?)
-       [:div
-        [:text "Your turn."]
-        [:br]
-        [:div
-         {:class "dt-display"}
-         (let [{:keys [encounter-result awarded bazaar-inventory dark-tower-status insufficient-funds? warriors brigands message]} (current-player)]
-           [:div
-            {:class "dt-image"}
-            (when encounter-result
-              [:div
-               (let [images-key (cond
-                                  awarded #{encounter-result awarded}
-                                  (:closed? bazaar-inventory) :bazaar-closed
-                                  (= :bazaar encounter-result) (:current-item bazaar-inventory)
-                                  (= :dark-tower encounter-result) (:current-key dark-tower-status)
-                                  (= "Key missing!" message) :key-missing
-                                  :else encounter-result)
-                     images (get-in encounter-result-specs [images-key :images])]
-                 (for [image images]
-                   [:img {:src image
-                          :style {:margin "5px"}}]))
-               (cond
-                 (#{:battle :fighting-won-round :fighting-lost-round :dark-tower-won-round :dark-tower-lost-round} encounter-result)
-                 (battle-display warriors brigands)
-
-                 (= :bazaar encounter-result)
-                 (bazaar-display bazaar-inventory insufficient-funds?)
-
-                 (= :dark-tower encounter-result)
-                 (dark-tower-display dark-tower-status)
-
-                 message
-                 (message-display message)
-
-                 :else
-                 (display-buttons [end-turn-button]))
-               ])])]]
-       [:div
-        [:text (str (:name (current-player)) "'s turn.")]])]]
+         [other-player-display]))]]
    [:div {:id "player-data"}
     [:table
      [:tbody
@@ -341,27 +346,29 @@
             :vertical-align "top"
             :margin "5px 5px 5px 5px"}}
    [:table
-    [:tr
-     [:th
-      {:style {:text-align "center"}}
-      "Joining a game"]]
-    [:tr
-     [:td
-      {:style {:text-align "center"}}
-      [:text "Enter game code:"]
-      [:input
-       {:id "txt-game-token"
-        :type "text"
-        :value (:joining-game-token @model/game-state)
-        :on-change #(model/update-joining-game-token! (-> % .-target .-value))}]]]
-    [:tr
-     [:td
-      {:style {:text-align "center"}}
-      [:button
-       {:id "btn-join-game"
-        :class "button brown"
-        :on-click #(communication/join-game)}
-       "Join Game"]]]]])
+    [:thead
+     [:tr
+      [:th
+       {:style {:text-align "center"}}
+       "Joining a game"]]]
+    [:tbody
+     [:tr
+      [:td
+       {:style {:text-align "center"}}
+       [:text "Enter game code:"]
+       [:input
+        {:id "txt-game-token"
+         :type "text"
+         :value (:joining-game-token @model/game-state)
+         :on-change #(model/update-joining-game-token! (-> % .-target .-value))}]]]
+     [:tr
+      [:td
+       {:style {:text-align "center"}}
+       [:button
+        {:id "btn-join-game"
+         :class "button brown"
+         :on-click #(communication/join-game)}
+        "Join Game"]]]]]])
 
 (defn main []
   [:center
