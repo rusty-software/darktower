@@ -2,9 +2,9 @@
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:require [cljs.pprint :as pprint]
             [cljs.core.async :refer [put! chan <! >! timeout close!]]
-            [reagent.core :as r]
             [darktower.model :as model]
             [darktower.communication :as communication]
+            [darktower.views.displays :as displays]
             [darktower.views.board :as board]))
 
 (defn game-area []
@@ -79,136 +79,6 @@
    :dark-tower-fled {:images ["img/warriors.jpg"]}
    :dark-tower-won {:images ["img/victory.jpg"]}})
 
-(defn display-buttons [buttons]
-  [:div (for [button buttons]
-          ^{:key (str "btn-" button)}
-          [button])])
-
-(defn end-turn-button []
-  [:button
-   {:id "btn-end-turn"
-    :class "button end-turn"
-    :on-click #(communication/end-turn)}
-   "End Turn"])
-
-(defn fight-button []
-  [:button
-   {:id "btn-fight"
-    :class "button fight"
-    :on-click #(communication/fight)}
-   "Fight"])
-
-(defn flee-button []
-  [:button
-   {:id "btn-flee"
-    :class "button flee"
-    :on-click #(communication/flee)}
-   "Flee"])
-
-(defn next-button []
-  [:button
-   {:id "btn-next"
-    :class "button next"
-    :on-click #(communication/next-item)}
-   "Next"])
-
-(defn buy-button []
-  [:button
-   {:id "btn-buy"
-    :class "button buy"
-    :on-click #(communication/buy-item)}
-   "Buy"])
-
-(defn haggle-button []
-  [:button
-   {:id "btn-haggle"
-    :class "button haggle"
-    :on-click #(communication/haggle)}
-   "Haggle"])
-
-(defn no-button []
-  [:button
-   {:id "btn-no"
-    :class "button no"
-    :on-click #(communication/next-key)}
-   "No"])
-
-(defn yes-button []
-  [:button
-   {:id "btn-yes"
-    :class "button yes"
-    :on-click #(communication/try-key)}
-   "Yes"])
-
-(defn battle-display [warriors brigands]
-  [:div
-   [:span (str warriors " warriors; " brigands " brigands")]
-   (display-buttons [fight-button flee-button])])
-
-(defn bazaar-display [bazaar-inventory insufficient-funds?]
-  (if (not (:closed? bazaar-inventory))
-    [:div
-     [:span (str "Cost: " (get bazaar-inventory (:current-item bazaar-inventory)))]
-     (if insufficient-funds?
-       (display-buttons [next-button haggle-button end-turn-button])
-       (display-buttons [next-button buy-button haggle-button end-turn-button]))]
-    [:div
-     (display-buttons [end-turn-button])]))
-
-(defn dark-tower-display [dark-tower-status]
-  [:div
-   [:span "Does this key fit the lock?"]
-   (display-buttons [no-button yes-button end-turn-button])])
-
-(defn message-display [message]
-  [:div
-   [:span message]
-   (display-buttons [end-turn-button])])
-
-(defn current-player-display []
-  [:div
-   [:text "Your turn."]
-   [:br]
-   [:div
-    {:class "dt-display"}
-    (let [{:keys [encounter-result awarded bazaar-inventory dark-tower-status insufficient-funds? warriors brigands message]} (current-player)]
-      [:div
-       {:class "dt-image"}
-       (when encounter-result
-         [:div
-          (let [images-key (cond
-                             awarded #{encounter-result awarded}
-                             (:closed? bazaar-inventory) :bazaar-closed
-                             (= :bazaar encounter-result) (:current-item bazaar-inventory)
-                             (= :dark-tower encounter-result) (:current-key dark-tower-status)
-                             (= "Key missing!" message) :key-missing
-                             :else encounter-result)
-                images (get-in encounter-result-specs [images-key :images])]
-            (for [image images]
-              (do
-                ^{:key (str "img-" image)}
-                [:img {:src image
-                       :style {:margin "5px"}}])))
-          (cond
-            (#{:battle :fighting-won-round :fighting-lost-round :dark-tower-won-round :dark-tower-lost-round} encounter-result)
-            (battle-display warriors brigands)
-
-            (= :bazaar encounter-result)
-            (bazaar-display bazaar-inventory insufficient-funds?)
-
-            (= :dark-tower encounter-result)
-            (dark-tower-display dark-tower-status)
-
-            message
-            (message-display message)
-
-            :else
-            (display-buttons [end-turn-button]))])])]])
-
-(defn other-player-display []
-  [:div
-   [:text (str (:name (current-player)) "'s turn.")]])
-
 (defn player-area []
   [:div
    {:style
@@ -225,10 +95,10 @@
          (println "game over on someone else's turn")
 
          (my-turn?)
-         [current-player-display]
+         [displays/current-player-display encounter-result-specs (current-player)]
 
          :default
-         [other-player-display]))]]
+         [displays/other-player-display]))]]
    [:div {:id "player-data"}
     [:table
      [:tbody
