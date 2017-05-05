@@ -14,6 +14,7 @@
                 :warriors 10
                 :gold 30
                 :food 25
+                :move-count 0
                 :scout true
                 :healer true
                 :beast true
@@ -101,7 +102,9 @@
 
 (defn lost [{:keys [scout last-territory] :as player}]
   (if scout
-    {:player (assoc player :encounter-result :lost-scout :extra-turn true)}
+    {:player (-> player
+                 (assoc :encounter-result :lost-scout :extra-turn true)
+                 (update :move-count dec))}
     {:player (assoc player :encounter-result :lost :current-territory last-territory)}))
 
 (defn plague [{:keys [healer warriors gold beast] :as player}]
@@ -255,9 +258,10 @@
   {:player (assoc player :encounter-result :dark-tower :dark-tower-status (dark-tower/init))})
 
 (defn encounter [player dragon-hoard]
-  ;; TODO: implement/increment move count
   (let [territory-type (board/type-for (dissoc (:current-territory player) :kingdom))
-        player (dissoc player :awarded)]
+        player (-> player
+                   (dissoc :awarded)
+                   (update :move-count inc))]
     (if (= :territory territory-type)
       (encounter-territory player dragon-hoard)
       (encounter-location {:type territory-type :player player}))))

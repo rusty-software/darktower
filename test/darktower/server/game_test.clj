@@ -13,6 +13,7 @@
                                   :warriors 10
                                   :gold 30
                                   :food 25
+                                  :move-count 0
                                   :scout false
                                   :healer false
                                   :beast false
@@ -134,6 +135,7 @@
           expected {:player (assoc player :encounter-result :lost-scout
                                           :current-territory {:kingdom :zenon :row 3 :idx 2}
                                           :last-territory {:kingdom :zenon :row 3 :idx 1}
+                                          :move-count -1
                                           :scout true
                                           :extra-turn true)}
           actual (lost player)]
