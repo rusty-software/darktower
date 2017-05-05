@@ -86,19 +86,20 @@
      :width "490px"}}
    [:div {:id "darktower"}
     [:div {:id "darktower-display"}
-     (let [encounter-result (:encounter-result (current-player))]
+     (let [cp (current-player)
+           encounter-result (:encounter-result cp)]
        (cond
          (and (my-turn?) (game-over? encounter-result))
-         (println "game over on my turn")
+         [displays/current-player-victory-display (first (get-in encounter-result-specs [:dark-tower-won :images])) cp]
 
          (game-over? encounter-result)
-         (println "game over on someone else's turn")
+         [displays/other-player-victory-display cp]
 
          (my-turn?)
-         [displays/current-player-display encounter-result-specs (current-player)]
+         [displays/current-player-display encounter-result-specs cp]
 
          :default
-         [displays/other-player-display]))]]
+         [displays/other-player-display (:name cp)]))]]
    [:div {:id "player-data"}
     [:table
      [:tbody

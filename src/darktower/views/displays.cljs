@@ -69,3 +69,15 @@
 (defn other-player-display [current-player-name]
   [:div
    [:text (str current-player-name "'s turn.")]])
+
+(defn current-player-victory-display [img-src {:keys [move-count]}]
+  [:div
+   [:text (str "VICTORY! Congratulations! You won in " move-count " moves. Record this feat for future reference!")]
+   [:br]
+   [:div
+    [:img
+     {:src img-src}]]])
+
+(defn other-player-victory-display [{:keys [name move-count]}]
+  [:div
+   [:text (str "The game has been won by " name " in " move-count " moves. Congratulate them on a well-earned(?) victory!")]])
