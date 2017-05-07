@@ -52,12 +52,14 @@
         (not= (:kingdom player) (:kingdom destination)))))
 
 ;; TODO: (maybe) cannot re-enter dark tower after fleeing until visiting the bazaar or home citadel
-(defn valid-move [player destination]
-  (let [current-territory (:current-territory player)
-        neighbors (board/neighbors-for current-territory)]
+(defn valid-move [{:keys [current-territory encounter-result kingdom pegasus] :as player} destination]
+  (let [neighbors (board/neighbors-for current-territory)]
     (cond
-      (#{:battle :fighting-won-round :fighting-lost-round} (:encounter-result player))
-      {:valid? false :message "Cannot move while in battle!" :encounter-result (:encounter-result player)}
+      (= :dark-tower-won encounter-result)
+      {:valid? false :message "The game is over! Start a new one if you want to keep moving!" :encounter-result :dark-tower-won}
+
+      (#{:battle :fighting-won-round :fighting-lost-round} encounter-result)
+      {:valid? false :message "Cannot move while in battle!" :encounter-result encounter-result}
 
       (and
         (requires-key? player destination)
@@ -66,7 +68,7 @@
 
       (and
         (= :citadel (board/type-for destination))
-        (not= (:kingdom destination) (:kingdom player)))
+        (not= (:kingdom destination) kingdom))
       {:valid? false :message "Cannot enter foreign citadel!" :encounter-result :invalid-move}
 
       (some #{destination} neighbors)
@@ -74,7 +76,7 @@
 
       (and
         (= (:kingdom destination) (:kingdom current-territory))
-        (:pegasus player))
+        pegasus)
       {:valid? true :pegasus-required? true}
 
       :else

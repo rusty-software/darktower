@@ -7,6 +7,9 @@
             [darktower.views.displays :as displays]
             [darktower.views.board :as board]))
 
+;; TODO: clear display on "your turn"
+;; TODO: picking the wrong key on dark tower should end your turn
+
 (defn game-area []
   (board/main))
 
