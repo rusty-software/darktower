@@ -88,10 +88,9 @@
 
 ;; TODO: wizard handler
 (defn treasure
-  ([player]
-   (treasure player nil))
-  ([player multiplayer?]
-   (let [player (dissoc player :awarded)]
+  [player]
+  (let [multiplayer? (:multiplayer? player)
+         player (dissoc player :awarded)]
      (if (can-receive-treasure? player multiplayer?)
        (loop [treasure-to-try (treasure-type (main/roll-d100) multiplayer?)
               tried #{}
@@ -105,4 +104,4 @@
 
            :else
            (recur (treasure-type (main/roll-d100) multiplayer?) (conj tried treasure-to-try) multiplayer?)))
-       player))))
+       player)))

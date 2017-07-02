@@ -216,7 +216,9 @@
   (let [roll (main/roll-d100)]
     (cond
       (< 0 roll 21) (safe-move player)
-      (< 20 roll 31) (-> player (merge (treasure/treasure player)) (safe-move))
+      (< 20 roll 31) (-> player
+                         (merge (treasure/treasure player))
+                         (safe-move))
       (< 30 roll 101) (battle player)
       :else {:player player :encounter-result :unhandled})))
 

@@ -140,10 +140,10 @@
         (is (not (:sword player)))
         (is (:sword (treasure player))))))
   (testing "Given a roll between 86 and 100 in a multi-player game, gives a wizard"
-    (let [player (assoc (top-row-edge player :arisilon) :gold 10)]
+    (let [player (assoc (top-row-edge player :arisilon) :gold 10 :multiplayer? true)]
       (with-redefs [roll-d100 (constantly 100)]
         (is (not (:wizard player)))
-        (is (:wizard (treasure player true))))))
+        (is (:wizard (treasure player))))))
   (testing "Given a player with everything, awards gold"
     (let [times-called (atom 0)]
       (with-redefs [roll-d100 (fn []
