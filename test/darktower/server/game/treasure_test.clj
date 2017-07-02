@@ -91,8 +91,8 @@
     (is (not (can-award? :pegasus (assoc player :pegasus true))))
     (is (can-award? :sword player))
     (is (not (can-award? :sword (assoc player :sword true))))
-    (is (can-award? :wizard player true))
-    (is (not (can-award? :wizard (assoc player :wizard true) true)))
+    (is (can-award? :wizard (assoc player :multiplayer? true)))
+    (is (not (can-award? :wizard (assoc player :wizard true :multiplayer? true))))
     (is (not (can-award? :wizard player)))))
 
 (deftest award-treasure-test

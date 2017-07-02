@@ -14,12 +14,12 @@
         (get player key)))))
 
 (defn can-receive-treasure?
-  [{:keys [multiplayer?] :as player}]
-  (or (< (:gold player) 99)
-     (not (has-key? player (:current-territory player)))
-     (not (:pegasus player))
-     (not (:sword player))
-     (and multiplayer? (not (:wizard player)))))
+  [{:keys [gold current-territory pegasus sword wizard multiplayer?] :as player}]
+  (or (< gold 99)
+     (not (has-key? player current-territory))
+     (not pegasus)
+     (not sword)
+     (and multiplayer? (not wizard))))
 
 (defn treasure-types
   [multiplayer?]
@@ -51,16 +51,14 @@
       (not (get player key)))))
 
 (defn can-award?
-  ([treasure player]
-   (can-award? treasure player nil))
-  ([treasure {:keys [gold warriors pegasus sword beast wizard] :as player} multiplayer?]
-   (case treasure
+  [treasure {:keys [gold warriors pegasus sword beast wizard multiplayer?] :as player}]
+  (case treasure
      :gold (< gold (adjust-gold warriors 99 beast))
      :key (can-award-key? player)
      :pegasus (not pegasus)
      :sword (not sword)
      :wizard (and (not wizard) multiplayer?)
-     false)))
+     false))
 
 (defn treasure-gold [{:keys [gold warriors beast]}]
   (let [total-gold (min 99 (+ gold 10 (int (* 11 (rand)))))]
@@ -94,7 +92,7 @@
            (tried-everything? tried multiplayer?)
            player
 
-           (can-award? treasure-to-try player multiplayer?)
+           (can-award? treasure-to-try player)
            (award-treasure treasure-to-try player)
 
            :else
