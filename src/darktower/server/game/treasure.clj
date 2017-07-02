@@ -14,22 +14,18 @@
         (get player key)))))
 
 (defn can-receive-treasure?
-  ([player]
-   (can-receive-treasure? player nil))
-  ([player multiplayer?]
-   (or (< (:gold player) 99)
+  [{:keys [multiplayer?] :as player}]
+  (or (< (:gold player) 99)
      (not (has-key? player (:current-territory player)))
      (not (:pegasus player))
      (not (:sword player))
-     (and multiplayer? (not (:wizard player))))))
+     (and multiplayer? (not (:wizard player)))))
 
 (defn treasure-types
-  ([]
-   (treasure-types nil))
-  ([multiplayer?]
-   (if multiplayer?
+  [multiplayer?]
+  (if multiplayer?
      #{:gold :key :pegasus :sword :wizard}
-     #{:gold :key :pegasus :sword})))
+     #{:gold :key :pegasus :sword}))
 
 (defn treasure-type [roll multiplayer?]
   (cond
@@ -88,10 +84,9 @@
 
 ;; TODO: wizard handler
 (defn treasure
-  [player]
-  (let [multiplayer? (:multiplayer? player)
-         player (dissoc player :awarded)]
-     (if (can-receive-treasure? player multiplayer?)
+  [{:keys [multiplayer?] :as player}]
+  (let [player (dissoc player :awarded)]
+     (if (can-receive-treasure? player)
        (loop [treasure-to-try (treasure-type (main/roll-d100) multiplayer?)
               tried #{}
               multiplayer? multiplayer?]

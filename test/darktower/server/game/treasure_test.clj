@@ -38,8 +38,8 @@
     (is (can-receive-treasure? (assoc (top-row-edge player :zenon) :gold 99 :brass-key true :silver-key true :pegasus true :sword true)) "can receive key")
     (is (not (can-receive-treasure? (assoc (top-row-edge player :zenon) :gold 99 :brass-key true :silver-key true :gold-key true :pegasus true :sword true))))
     (is (not (can-receive-treasure? (assoc player :gold 99 :brass-key true :silver-key true :gold-key true :pegasus true :sword true))))
-    (is (can-receive-treasure? (assoc player :gold 99 :brass-key true :silver-key true :gold-key true :pegasus true :sword true) true))
-    (is (not (can-receive-treasure? (assoc player :gold 99 :brass-key true :silver-key true :gold-key true :pegasus true :sword true :wizard true) true)))))
+    (is (can-receive-treasure? (assoc player :gold 99 :brass-key true :silver-key true :gold-key true :pegasus true :sword true :multiplayer? true)))
+    (is (not (can-receive-treasure? (assoc player :gold 99 :brass-key true :silver-key true :gold-key true :pegasus true :sword true :wizard true :multiplayer? true))))))
 
 (deftest treasure-type-test
   (with-redefs [roll-d100 (constantly 30)]
