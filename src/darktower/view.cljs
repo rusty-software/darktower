@@ -55,6 +55,7 @@
    #{:fighting-won :gold} {:images ["img/gold.jpg"]}
    #{:fighting-won :pegasus} {:images ["img/pegasus.jpg"]}
    #{:fighting-won :sword} {:images ["img/sword.jpg"]}
+   #{:fighting-won :wizard} {:images ["img/wizard.jpg"]}
    #{:fighting-won :brass-key} {:images ["img/brasskey.jpg"]}
    #{:fighting-won :silver-key} {:images ["img/silverkey.jpg"]}
    #{:fighting-won :gold-key} {:images ["img/goldkey.jpg"]}

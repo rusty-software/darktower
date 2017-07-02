@@ -192,9 +192,6 @@
                              :warriors (dec warriors)
                              :gold (treasure/adjust-gold (dec warriors) gold beast))})))
 
-(defn dark-tower-battle [player brigands]
-  player)
-
 (defn encounter-territory [player dragon-hoard]
   (let [roll-action (encounter-roll-result (main/roll-d100))]
     (case roll-action
@@ -205,7 +202,6 @@
       :dragon-attack (dragon-attack player dragon-hoard)
       (safe-move player))))
 
-;; TODO: set last-location type
 (defmulti encounter-location :type)
 
 (defmethod encounter-location :default [{:keys [type player]}]
@@ -338,7 +334,7 @@
   (let [{:keys [current-key remaining-keys] :as dark-tower-status} (:dark-tower-status player)
         {:keys [result remaining-keys]} (dark-tower/try-key riddle-of-the-keys remaining-keys current-key)]
     (if (= :dark-tower-battle result)
-      (battle (assoc player :at-dark-tower? true) 6)
+      (battle (assoc player :at-dark-tower? true) 6)        ;;TODO: replace hard-coded brigand count with game's brigand count
       (let [dark-tower-status (assoc dark-tower-status :remaining-keys remaining-keys :current-key (first remaining-keys))
             player (assoc player :dark-tower-status dark-tower-status)]
         {:player player}))))
