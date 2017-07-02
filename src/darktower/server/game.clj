@@ -9,23 +9,28 @@
             [darktower.server.game.dark-tower :as dark-tower]
             [clojure.set :as set]))
 
-(s/defn initialize-player [player] :- schema/Player
-  (assoc player :current-territory {:kingdom (:kingdom player) :row 5 :idx 3}
-                :warriors 10
-                :gold 30
-                :food 25
-                :move-count 0
-                :scout true
-                :healer true
-                :beast true
-                :brass-key true
-                :silver-key true
-                :gold-key true
-                :pegasus true
-                :sword true))
+(s/defn initialize-player
+  ([player] :- schema/Player
+    (initialize-player false player))
+  ([multiplayer? player] :- schema/Player
+    (assoc player :current-territory {:kingdom (:kingdom player) :row 5 :idx 3}
+                  :warriors 10
+                  :gold 30
+                  :food 25
+                  :move-count 0
+                  :multiplayer? multiplayer?
+                  :scout false
+                  :healer false
+                  :beast false
+                  :brass-key false
+                  :silver-key false
+                  :gold-key false
+                  :pegasus false
+                  :sword false)))
 
 (defn initialize-game [players difficulty]
-  (let [init-players (map initialize-player players)]
+  (let [multiplayer? (> (count players) 1)
+        init-players (map (partial initialize-player multiplayer?) players)]
     {:players init-players
      :player-order (vec (map :uid init-players))
      :current-player (:uid (first init-players))

@@ -6,13 +6,13 @@
             [darktower.server.schema :as schema]
             [darktower.server.game.main :refer [roll-d100 roll-dn]]))
 
-;; TODO: uncomment test once dark tower integration testing done
-#_(deftest initialize-player-test
+(deftest initialize-player-test
   (testing "Player is initialized with proper warriors, gold, food, and location"
     (let [expected (merge player {:current-territory {:kingdom :arisilon :row 5 :idx 3}
                                   :warriors 10
                                   :gold 30
                                   :food 25
+                                  :multiplayer? false
                                   :move-count 0
                                   :scout false
                                   :healer false
@@ -23,6 +23,24 @@
                                   :pegasus false
                                   :sword false})
           actual (initialize-player player)]
+      (is (= expected actual))
+      (s/validate schema/Player actual)))
+  (testing "Player can be initialized as part of multiplayer game"
+    (let [expected (merge player {:current-territory {:kingdom :arisilon :row 5 :idx 3}
+                                  :warriors 10
+                                  :gold 30
+                                  :food 25
+                                  :multiplayer? true
+                                  :move-count 0
+                                  :scout false
+                                  :healer false
+                                  :beast false
+                                  :brass-key false
+                                  :silver-key false
+                                  :gold-key false
+                                  :pegasus false
+                                  :sword false})
+          actual (initialize-player true player)]
       (is (= expected actual))
       (s/validate schema/Player actual))))
 

@@ -10,6 +10,7 @@
 (def Player
   {:uid s/Str
    :name s/Str
+   :multiplayer? s/Bool
    :kingdom s/Keyword
    :warriors s/Int
    :gold s/Int
@@ -23,6 +24,7 @@
    :pegasus s/Bool
    :sword s/Bool
    :current-territory Territory
+   :move-count s/Int
    (s/optional-key :last-territory) Territory
    (s/optional-key :encounter-result) s/Keyword
    (s/optional-key :extra-turn) s/Bool})
