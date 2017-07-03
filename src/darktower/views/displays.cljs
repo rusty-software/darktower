@@ -16,6 +16,21 @@
     [:div
      (buttons/display-end-button)]))
 
+(defn player-select []
+  ;; TODO: onchange handler, populate from players in atom
+  [:div
+   "Cursing:"
+   [:select
+    [:option {:value 1} "fake 1"]
+    [:option {:value 2} "fake 2"]
+    [:option {:value 3} "fake 3"]]])
+
+(defn wizard-display []
+  [:div
+   [:span "Click End Turn to curse no one."]
+   (player-select)
+   (buttons/display-wizard-buttons)])
+
 (defn dark-tower-display [dark-tower-status]
   [:div
    [:span "Does this key fit the lock?"]
@@ -51,6 +66,9 @@
                 [:img {:src image
                        :style {:margin "5px"}}])))
           (cond
+            (= awarded :wizard)
+            (wizard-display)
+
             (#{:battle :fighting-won-round :fighting-lost-round :dark-tower-won-round :dark-tower-lost-round} encounter-result)
             (battle-display warriors brigands)
 

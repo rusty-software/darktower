@@ -151,19 +151,7 @@
    "Start Game"])
 
 (defn kingdom-marker [kingdom size loc r w]
-  [:text (str " of " (name kingdom))]
-  #_(let [stroke (second (color constants/colors))
-        fill (first (color constants/colors))]
-    [:svg
-     {:height (to-scale size)
-      :width (to-scale size)}
-     [:circle
-      {:cx (to-scale loc)
-       :cy (to-scale loc)
-       :r (to-scale r)
-       :stroke stroke
-       :stroke-width (to-scale w)
-       :fill fill}]]))
+  [:text (str " of " (name kingdom))])
 
 (defn initializing-table-rows []
   [[:tr

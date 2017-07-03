@@ -43,6 +43,13 @@
     :on-click #(communication/haggle)}
    "Haggle"])
 
+(defn curse-button []
+  [:button
+   {:id "btn-yes"
+    :class "button yes"
+    :on-click #(communication/curse)}
+   "Curse"])
+
 (defn no-button []
   [:button
    {:id "btn-no"
@@ -70,6 +77,9 @@
 
 (defn display-bazaar-buttons []
   (display-buttons [next-button buy-button haggle-button end-turn-button]))
+
+(defn display-wizard-buttons []
+  (display-buttons [curse-button end-turn-button]))
 
 (defn display-riddle-buttons []
   (display-buttons [no-button yes-button end-turn-button]))

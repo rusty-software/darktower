@@ -55,6 +55,9 @@
 (defn haggle []
   (chsk-send! [:darktower/haggle {:token (get-in @model/game-state [:server-state :token])}]))
 
+(defn curse []
+  (println "TODO: wire up curse message to server"))
+
 (defn next-key []
   (chsk-send! [:darktower/next-key {:token (get-in @model/game-state [:server-state :token])}]))
 
