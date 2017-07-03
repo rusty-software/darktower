@@ -121,6 +121,17 @@
     (let [players (get-in @model/app-state [token :players])]
       (broadcast-game-state players [:darktower/bazaar (get @model/app-state token)]))))
 
+(defmethod event :darktower/curse [{:keys [uid ?data]}]
+  (let [{:keys [token cursed-player]} ?data]
+    (log/info "?data" ?data)
+    (let [players (get-in @model/app-state [token :players])]
+      (broadcast-game-state players [:darktower/turn-ended (get @model/app-state token)]))))
+
+(defmethod event :darktower/skip-curse [{:keys [uid ?data]}]
+  (let [{:keys [token]} ?data]
+    (let [players (get-in @model/app-state [token :players])]
+      (broadcast-game-state players [:darktower/turn-ended (get @model/app-state token)]))))
+
 (defmethod event :darktower/next-key [{:keys [uid ?data]}]
   (let [{:keys [token]} ?data]
     (model/next-key! uid token)

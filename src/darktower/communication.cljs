@@ -57,10 +57,11 @@
 
 ;; TODO: curse wiring
 (defn curse []
-  (println "TODO: wire up curse message to server"))
+  (chsk-send! [:darktower/curse {:token (get-in @model/game-state [:server-state :token])
+                                 :cursed-player (:selected-player @model/game-state)}]))
 
 (defn skip-curse []
-  (println "TODO: wire up skip-curse message to server"))
+  (chsk-send! [:darktower/skip-curse {:token (get-in @model/game-state [:server-state :token])}]))
 
 (defn next-key []
   (chsk-send! [:darktower/next-key {:token (get-in @model/game-state [:server-state :token])}]))
