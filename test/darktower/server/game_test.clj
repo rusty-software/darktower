@@ -235,6 +235,42 @@
           actual (dragon-attack player dragon-hoard)]
       (is (= expected actual)))))
 
+(deftest curse-test
+  (testing "Curse takes 25% (rounded down) of cursed player's warriors and gold and adds them to cursing players inventory"
+    (let [player (assoc player :warriors 10 :gold 10)
+          curser {:warriors 10 :gold 10}
+          expected {:cursed-player (assoc player :warriors 8 :gold 8 :encounter-result :cursed)
+                    :curser {:warriors 12 :gold 12 :encounter-result :curser}}
+          actual (curse player curser)]
+      (is (= expected actual))))
+  (testing "Curse always takes at least one where possible"
+    (let [player (assoc player :warriors 2 :gold 2)
+          curser {:warriors 10 :gold 10}
+          expected {:cursed-player (assoc player :encounter-result :cursed
+                                          :warriors 1
+                                          :gold 1)
+                    :curser {:warriors 11 :gold 11 :encounter-result :curser}}
+          actual (curse player curser)]
+      (is (= expected actual))))
+  (testing "Warrior count cannot drop below 1"
+    (let [player (assoc player :warriors 1 :gold 1)
+          curser {:warriors 10 :gold 10}
+          expected {:cursed-player (assoc player :encounter-result :cursed
+                                          :warriors 1
+                                          :gold 1)
+                    :curser {:warriors 10 :gold 10 :encounter-result :curser}}
+          actual (curse player curser)]
+      (is (= expected actual))))
+  (testing "Warrior and gold counts cannot exceed 99"
+    (let [player (assoc player :warriors 99 :gold 99)
+          curser {:warriors 70 :gold 70}
+          expected {:cursed-player (assoc player :encounter-result :cursed
+                                          :warriors 75
+                                          :gold 75)
+                    :curser {:warriors 94 :gold 94 :encounter-result :curser}}
+          actual (curse player curser)]
+      (is (= expected actual)))))
+
 (deftest feed-test
   (testing "Food level reduced by appropriate amounts"
     (is (zero? (:food (feed {:warriors 1 :food 1}))))

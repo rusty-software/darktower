@@ -55,7 +55,6 @@
 (defn haggle []
   (chsk-send! [:darktower/haggle {:token (get-in @model/game-state [:server-state :token])}]))
 
-;; TODO: curse wiring
 (defn curse []
   (chsk-send! [:darktower/curse {:token (get-in @model/game-state [:server-state :token])
                                  :cursed-player (:selected-player @model/game-state)}]))

@@ -124,8 +124,9 @@
 (defmethod event :darktower/curse [{:keys [uid ?data]}]
   (let [{:keys [token cursed-player]} ?data]
     (log/info "?data" ?data)
+    (model/curse-player! uid token cursed-player)
     (let [players (get-in @model/app-state [token :players])]
-      (broadcast-game-state players [:darktower/turn-ended (get @model/app-state token)]))))
+      (broadcast-game-state players [:darktower/player-cursed (get @model/app-state token)]))))
 
 (defmethod event :darktower/skip-curse [{:keys [uid ?data]}]
   (let [{:keys [token]} ?data]
