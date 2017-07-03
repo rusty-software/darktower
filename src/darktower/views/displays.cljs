@@ -1,5 +1,6 @@
 (ns darktower.views.displays
-  (:require [darktower.views.buttons :as buttons]))
+  (:require [darktower.views.buttons :as buttons]
+            [darktower.model :as model]))
 
 (defn battle-display [warriors brigands]
   [:div
@@ -16,19 +17,20 @@
     [:div
      (buttons/display-end-button)]))
 
-(defn player-select []
-  ;; TODO: onchange handler, populate from players in atom
+(defn player-select [current-player]
+  ;; TODO: onchange handler
   [:div
    "Cursing:"
    [:select
-    [:option {:value 1} "fake 1"]
-    [:option {:value 2} "fake 2"]
-    [:option {:value 3} "fake 3"]]])
+    (for [{:keys [name]} (get-in @model/game-state [:server-state :players])]
+      (when (not= name (:name current-player))
+        ^{:key (str "select-" name)}
+        [:option {:value name} name]))]])
 
-(defn wizard-display []
+(defn wizard-display [current-player]
   [:div
    [:span "Click End Turn to curse no one."]
-   (player-select)
+   (player-select current-player)
    (buttons/display-wizard-buttons)])
 
 (defn dark-tower-display [dark-tower-status]
@@ -58,6 +60,7 @@
                              (= :bazaar encounter-result) (:current-item bazaar-inventory)
                              (= :dark-tower encounter-result) (:current-key dark-tower-status)
                              (= "Key missing!" message) :key-missing
+                             (and (= :safe-move encounter-result) (:wizard current-player)) :wizard
                              :else encounter-result)
                 images (get-in encounter-result-specs [images-key :images])]
             (for [image images]
@@ -66,8 +69,8 @@
                 [:img {:src image
                        :style {:margin "5px"}}])))
           (cond
-            (= awarded :wizard)
-            (wizard-display)
+            (or (= awarded :wizard) (and (= :safe-move encounter-result) (:wizard current-player)))
+            (wizard-display current-player)
 
             (#{:battle :fighting-won-round :fighting-lost-round :dark-tower-won-round :dark-tower-lost-round} encounter-result)
             (battle-display warriors brigands)
