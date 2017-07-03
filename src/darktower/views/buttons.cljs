@@ -45,10 +45,17 @@
 
 (defn curse-button []
   [:button
-   {:id "btn-yes"
-    :class "button yes"
+   {:id "btn-curse"
+    :class "button haggle"
     :on-click #(communication/curse)}
    "Curse"])
+
+(defn skip-curse-button []
+  [:button
+   {:id "btn-skip"
+    :class "button next"
+    :on-click #(communication/skip-curse)}
+   "Curse no one"])
 
 (defn no-button []
   [:button
@@ -79,7 +86,7 @@
   (display-buttons [next-button buy-button haggle-button end-turn-button]))
 
 (defn display-wizard-buttons []
-  (display-buttons [curse-button end-turn-button]))
+  (display-buttons [curse-button skip-curse-button end-turn-button]))
 
 (defn display-riddle-buttons []
   (display-buttons [no-button yes-button end-turn-button]))

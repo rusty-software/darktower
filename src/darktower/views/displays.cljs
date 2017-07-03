@@ -18,19 +18,24 @@
      (buttons/display-end-button)]))
 
 (defn player-select [current-player]
-  ;; TODO: onchange handler
   [:div
    "Cursing:"
-   [:select
-    (for [{:keys [name]} (get-in @model/game-state [:server-state :players])]
-      (when (not= name (:name current-player))
-        ^{:key (str "select-" name)}
-        [:option {:value name} name]))]])
+   [:select {:on-change #(model/select-player! (.. % -target -value))}
+    (for [{:keys [name uid]} (get-in @model/game-state [:server-state :players])]
+      (when (not= uid (:uid current-player))
+        ^{:key (str "select-" uid)}
+        [:option {:value uid} name]))]])
+
+(defn player-name-text [current-player]
+  (let [other-player (first (filter #(not= (:uid current-player) (:uid %)) (get-in @model/game-state [:server-state :players])))]
+    (model/select-player! (:uid other-player))
+    [:div (str "Cursing: " (:name other-player))]))
 
 (defn wizard-display [current-player]
   [:div
-   [:span "Click End Turn to curse no one."]
-   (player-select current-player)
+   (if (> (get-in @model/game-state [:server-state :players]) 2)
+     (player-select current-player)
+     (player-name-text current-player))
    (buttons/display-wizard-buttons)])
 
 (defn dark-tower-display [dark-tower-status]

@@ -18,3 +18,6 @@
 
 (defn update-server-state! [server-state]
   (swap! game-state assoc :server-state server-state))
+
+(defn select-player! [uid]
+  (swap! game-state assoc :selected-player uid))
