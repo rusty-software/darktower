@@ -157,11 +157,25 @@
 (defn buy-item! [uid token]
   (swap! app-state buy-item uid token))
 
+(defn replace-player [players updated-player]
+  (prn 'players players)
+  (prn 'updated-player updated-player)
+  (as-> players ps
+        (remove #(= (:uid updated-player) (:uid %)) ps)
+        (conj ps updated-player))
+  #_(conj (remove #(= (:uid updated-player) (:uid %)) players) (:player updated-player)))
+
 (defn curse-player [app-state uid token cursed-player-uid]
   (let [game-state (get app-state token)]
     (if (= uid (:current-player game-state))
       (let [player (player-by-uid game-state uid)
-            updated-player player #_(game/buy-item player)
+            cursed-player (player-by-uid game-state cursed-player-uid)
+            {updated-player :curser cursed-player :cursed-player} (game/curse cursed-player player)
+            cursed-player (assoc cursed-player :uid cursed-player-uid)
+            players (:players game-state)
+            updated-players (-> (:players game-state)
+                                (replace-player updated-player)
+                                (replace-player cursed-player))
             updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player updated-player)))]
         (assoc app-state token updated-game-state))
       app-state)))
