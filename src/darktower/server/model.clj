@@ -172,11 +172,10 @@
             cursed-player (player-by-uid game-state cursed-player-uid)
             {updated-player :curser cursed-player :cursed-player} (game/curse cursed-player player)
             cursed-player (assoc cursed-player :uid cursed-player-uid)
-            players (:players game-state)
             updated-players (-> (:players game-state)
                                 (replace-player updated-player)
                                 (replace-player cursed-player))
-            updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player updated-player)))]
+            updated-game-state (assoc game-state :players updated-players)]
         (assoc app-state token updated-game-state))
       app-state)))
 
