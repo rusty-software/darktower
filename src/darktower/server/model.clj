@@ -170,7 +170,7 @@
     (if (= uid (:current-player game-state))
       (let [player (player-by-uid game-state uid)
             cursed-player (player-by-uid game-state cursed-player-uid)
-            {updated-player :curser cursed-player :cursed-player} (game/curse cursed-player player)
+            {updated-player :cursor cursed-player :cursed-player} (game/curse cursed-player player)
             cursed-player (assoc cursed-player :uid cursed-player-uid)
             updated-players (-> (:players game-state)
                                 (replace-player updated-player)

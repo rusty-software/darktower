@@ -137,17 +137,17 @@
                                :gold (- gold gold-taken))
          :dragon-hoard {:warriors (+ dragon-warriors warriors-taken) :gold (+ dragon-gold gold-taken)}}))))
 
-(defn curse [cursed-player curser]
+(defn curse [cursed-player cursor]
   (let [{cursed-player-warriors :warriors cursed-player-gold :gold} cursed-player
-        {curser-warriors :warriors curser-gold :gold} curser
+        {cursor-warriors :warriors cursor-gold :gold} cursor
         warriors-taken (if (= 1 cursed-player-warriors) 0 (max 1 (int (* 0.25 cursed-player-warriors))))
         gold-taken (if (= 1 cursed-player-gold) 0 (max 1 (int (* 0.25 cursed-player-gold))))]
     {:cursed-player (assoc cursed-player :warriors (- cursed-player-warriors warriors-taken)
                                          :gold (- cursed-player-gold gold-taken)
                                          :encounter-result :cursed)
-     :curser (assoc curser :warriors (min 99 (+ curser-warriors warriors-taken))
-                           :gold (min 99 (+ curser-gold gold-taken))
-                           :encounter-result :curser)}))
+     :cursor (assoc cursor :warriors (min 99 (+ cursor-warriors warriors-taken))
+                           :gold (min 99 (+ cursor-gold gold-taken))
+                           :encounter-result :cursor)}))
 
 (defn encounter-roll-result [roll]
   (cond
