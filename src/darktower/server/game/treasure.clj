@@ -28,8 +28,8 @@
      #{:gold :key :pegasus :sword}))
 
 (defn treasure-type [roll multiplayer?]
-  :wizard
-  #_(cond
+  #_:wizard
+  (cond
     (<= roll 30) :gold
     (<= 31 roll 50) :key
     (<= 51 roll 70) :pegasus

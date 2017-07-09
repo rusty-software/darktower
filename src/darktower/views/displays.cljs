@@ -7,6 +7,7 @@
    [:span (str warriors " warriors; " brigands " brigands")]
    (buttons/display-battle-buttons)])
 
+;; TODO: Remove buttons after item is bought
 (defn bazaar-display [bazaar-inventory insufficient-funds?]
   (if (not (:closed? bazaar-inventory))
     [:div

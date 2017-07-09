@@ -65,6 +65,11 @@
         updated-game-state (assoc game-state :current-player next)]
     (assoc app-state token updated-game-state)))
 
+(defn replace-player [players updated-player]
+  (as-> players ps
+        (remove #(= (:uid updated-player) (:uid %)) ps)
+        (conj ps updated-player)))
+
 (defn move [app-state uid token destination]
   (let [game-state (get app-state token)]
     (if (= uid (:current-player game-state))
@@ -84,10 +89,10 @@
                                      (assoc :dragon-hoard (:dragon-hoard encounter-result))
 
                                      :always
-                                     (assoc :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player encounter-result))))]
+                                     (assoc :players (replace-player (:players game-state) (:player encounter-result))))]
             (assoc app-state token updated-game-state))
           (let [updated-player (merge (assoc player :encounter-result :invalid-move) validation)
-                updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) updated-player))]
+                updated-game-state (assoc game-state :players (replace-player (:players game-state) updated-player))]
             (assoc app-state token updated-game-state))))
       app-state)))
 
@@ -102,7 +107,7 @@
     (if (= uid (:current-player game-state))
       (let [player (dissoc (player-by-uid game-state uid) :message)
             updated-player (game/fight player)
-            updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player updated-player)))]
+            updated-game-state (assoc game-state :players (replace-player (:players game-state) (:player updated-player)))]
         (assoc app-state token updated-game-state))
       app-state)))
 
@@ -114,7 +119,7 @@
     (if (= uid (:current-player game-state))
       (let [player (player-by-uid game-state uid)
             flee-result (game/flee player)
-            updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player flee-result)))]
+            updated-game-state (assoc game-state :players (replace-player (:players game-state) (:player flee-result)))]
         (assoc app-state token updated-game-state))
       app-state)))
 
@@ -126,7 +131,7 @@
     (if (= uid (:current-player game-state))
       (let [player (player-by-uid game-state uid)
             updated-player (game/next-item player)
-            updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player updated-player)))]
+            updated-game-state (assoc game-state :players (replace-player (:players game-state) (:player updated-player)))]
         (assoc app-state token updated-game-state))
       app-state)))
 
@@ -138,7 +143,7 @@
     (if (= uid (:current-player game-state))
       (let [player (player-by-uid game-state uid)
             updated-player (game/haggle player)
-            updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player updated-player)))]
+            updated-game-state (assoc game-state :players (replace-player (:players game-state) (:player updated-player)))]
         (assoc app-state token updated-game-state))
       app-state)))
 
@@ -150,20 +155,12 @@
     (if (= uid (:current-player game-state))
       (let [player (player-by-uid game-state uid)
             updated-player (game/buy-item player)
-            updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player updated-player)))]
+            updated-game-state (assoc game-state :players (replace-player (:players game-state) (:player updated-player)))]
         (assoc app-state token updated-game-state))
       app-state)))
 
 (defn buy-item! [uid token]
   (swap! app-state buy-item uid token))
-
-(defn replace-player [players updated-player]
-  (prn 'players players)
-  (prn 'updated-player updated-player)
-  (as-> players ps
-        (remove #(= (:uid updated-player) (:uid %)) ps)
-        (conj ps updated-player))
-  #_(conj (remove #(= (:uid updated-player) (:uid %)) players) (:player updated-player)))
 
 (defn curse-player [app-state uid token cursed-player-uid]
   (let [game-state (get app-state token)]
@@ -187,7 +184,7 @@
     (if (= uid (:current-player game-state))
       (let [player (player-by-uid game-state uid)
             updated-player (game/next-key player)
-            updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player updated-player)))]
+            updated-game-state (assoc game-state :players (replace-player (:players game-state) (:player updated-player)))]
         (assoc app-state token updated-game-state))
       app-state)))
 
@@ -200,7 +197,7 @@
       (let [player (player-by-uid game-state uid)
             riddle-of-the-keys (:riddle-of-the-keys game-state)
             updated-player (game/try-key riddle-of-the-keys player)
-            updated-game-state (assoc game-state :players (conj (remove #(= uid (:uid %)) (:players game-state)) (:player updated-player)))]
+            updated-game-state (assoc game-state :players (replace-player (:players game-state) (:player updated-player)))]
         (assoc app-state token updated-game-state))
       app-state)))
 
