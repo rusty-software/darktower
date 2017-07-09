@@ -75,6 +75,7 @@
    :scout {:images ["img/scout.jpg"]}
    :healer {:images ["img/healer.jpg"]}
    :wizard {:images ["img/wizard.jpg"]}
+   :cursed {:images ["img/cursed.jpg"]}
    :key-missing {:images ["img/keymissing.jpg"]}
    :brass-key {:images ["img/brasskey.jpg"]}
    :silver-key {:images ["img/silverkey.jpg"]}
