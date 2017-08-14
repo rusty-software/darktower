@@ -7,6 +7,7 @@
             [darktower.views.displays :as displays]
             [darktower.views.board :as board]))
 
+;; TODO: curser view is a bit broken on end turn
 ;; TODO: picking the wrong key on dark tower should end your turn
 
 (defn game-area []

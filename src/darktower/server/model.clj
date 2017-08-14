@@ -64,13 +64,18 @@
         (remove #(= (:uid updated-player) (:uid %)) ps)
         (conj ps updated-player)))
 
+(defn clear-last-encounter [game-state player-id]
+  (let [player (player-by-uid game-state player-id)]
+    (if (= :cursed (:encounter-result player))
+      player
+      (dissoc player :encounter-result))))
+
 (defn rotate-current-player [app-state token]
   (let [game-state (get app-state token)
         next (next-player (:current-player game-state) (:player-order game-state))
-        updated-game-state (as-> (player-by-uid game-state next) p
-                                 (dissoc p :encounter-result)
-                                 (assoc game-state :current-player next
-                                                   :players (replace-player (:players game-state) p)))]
+        updated-player (clear-last-encounter game-state next)
+        updated-game-state (assoc game-state :current-player next
+                                             :players (replace-player (:players game-state) updated-player))]
     (assoc app-state token updated-game-state)))
 
 (defn move [app-state uid token destination]
