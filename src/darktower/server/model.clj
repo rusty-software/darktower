@@ -59,16 +59,19 @@
       (get player-order 0)
       (get player-order (inc current-player-index)))))
 
-(defn rotate-current-player [app-state token]
-  (let [game-state (get app-state token)
-        next (next-player (:current-player game-state) (:player-order game-state))
-        updated-game-state (assoc game-state :current-player next)]
-    (assoc app-state token updated-game-state)))
-
 (defn replace-player [players updated-player]
   (as-> players ps
         (remove #(= (:uid updated-player) (:uid %)) ps)
         (conj ps updated-player)))
+
+(defn rotate-current-player [app-state token]
+  (let [game-state (get app-state token)
+        next (next-player (:current-player game-state) (:player-order game-state))
+        updated-game-state (as-> (player-by-uid game-state next) p
+                                 (dissoc p :encounter-result)
+                                 (assoc game-state :current-player next
+                                                   :players (replace-player (:players game-state) p)))]
+    (assoc app-state token updated-game-state)))
 
 (defn move [app-state uid token destination]
   (let [game-state (get app-state token)]

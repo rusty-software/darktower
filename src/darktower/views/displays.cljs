@@ -51,7 +51,7 @@
 
 (defn current-player-display [encounter-result-specs current-player]
   [:div
-   [:text "Your turn."]
+   [:text "Your turn. (reminder: go clockwise)"]
    [:br]
    [:div
     {:class "dt-display"}
